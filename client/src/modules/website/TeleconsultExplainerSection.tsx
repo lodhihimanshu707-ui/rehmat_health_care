@@ -26,7 +26,7 @@ export function TeleconsultExplainerSection({
       icon: Video,
       title: "1-Click HD Video Consultation",
       description:
-        "Pick Dr. Rehmat Ali, Dr. Sana Khan, or Dr. Tariq and tap 'Video Call'. Connect immediately via secure WebRTC video without waiting rooms.",
+        "Tap 'Video Call' to connect directly with Dr. Raees Akhtar via secure WebRTC video without waiting rooms.",
     },
     {
       num: "03",
@@ -121,7 +121,7 @@ export function TeleconsultExplainerSection({
               <ul className="space-y-3 text-xs text-emerald-100 font-semibold">
                 <li className="flex items-start gap-2.5">
                   <span className="text-emerald-400 font-bold">✓</span>
-                  <span>Pay strictly per minute (₹15/min for Dr. Rehmat Ali)</span>
+                  <span>Pay strictly per minute (₹15/min for Dr. Raees Akhtar)</span>
                 </li>
                 <li className="flex items-start gap-2.5">
                   <span className="text-emerald-400 font-bold">✓</span>

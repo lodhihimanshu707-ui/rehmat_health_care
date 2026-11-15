@@ -106,13 +106,13 @@ export function AboutSection() {
                 <div className="h-14 w-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-5">
                   <Stethoscope className="h-7 w-7" />
                 </div>
-                <h4 className="text-lg font-black text-slate-900">Experienced Physicians</h4>
+                <h4 className="text-lg font-black text-slate-900">Experienced Physician</h4>
                 <p className="mt-2.5 text-xs text-slate-600 leading-relaxed font-normal">
-                  Led by Dr. Rehmat Ali (MD Medicine) with over 15+ years managing chronic diseases, diabetes, hypertension, and acute infections.
+                  Led by Dr. Raees Akhtar (MD Medicine) with over 10+ years in healthcare, managing general illnesses, fevers, diabetes, and hypertension.
                 </p>
               </div>
               <div className="mt-4 pt-3 border-t border-slate-100 text-[11px] font-bold text-emerald-700">
-                15+ Years Clinical Practice
+                10+ Years in Healthcare (Est. 2016)
               </div>
             </div>
 

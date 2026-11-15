@@ -59,17 +59,12 @@ export function Footer() {
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
                 <a href="#services" className="hover:text-emerald-400 transition-colors">
-                  General Medicine (Dr. Rehmat Ali)
+                  General Medicine (Dr. Raees Akhtar)
                 </a>
               </li>
               <li>
                 <a href="#services" className="hover:text-emerald-400 transition-colors">
-                  Gynecology & Obstetrics (Dr. Sana Khan)
-                </a>
-              </li>
-              <li>
-                <a href="#services" className="hover:text-emerald-400 transition-colors">
-                  Pediatrics & Child Care
+                  Family Practice & Seasonal Illness
                 </a>
               </li>
               <li>
@@ -87,6 +82,11 @@ export function Footer() {
                   24/7 Video Teleconsultation
                 </a>
               </li>
+              <li>
+                <a href="#services" className="hover:text-emerald-400 transition-colors">
+                  Digital WhatsApp Prescriptions
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -98,12 +98,12 @@ export function Footer() {
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
                 <a href="#about" className="hover:text-emerald-400 transition-colors">
-                  About Dr. Rehmat Ali & Clinic
+                  About Dr. Raees Akhtar & Clinic
                 </a>
               </li>
               <li>
                 <a href="#doctors" className="hover:text-emerald-400 transition-colors">
-                  Our Senior Doctors Roster
+                  Meet Dr. Raees Akhtar (Chief Physician)
                 </a>
               </li>
               <li>

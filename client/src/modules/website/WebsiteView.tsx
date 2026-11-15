@@ -30,7 +30,7 @@ export function WebsiteView({ onNavigateTab, onOpenChat }: WebsiteViewProps) {
   const { startOutgoingCall } = useCallStore();
 
   const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
-  const [selectedDoctorForModal, setSelectedDoctorForModal] = useState("Dr. Rehmat Ali");
+  const [selectedDoctorForModal, setSelectedDoctorForModal] = useState("Dr. Raees Akhtar");
 
   const isPatient = currentUser.role === "patient";
 
@@ -97,8 +97,8 @@ export function WebsiteView({ onNavigateTab, onOpenChat }: WebsiteViewProps) {
 
       {/* 3. Clinical Specialities */}
       <ServicesSection
-        onSelectService={(serviceName) => {
-          setSelectedDoctorForModal(serviceName.includes("Gynecology") ? "Dr. Sana Khan" : "Dr. Rehmat Ali");
+        onSelectService={() => {
+          setSelectedDoctorForModal("Dr. Raees Akhtar");
           setIsAppointmentModalOpen(true);
         }}
       />

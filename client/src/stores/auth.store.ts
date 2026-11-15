@@ -25,12 +25,12 @@ export const DEMO_PATIENT: AuthUser = {
 
 export const DEMO_DOCTOR: AuthUser = {
   id: "b1000000-0000-0000-0000-000000000001",
-  name: "Dr. Rehmat Ali",
+  name: "Dr. Raees Akhtar",
   phone: "+91 98370 12345",
-  email: "dr.rehmat@rehmathealthcare.com",
+  email: "dr.raees@rehmathealthcare.com",
   role: "doctor",
   avatarUrl: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&auto=format&fit=crop&q=80",
-  subtitle: "MBBS, MD - Senior Physician (₹15/min)",
+  subtitle: "MBBS, MD - General Physician (₹15/min)",
 };
 
 export interface RegisterPayload {

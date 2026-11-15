@@ -144,9 +144,9 @@ export function HeroSection({ onStartTeleconsult, onBookAppointment }: HeroSecti
                     />
                   </div>
                   <div>
-                    <h3 className="font-extrabold text-slate-900 text-lg">Dr. Rehmat Ali</h3>
+                    <h3 className="font-extrabold text-slate-900 text-lg">Dr. Raees Akhtar</h3>
                     <p className="text-xs text-emerald-700 font-bold">MBBS, MD (General Medicine)</p>
-                    <p className="text-[11px] text-slate-500 font-medium">Chief Medical Consultant • 15+ Yrs Exp</p>
+                    <p className="text-[11px] text-slate-500 font-medium">Chief Medical Consultant • 10+ Yrs Exp (Est. 2016)</p>
                   </div>
                 </div>
                 <div className="text-right">
@@ -155,7 +155,7 @@ export function HeroSection({ onStartTeleconsult, onBookAppointment }: HeroSecti
                   </span>
                   <div className="flex items-center gap-1 text-xs text-amber-500 font-bold mt-1 justify-end">
                     <Star className="h-3.5 w-3.5 fill-current" />
-                    <span>4.9 (420+ reviews)</span>
+                    <span>4.5 (8+ Justdial Reviews)</span>
                   </div>
                 </div>
               </div>

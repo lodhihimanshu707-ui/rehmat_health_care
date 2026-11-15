@@ -25,7 +25,7 @@ export function BillingHUD() {
         </span>
         <div className="flex flex-col">
           <span className="text-xs font-bold leading-tight">
-            {activeConsultation.doctorName || "Dr. Rehmat Ali"}
+            {activeConsultation.doctorName || "Dr. Raees Akhtar"}
           </span>
           <span className="text-[10px] text-emerald-300">
             {activeConsultation.doctorSpecialization || "General Physician"}

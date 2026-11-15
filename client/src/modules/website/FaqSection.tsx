@@ -25,7 +25,7 @@ export function FaqSection() {
     },
     {
       q: "How does the per-minute online video consultation work?",
-      a: "Unlike traditional clinics that charge upfront consultation fees of ₹500+, Rehmat Health Care allows you to pay strictly for the minutes you talk (e.g. ₹15/min for Dr. Rehmat Ali). You add credits to your Health Wallet (e.g. ₹100), click 'Video Consult', and talk. An on-screen timer tracks elapsed time. When the call ends, your balance is deducted for the exact duration. Unused credits never expire!",
+      a: "Unlike traditional clinics that charge upfront consultation fees of ₹500+, Rehmat Health Care allows you to pay strictly for the minutes you talk (e.g. ₹15/min for Dr. Raees Akhtar). You add credits to your Health Wallet (e.g. ₹100), click 'Video Consult', and talk. An on-screen timer tracks elapsed time. When the call ends, your balance is deducted for the exact duration. Unused credits never expire!",
     },
     {
       q: "Are digital prescriptions valid at Moradabad pharmacies?",
