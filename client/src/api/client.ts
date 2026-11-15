@@ -12,10 +12,15 @@ const instance: AxiosInstance = axios.create({
   },
 });
 
-// Request Interceptor: attach active demo user ID header so backend RequestContext knows caller
+// Request Interceptor: attach JWT Bearer token & active user ID header
 instance.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     try {
+      const token = localStorage.getItem("rehmat_auth_token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+
       const currentUser = useAuthStore.getState().currentUser;
       if (currentUser?.id) {
         config.headers["x-user-id"] = currentUser.id;
@@ -27,7 +32,7 @@ instance.interceptors.request.use((config) => {
   return config;
 });
 
-// Response Interceptor: unwrap payload
+// Response Interceptor: unwrap payload & handle auth expiration
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
     // If backend returns { success: true, data: ... }
@@ -37,6 +42,12 @@ instance.interceptors.response.use(
     return response.data;
   },
   (error) => {
+    if (error.response?.status === 401 && typeof window !== "undefined") {
+      // If token expired, clear auth session
+      if (localStorage.getItem("rehmat_auth_token")) {
+        localStorage.removeItem("rehmat_auth_token");
+      }
+    }
     return Promise.reject(handleApiError(error));
   }
 );
@@ -57,4 +68,3 @@ export const apiClient = {
   delete: <T>(url: string, config?: AxiosRequestConfig): Promise<T> =>
     instance.delete(url, config) as unknown as Promise<T>,
 };
-

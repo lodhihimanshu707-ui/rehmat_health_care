@@ -7,15 +7,19 @@ import { VideoRoom } from "@/modules/consultation/VideoRoom";
 import { IncomingCallModal } from "@/modules/consultation/IncomingCallModal";
 import { CallSummaryModal } from "@/modules/consultation/CallSummaryModal";
 import { RechargeModal } from "@/modules/wallet/RechargeModal";
+import { AuthModal } from "@/modules/auth/AuthModal";
 import { useAuthStore } from "@/stores/auth.store";
 import { useCallStore } from "@/stores/call.store";
 import { getSocket, syncSocketUser } from "@/lib/socket";
 
 function SocketBootstrap() {
-  const { currentUser } = useAuthStore();
+  const { currentUser, checkAuth } = useAuthStore();
   const { receiveIncomingCall } = useCallStore();
 
   useEffect(() => {
+    // Check if stored JWT exists on load
+    checkAuth();
+
     const socket = getSocket();
     syncSocketUser(currentUser.id);
 
@@ -43,7 +47,7 @@ function SocketBootstrap() {
     return () => {
       socket.off("incoming-call", handleIncomingCall);
     };
-  }, [currentUser.id, receiveIncomingCall]);
+  }, [currentUser.id, receiveIncomingCall, checkAuth]);
 
   return null;
 }
@@ -59,7 +63,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <IncomingCallModal />
       <CallSummaryModal />
       <RechargeModal />
+      <AuthModal />
     </QueryClientProvider>
   );
 }
-

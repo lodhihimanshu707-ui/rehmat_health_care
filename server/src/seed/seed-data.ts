@@ -1,21 +1,28 @@
 import { sequelize } from "../config/database.js";
 import { User, Doctor, Wallet, Transaction, Message } from "../models/index.js";
+import { hashPassword } from "../core/auth/jwt.util.js";
 
 export async function seedDatabase() {
   console.log("🌱 Syncing database schema with PostgreSQL...");
-  await sequelize.sync({ force: true });
+  // Sync schema without force drop to retain schema or update
+  await sequelize.sync({ alter: true });
   console.log("✅ Tables synced successfully.");
 
   console.log("🌱 Creating Rehmat Health Care Doctors & Demo Users...");
+  const defaultPasswordHash = await hashPassword("password123");
 
   // 1. Doctor: Dr. Rehmat Ali
-  const drRehmatUser = await User.create({
-    id: "b1000000-0000-0000-0000-000000000001",
-    name: "Dr. Rehmat Ali",
-    phone: "+91 98370 12345",
-    email: "dr.rehmat@rehmathealthcare.com",
-    role: "doctor",
-    avatarUrl: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&auto=format&fit=crop&q=80",
+  const [drRehmatUser] = await User.findOrCreate({
+    where: { id: "b1000000-0000-0000-0000-000000000001" },
+    defaults: {
+      id: "b1000000-0000-0000-0000-000000000001",
+      name: "Dr. Rehmat Ali",
+      phone: "+91 98370 12345",
+      email: "dr.rehmat@rehmathealthcare.com",
+      passwordHash: defaultPasswordHash,
+      role: "doctor",
+      avatarUrl: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&auto=format&fit=crop&q=80",
+    },
   });
 
   const drRehmat = await Doctor.create({

@@ -54,6 +54,18 @@ export class ForbiddenError extends BaseError {
   }
 }
 
+export class ConflictError extends BaseError {
+  readonly statusCode = 409;
+
+  constructor(message = "Resource already exists") {
+    super(message);
+  }
+
+  serializeErrors() {
+    return [{ message: this.message }];
+  }
+}
+
 export class PaymentRequiredError extends BaseError {
   readonly statusCode = 402;
 
@@ -77,4 +89,3 @@ export class InternalServerError extends BaseError {
     return [{ message: this.message }];
   }
 }
-

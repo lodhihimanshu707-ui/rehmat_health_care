@@ -213,3 +213,4 @@ export function ClinicTimingsSection({ onBookAppointment }: ClinicTimingsSection
     </section>
   );
 }
+

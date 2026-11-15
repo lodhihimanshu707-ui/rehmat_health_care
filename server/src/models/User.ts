@@ -6,6 +6,7 @@ export interface UserAttributes {
   name: string;
   phone: string;
   email?: string;
+  passwordHash?: string;
   role: "patient" | "doctor" | "admin";
   avatarUrl?: string;
   createdAt?: Date;
@@ -19,6 +20,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> implemen
   declare name: string;
   declare phone: string;
   declare email?: string;
+  declare passwordHash?: string;
   declare role: "patient" | "doctor" | "admin";
   declare avatarUrl?: string;
 
@@ -43,6 +45,10 @@ User.init(
       unique: true,
     },
     email: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    passwordHash: {
       type: DataTypes.STRING,
       allowNull: true,
     },

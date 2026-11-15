@@ -15,6 +15,9 @@ import {
   Clock,
   Video,
   MessageSquare,
+  LogIn,
+  LogOut,
+  User,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 
@@ -25,7 +28,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ activeTab, onTabChange }: NavbarProps) {
-  const { currentUser } = useAuthStore();
+  const { currentUser, isAuthenticated, openAuthModal, logout } = useAuthStore();
   const { cachedBalance, openRechargeModal } = useWalletStore();
   const isPatient = currentUser.role === "patient";
 
@@ -168,19 +171,9 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
           </button>
         </nav>
 
-        {/* Right Section: Balance, Fast Action & Role Switcher */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {/* Quick Teleconsult button */}
-          <Button
-            size="sm"
-            onClick={() => onTabChange("teleconsult")}
-            className="hidden sm:inline-flex bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs gap-1.5 h-8 px-3"
-          >
-            <Video className="h-3.5 w-3.5" />
-            <span>Consult (₹15/m)</span>
-          </Button>
-
-          {/* Patient Wallet Pill */}
+        {/* Right Section: Auth Button, Wallet & Demo Switcher */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Patient Wallet Pill (if patient) */}
           {isPatient && (
             <div className="flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/90 px-2.5 py-1">
               <WalletIcon className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
@@ -197,6 +190,36 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
                 <PlusCircle className="h-3.5 w-3.5" />
               </Button>
             </div>
+          )}
+
+          {/* Real Authentication Button */}
+          {isAuthenticated ? (
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2 py-1 text-xs">
+                <User className="h-3.5 w-3.5 text-emerald-600" />
+                <span className="font-semibold text-slate-800 max-w-[80px] truncate">
+                  {currentUser.name}
+                </span>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={logout}
+                className="h-7 w-7 p-0 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
+                title="Sign Out"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <Button
+              size="sm"
+              onClick={() => openAuthModal("login")}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs gap-1.5 h-8 px-3"
+            >
+              <LogIn className="h-3.5 w-3.5" />
+              <span>Sign In</span>
+            </Button>
           )}
 
           {/* Demo Role Switcher */}
