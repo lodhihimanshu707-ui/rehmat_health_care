@@ -1,13 +1,12 @@
 import { io, Socket } from "socket.io-client";
-import { useAuthStore } from "@/features/auth/store/use-auth-store";
-
-const SOCKET_URL = "http://localhost:5000";
+import { env } from "@/config/env";
+import { useAuthStore } from "@/stores/auth.store";
 
 let socketInstance: Socket | null = null;
 
 export function getSocket(): Socket {
   if (!socketInstance) {
-    socketInstance = io(SOCKET_URL, {
+    socketInstance = io(env.socketUrl, {
       autoConnect: true,
       reconnection: true,
       transports: ["websocket", "polling"],

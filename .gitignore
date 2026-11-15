@@ -1,6 +1,12 @@
 node_modules/
+client/node_modules/
+server/node_modules/
 dist/
 build/
+.next/
+client/.next/
+*.tsbuildinfo
+client/tsconfig.tsbuildinfo
 *.sqlite
 *.sqlite3
 *.log

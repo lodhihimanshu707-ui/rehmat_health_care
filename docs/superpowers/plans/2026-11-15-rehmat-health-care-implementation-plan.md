@@ -725,3 +725,4 @@ Project overview, architecture diagrams, step-by-step instructions to run the se
 git add client/src/App.tsx client/src/main.tsx README.md
 git commit -m "feat: complete rehmat health care teleconsultation platform integration"
 ```
+
