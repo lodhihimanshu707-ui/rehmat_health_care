@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronDown, HelpCircle } from "lucide-react";
+import { ChevronDown, HelpCircle, Sparkles } from "lucide-react";
 
 export function FaqSection() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
@@ -34,41 +34,51 @@ export function FaqSection() {
   ];
 
   return (
-    <section id="faq" className="py-16 sm:py-20 bg-slate-50 border-t border-slate-200/80">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6">
-        <div className="text-center">
-          <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wider text-emerald-800">
+    <section id="faq" className="py-20 sm:py-28 bg-slate-50 border-t border-slate-200/90 relative">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <div className="text-center space-y-4">
+          <span className="inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-emerald-800">
             Got Questions?
           </span>
-          <h2 className="mt-3 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">
+          <h2 className="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl lg:text-5xl">
             Frequently Asked Questions
           </h2>
-          <p className="mt-4 text-base text-slate-600">
+          <p className="text-base text-slate-600 max-w-2xl mx-auto font-normal">
             Everything you need to know about our clinic visits and online per-minute teleconsultation.
           </p>
         </div>
 
-        <div className="mt-12 space-y-3.5">
+        <div className="mt-14 space-y-4">
           {faqs.map((faq, idx) => {
             const isOpen = openIdx === idx;
             return (
               <div
                 key={idx}
-                className="rounded-2xl border border-slate-200 bg-white transition-all overflow-hidden"
+                className={`rounded-2xl border transition-all duration-200 overflow-hidden ${
+                  isOpen
+                    ? "border-emerald-300 bg-white shadow-md"
+                    : "border-slate-200/90 bg-white hover:border-slate-300 shadow-2xs"
+                }`}
               >
                 <button
                   onClick={() => setOpenIdx(isOpen ? null : idx)}
-                  className="flex w-full items-center justify-between p-5 text-left font-bold text-slate-900 hover:text-emerald-700 transition-colors"
+                  className="flex w-full items-center justify-between p-6 text-left font-black text-slate-900 hover:text-emerald-700 transition-colors"
                 >
-                  <span className="text-sm sm:text-base pr-4">{faq.q}</span>
-                  <ChevronDown
-                    className={`h-5 w-5 shrink-0 text-slate-400 transition-transform duration-200 ${
-                      isOpen ? "rotate-180 text-emerald-600" : ""
+                  <span className="text-sm sm:text-base pr-4 leading-snug">{faq.q}</span>
+                  <div
+                    className={`h-8 w-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      isOpen ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-500"
                     }`}
-                  />
+                  >
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </div>
                 </button>
                 {isOpen && (
-                  <div className="border-t border-slate-100 bg-slate-50/50 p-5 pt-3 text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <div className="border-t border-slate-100 bg-emerald-50/20 px-6 py-5 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
                     {faq.a}
                   </div>
                 )}
@@ -80,4 +90,3 @@ export function FaqSection() {
     </section>
   );
 }
-

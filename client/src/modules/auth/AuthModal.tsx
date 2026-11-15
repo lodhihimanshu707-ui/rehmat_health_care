@@ -342,3 +342,4 @@ export function AuthModal() {
     </Dialog>
   );
 }
+

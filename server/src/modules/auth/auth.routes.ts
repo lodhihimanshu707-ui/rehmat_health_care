@@ -14,3 +14,4 @@ router.get("/me", requireAuth, controller.me);
 router.post("/logout", controller.logout);
 
 export const authRoutes = router;
+
