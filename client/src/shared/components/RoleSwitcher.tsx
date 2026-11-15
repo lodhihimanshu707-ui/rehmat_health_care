@@ -27,7 +27,7 @@ export function RoleSwitcher() {
         )}
         <div className="flex flex-col text-left leading-none">
           <span className="text-xs font-bold text-slate-900 truncate max-w-[85px]">
-            {isPatient ? "Mohd. Imran" : "Dr. Rehmat"}
+            {isPatient ? "Rahul Sharma" : "Dr. Raees"}
           </span>
           <span className="text-[9px] text-slate-500 capitalize">{currentUser.role}</span>
         </div>

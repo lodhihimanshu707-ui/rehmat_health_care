@@ -7,12 +7,12 @@ export async function seedDatabase() {
   await sequelize.sync({ force: true });
   console.log("✅ All tables cleanly recreated.");
 
-  console.log("🌱 Creating Rehmat Health Care Sole Doctor & Demo User...");
+  console.log("🌱 Creating Rehmat Health Care Doctor (Dr. Raees Akhtar) & Generic Patients (Rahul Sharma, Priya Verma)...");
   const defaultPasswordHash = await hashPassword("password123");
 
   // 1. Sole Doctor: Dr. Raees Akhtar (General Physician & Family Medicine)
   const drRaeesUser = await User.create({
-    id: "3733b500-aedc-4b14-9d0a-99d20b190028",
+    id: "b1000000-0000-0000-0000-000000000001",
     name: "Dr. Raees Akhtar",
     phone: "+91 98370 12345",
     email: "dr.raees@rehmathealthcare.com",
@@ -22,7 +22,7 @@ export async function seedDatabase() {
   });
 
   const drRaees = await Doctor.create({
-    id: "d434e00d-1e38-42b5-b2d4-721139ad7183",
+    id: "b2000000-0000-0000-0000-000000000001",
     userId: drRaeesUser.id,
     specialization: "General Physician & Family Medicine",
     qualifications: "MBBS, MD (General Medicine)",
@@ -35,51 +35,86 @@ export async function seedDatabase() {
     about: "Chief Medical Consultant at Rehmat Health Care, Malviya Nagar, Moradabad. 10+ years dedicated experience in general medicine, seasonal infections, diabetes, hypertension, and primary healthcare.",
   });
 
-  // 2. Demo Patient: Mohd. Imran
-  const patientUser = await User.create({
-    id: "cce7b0cb-243c-4e1c-9b2a-214a74434f5e",
-    name: "Mohd. Imran",
+  // 2. Patient 1: Rahul Sharma (patient_1@rehmatcare.com)
+  const patient1User = await User.create({
+    id: "a1000000-0000-0000-0000-000000000001",
+    name: "Rahul Sharma",
     phone: "+91 94120 54321",
-    email: "imran.moradabad@gmail.com",
+    email: "patient_1@rehmatcare.com",
     passwordHash: defaultPasswordHash,
     role: "patient",
     avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80",
   });
 
-  // 3. Patient Wallet (Initial Balance ₹150 = 10 mins with Dr. Raees Akhtar)
-  const patientWallet = await Wallet.create({
-    id: "537a2db7-24fe-4bf2-82d8-69ccee929a77",
-    userId: patientUser.id,
+  const patient1Wallet = await Wallet.create({
+    id: "e1000000-0000-0000-0000-000000000001",
+    userId: patient1User.id,
     balance: 150.0,
     currency: "INR",
   });
 
-  // 4. Initial Wallet Transaction
   await Transaction.create({
-    id: "286790b5-b260-4aa4-b21f-c45e6d6ef45b",
-    walletId: patientWallet.id,
+    id: "f1000000-0000-0000-0000-000000000001",
+    walletId: patient1Wallet.id,
     type: "credit",
     amount: 150.0,
     paymentMethod: "UPI (Google Pay)",
-    referenceId: "TXN-INIT-001",
+    referenceId: "TXN-PAT1-001",
     status: "success",
     description: "Welcome Credits - Rehmat Health Care Teleconsultation",
   });
 
-  // 5. Initial Welcome Message
   await Message.create({
-    id: "1d0de862-2df0-4858-8914-a3e049c1318d",
+    id: "11000000-0000-0000-0000-000000000001",
     senderId: drRaeesUser.id,
-    receiverId: patientUser.id,
-    text: "Hello Mohd. Imran! Welcome to Rehmat Health Care. I am Dr. Raees Akhtar. You can initiate a live video consultation or message me here anytime for medical advice.",
+    receiverId: patient1User.id,
+    text: "Hello Rahul Sharma! Welcome to Rehmat Health Care. I am Dr. Raees Akhtar. You can initiate a live video consultation or message me here anytime for medical advice.",
+    isRead: false,
+  });
+
+  // 3. Patient 2: Priya Verma (patient_2@rehmatcare.com)
+  const patient2User = await User.create({
+    id: "a2000000-0000-0000-0000-000000000002",
+    name: "Priya Verma",
+    phone: "+91 94120 54322",
+    email: "patient_2@rehmatcare.com",
+    passwordHash: defaultPasswordHash,
+    role: "patient",
+    avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80",
+  });
+
+  const patient2Wallet = await Wallet.create({
+    id: "e2000000-0000-0000-0000-000000000002",
+    userId: patient2User.id,
+    balance: 200.0,
+    currency: "INR",
+  });
+
+  await Transaction.create({
+    id: "f2000000-0000-0000-0000-000000000002",
+    walletId: patient2Wallet.id,
+    type: "credit",
+    amount: 200.0,
+    paymentMethod: "UPI (PhonePe)",
+    referenceId: "TXN-PAT2-001",
+    status: "success",
+    description: "Welcome Credits - Rehmat Health Care Teleconsultation",
+  });
+
+  await Message.create({
+    id: "12000000-0000-0000-0000-000000000002",
+    senderId: drRaeesUser.id,
+    receiverId: patient2User.id,
+    text: "Hello Priya Verma! Dr. Raees Akhtar here from Rehmat Health Care. Feel free to consult or share your reports for review.",
     isRead: false,
   });
 
   console.log("🎉 Clean database reset and seed completed successfully!");
   console.log({
     tablesCreated: ["users", "doctors", "wallets", "transactions", "consultations", "messages"],
-    doctorSeeded: { name: drRaeesUser.name, rate: `₹${drRaees.ratePerMinute}/min`, rating: drRaees.rating },
-    patientSeeded: { name: patientUser.name, wallet: `₹${patientWallet.balance}` },
+    doctorSeeded: { name: drRaeesUser.name, email: drRaeesUser.email, rate: `₹${drRaees.ratePerMinute}/min` },
+    patient1Seeded: { name: patient1User.name, email: patient1User.email, wallet: `₹${patient1Wallet.balance}` },
+    patient2Seeded: { name: patient2User.name, email: patient2User.email, wallet: `₹${patient2Wallet.balance}` },
   });
 }
 

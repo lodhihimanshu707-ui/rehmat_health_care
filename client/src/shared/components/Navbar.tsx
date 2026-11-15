@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuthStore, DEMO_PATIENT, DEMO_DOCTOR } from "@/stores/auth.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { useWalletStore } from "@/stores/wallet.store";
 import { formatCurrency } from "@/shared/utils/format";
 import { siteConfig } from "@/config/site";
@@ -20,8 +20,6 @@ import {
   LogOut,
   UserCheck,
   Stethoscope,
-  ArrowLeftRight,
-  Sparkles,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 
@@ -37,8 +35,6 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
     isAuthenticated,
     openAuthModal,
     logout,
-    toggleRole,
-    quickLogin,
   } = useAuthStore();
   const { cachedBalance, openRechargeModal } = useWalletStore();
   const isPatient = currentUser?.role === "patient";
@@ -230,18 +226,6 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
                     </div>
                   </div>
 
-                  {/* Switch Demo Role */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={toggleRole}
-                    className="h-7 gap-1 rounded-lg bg-slate-100 px-2 text-[11px] font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
-                    title="Switch between Patient and Doctor for demo testing"
-                  >
-                    <ArrowLeftRight className="h-3 w-3" />
-                    <span>Switch</span>
-                  </Button>
-
                   {/* Sign Out */}
                   <Button
                     size="sm"
@@ -255,28 +239,15 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
                 </div>
               </>
             ) : (
-              /* If NOT Authenticated: Show Clean Sign In & 1-Click Demo Login */
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => openAuthModal("login")}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs gap-1.5 h-9 px-3.5"
-                >
-                  <LogIn className="h-3.5 w-3.5" />
-                  <span>Sign In</span>
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => quickLogin(DEMO_PATIENT.id)}
-                  className="bg-white border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl shadow-2xs gap-1.5 h-9 px-3"
-                  title="One-click demo login as Mohd. Imran"
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-                  <span>Demo Login</span>
-                </Button>
-              </div>
+              /* If NOT Authenticated: Show Clean Sign In */
+              <Button
+                size="sm"
+                onClick={() => openAuthModal("login")}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs gap-1.5 h-9 px-3.5"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                <span>Sign In</span>
+              </Button>
             )}
           </div>
         </div>

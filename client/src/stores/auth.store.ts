@@ -13,15 +13,27 @@ export interface AuthUser {
   subtitle?: string;
 }
 
-export const DEMO_PATIENT: AuthUser = {
+export const DEMO_PATIENT_1: AuthUser = {
   id: "a1000000-0000-0000-0000-000000000001",
-  name: "Mohd. Imran",
+  name: "Rahul Sharma",
   phone: "+91 94120 54321",
-  email: "imran.moradabad@gmail.com",
+  email: "patient_1@rehmatcare.com",
   role: "patient",
   avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&auto=format&fit=crop&q=80",
-  subtitle: "Registered Patient (Malviya Nagar)",
+  subtitle: "patient_1@rehmatcare.com • Malviya Nagar",
 };
+
+export const DEMO_PATIENT_2: AuthUser = {
+  id: "a2000000-0000-0000-0000-000000000002",
+  name: "Priya Verma",
+  phone: "+91 94120 54322",
+  email: "patient_2@rehmatcare.com",
+  role: "patient",
+  avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop&q=80",
+  subtitle: "patient_2@rehmatcare.com • Civil Lines",
+};
+
+export const DEMO_PATIENT = DEMO_PATIENT_1;
 
 export const DEMO_DOCTOR: AuthUser = {
   id: "b1000000-0000-0000-0000-000000000001",
@@ -66,7 +78,7 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  currentUser: DEMO_PATIENT,
+  currentUser: DEMO_PATIENT_1,
   token: typeof window !== "undefined" ? localStorage.getItem("rehmat_auth_token") : null,
   isAuthenticated: false,
   isInitialized: false,
@@ -167,6 +179,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         token: data.token,
         isAuthenticated: true,
         isLoading: false,
+        isAuthModalOpen: false,
       });
 
       syncSocketUser(data.user.id);
@@ -176,10 +189,15 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
     } catch (err: any) {
       // Fallback locally if network/server is down
-      const fallback = userId === DEMO_DOCTOR.id ? DEMO_DOCTOR : DEMO_PATIENT;
+      let fallback = DEMO_PATIENT_1;
+      if (userId === DEMO_DOCTOR.id) fallback = DEMO_DOCTOR;
+      else if (userId === DEMO_PATIENT_2.id) fallback = DEMO_PATIENT_2;
+
       set({
         currentUser: fallback,
+        isAuthenticated: true,
         isLoading: false,
+        isAuthModalOpen: false,
       });
       syncSocketUser(fallback.id);
     }
@@ -190,12 +208,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       localStorage.removeItem("rehmat_auth_token");
     }
     set({
-      currentUser: DEMO_PATIENT,
+      currentUser: DEMO_PATIENT_1,
       token: null,
       isAuthenticated: false,
       error: null,
     });
-    syncSocketUser(DEMO_PATIENT.id);
+    syncSocketUser(DEMO_PATIENT_1.id);
   },
 
   checkAuth: async () => {
@@ -231,13 +249,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   switchRole: (role) => {
-    const target = role === "patient" ? DEMO_PATIENT : DEMO_DOCTOR;
+    const target = role === "patient" ? DEMO_PATIENT_1 : DEMO_DOCTOR;
     get().quickLogin(target.id);
   },
 
   toggleRole: () => {
     const current = get().currentUser;
-    const targetId = current.role === "patient" ? DEMO_DOCTOR.id : DEMO_PATIENT.id;
+    const targetId = current.role === "patient" ? DEMO_DOCTOR.id : DEMO_PATIENT_1.id;
     get().quickLogin(targetId);
   },
 }));

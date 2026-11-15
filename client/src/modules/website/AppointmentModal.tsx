@@ -153,7 +153,7 @@ export function AppointmentModal({
                 <label className="block text-xs font-semibold text-slate-700 mb-1">Patient Name</label>
                 <Input
                   required
-                  placeholder="e.g. Mohd. Imran"
+                  placeholder="e.g. Rahul Sharma"
                   value={patientName}
                   onChange={(e) => setPatientName(e.target.value)}
                   className="text-xs"

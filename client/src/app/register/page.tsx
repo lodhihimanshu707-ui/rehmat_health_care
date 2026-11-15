@@ -85,7 +85,7 @@ export default function RegisterPage() {
                 <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <Input
                   required
-                  placeholder="e.g. Mohd. Imran"
+                  placeholder="e.g. Rahul Sharma"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="pl-9 text-xs h-10 rounded-xl"
@@ -201,3 +201,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

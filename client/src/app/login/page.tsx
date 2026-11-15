@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Navbar } from "@/shared/components/Navbar";
 import { Footer } from "@/shared/components/Footer";
-import { useAuthStore, DEMO_PATIENT, DEMO_DOCTOR } from "@/stores/auth.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Input } from "@/shared/ui/input";
@@ -11,19 +11,15 @@ import { Button } from "@/shared/ui/button";
 import {
   Lock,
   Phone,
-  User,
   HeartPulse,
-  Sparkles,
   AlertCircle,
-  Stethoscope,
   ArrowRight,
-  ShieldCheck,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, quickLogin, isLoading, error, isAuthenticated } = useAuthStore();
+  const { login, isLoading, error } = useAuthStore();
 
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
@@ -36,11 +32,6 @@ export default function LoginPage() {
     } catch {
       // Error handled by store
     }
-  };
-
-  const handleDemo = async (userId: string) => {
-    await quickLogin(userId);
-    router.push("/");
   };
 
   return (
@@ -116,58 +107,14 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* 1-Click Demo Divider */}
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
-            </div>
-            <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-wider text-slate-400">
-              <span className="bg-white px-2">Instant Demo Testing</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isLoading}
-              onClick={() => handleDemo(DEMO_PATIENT.id)}
-              className="w-full justify-between border-emerald-200 hover:bg-emerald-50 text-emerald-900 text-xs h-10 font-semibold rounded-xl"
-            >
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-emerald-600" />
-                <span>Login as Patient ({DEMO_PATIENT.name})</span>
-              </div>
-              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
-                ₹150 Wallet
-              </span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              disabled={isLoading}
-              onClick={() => handleDemo(DEMO_DOCTOR.id)}
-              className="w-full justify-between border-blue-200 hover:bg-blue-50 text-blue-900 text-xs h-10 font-semibold rounded-xl"
-            >
-              <div className="flex items-center gap-2">
-                <Stethoscope className="h-4 w-4 text-blue-600" />
-                <span>Login as Doctor ({DEMO_DOCTOR.name})</span>
-              </div>
-              <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
-                Chief Physician
-              </span>
-            </Button>
-          </div>
-
           {/* Register Prompt */}
-          <div className="pt-2 text-center text-xs text-slate-500">
+          <div className="pt-4 text-center text-xs text-slate-500 border-t border-slate-100">
             Don't have an account?{" "}
             <Link
               href="/register"
               className="text-emerald-700 font-bold hover:underline"
             >
-              Register & Claim ₹100
+              Register Here & Claim ₹100
             </Link>
           </div>
         </div>
@@ -177,3 +124,4 @@ export default function LoginPage() {
     </div>
   );
 }
+

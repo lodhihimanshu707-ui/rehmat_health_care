@@ -6,8 +6,8 @@ import { Star, Quote, CheckCircle2 } from "lucide-react";
 export function TestimonialsSection() {
   const reviews = [
     {
-      name: "Mohd. Farhan",
-      initials: "MF",
+      name: "Aarav Sharma",
+      initials: "AS",
       locality: "Civil Lines, Moradabad",
       doctor: "Dr. Raees Akhtar",
       rating: 5,
@@ -15,13 +15,13 @@ export function TestimonialsSection() {
       text: "Dr. Raees Akhtar is our trusted family doctor in Moradabad. When my elderly father developed high fever late in the evening, we started a video call from the app. Within 2 minutes Dr. Raees was reviewing his symptoms and prescribed medication. Extremely polite and caring doctor!",
     },
     {
-      name: "Shazia Parveen",
-      initials: "SP",
+      name: "Pooja Verma",
+      initials: "PV",
       locality: "Malviya Nagar, Moradabad",
       doctor: "Dr. Raees Akhtar",
       rating: 5,
       date: "2 weeks ago",
-      text: "Dr. Raees Akhtar is one of the most patient and ethical doctors in Malviya Nagar. He explains the diagnosis in clear Urdu and Hindi, answered all our questions without any rush, and the digital prescription was sent to my WhatsApp right away.",
+      text: "Dr. Raees Akhtar is one of the most patient and ethical doctors in Malviya Nagar. He explains the diagnosis in clear, simple language, answered all our questions without any rush, and the digital prescription was sent to my phone right away.",
     },
     {
       name: "Rajesh Kumar Gupta",
@@ -33,8 +33,8 @@ export function TestimonialsSection() {
       text: "The per-minute wallet system is genuinely honest! I just needed Dr. Raees to review my fasting blood sugar and cholesterol report. The call took exactly 3 minutes, and I was billed just ₹45 from my wallet. No clinic in UP offers this kind of transparency.",
     },
     {
-      name: "Imran Siddiqui",
-      initials: "IS",
+      name: "Sunil Mehta",
+      initials: "SM",
       locality: "Line Par, Moradabad",
       doctor: "Dr. Raees Akhtar",
       rating: 5,

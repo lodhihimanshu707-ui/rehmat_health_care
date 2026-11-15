@@ -1,16 +1,12 @@
 "use client";
 
 import React from "react";
-import { useAuthStore, DEMO_PATIENT, DEMO_DOCTOR } from "@/stores/auth.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { Button } from "@/shared/ui/button";
 import {
   ShieldAlert,
   Lock,
   LogIn,
-  Sparkles,
-  User,
-  Stethoscope,
-  HeartPulse,
   ArrowRight,
   ShieldCheck,
 } from "lucide-react";
@@ -29,7 +25,7 @@ export function AuthGuard({
   title = "Authentication Required",
   description = "To protect patient medical confidentiality and comply with National Telemedicine Guidelines, you must sign in to access consultations, digital prescriptions, and the health wallet.",
 }: AuthGuardProps) {
-  const { isAuthenticated, isInitialized, currentUser, openAuthModal, quickLogin, isLoading } =
+  const { isAuthenticated, isInitialized, currentUser, openAuthModal } =
     useAuthStore();
 
   // If checking token from localStorage, show brief clean skeleton
@@ -86,46 +82,6 @@ export function AuthGuard({
               </Button>
             </Link>
           </div>
-
-          {/* Instant 1-Click Demo Testing Block */}
-          <div className="pt-4 border-t border-slate-100">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-3">
-              One-Click Demo Access
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isLoading}
-                onClick={() => quickLogin(DEMO_PATIENT.id)}
-                className="justify-between border-emerald-200 hover:bg-emerald-50 text-emerald-900 text-xs h-10 font-semibold rounded-xl"
-              >
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-emerald-600" />
-                  <span>Mohd. Imran</span>
-                </div>
-                <span className="text-[10px] font-bold bg-emerald-100 px-1.5 py-0.5 rounded text-emerald-800">
-                  Patient
-                </span>
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                disabled={isLoading}
-                onClick={() => quickLogin(DEMO_DOCTOR.id)}
-                className="justify-between border-blue-200 hover:bg-blue-50 text-blue-900 text-xs h-10 font-semibold rounded-xl"
-              >
-                <div className="flex items-center gap-2">
-                  <Stethoscope className="h-4 w-4 text-blue-600" />
-                  <span>Dr. Raees Akhtar</span>
-                </div>
-                <span className="text-[10px] font-bold bg-blue-100 px-1.5 py-0.5 rounded text-blue-800">
-                  Doctor
-                </span>
-              </Button>
-            </div>
-          </div>
         </div>
       </div>
     );
@@ -152,3 +108,4 @@ export function AuthGuard({
 
   return <>{children}</>;
 }
+

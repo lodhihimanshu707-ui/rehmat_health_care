@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuthStore, DEMO_PATIENT, DEMO_DOCTOR } from "@/stores/auth.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
@@ -28,7 +28,6 @@ export function AuthModal() {
     openAuthModal,
     login,
     register,
-    quickLogin,
     isLoading,
     error,
   } = useAuthStore();
@@ -66,11 +65,6 @@ export function AuthModal() {
     } catch {
       // Error handled by store
     }
-  };
-
-  const handleQuickDemo = async (userId: string) => {
-    await quickLogin(userId);
-    closeAuthModal();
   };
 
   return (
@@ -172,48 +166,6 @@ export function AuthModal() {
                 {isLoading ? "Signing in..." : "Sign In to Account"}
               </Button>
             </form>
-
-            {/* Quick Demo Logins Divider */}
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-200" />
-              </div>
-              <div className="relative flex justify-center text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                <span className="bg-white px-2">Instant Demo Testing</span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleQuickDemo(DEMO_PATIENT.id)}
-                className="w-full justify-between border-emerald-200 hover:bg-emerald-50/80 text-emerald-900 text-xs h-9 font-semibold rounded-xl"
-              >
-                <div className="flex items-center gap-2">
-                  <User className="h-3.5 w-3.5 text-emerald-600" />
-                  <span>Login as Patient ({DEMO_PATIENT.name})</span>
-                </div>
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded">
-                  ₹150 Wallet
-                </span>
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleQuickDemo(DEMO_DOCTOR.id)}
-                className="w-full justify-between border-blue-200 hover:bg-blue-50/80 text-blue-900 text-xs h-9 font-semibold rounded-xl"
-              >
-                <div className="flex items-center gap-2">
-                  <Stethoscope className="h-3.5 w-3.5 text-blue-600" />
-                  <span>Login as Doctor ({DEMO_DOCTOR.name})</span>
-                </div>
-                <span className="text-[10px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
-                  OPD Active
-                </span>
-              </Button>
-            </div>
           </div>
         )}
 
