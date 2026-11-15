@@ -30,3 +30,4 @@ export function syncSocketUser(userId: string) {
     socket.emit("join-user-room", userId);
   }
 }
+

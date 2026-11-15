@@ -36,3 +36,4 @@ export async function apiClient<T = any>(
 
   return data.data;
 }
+

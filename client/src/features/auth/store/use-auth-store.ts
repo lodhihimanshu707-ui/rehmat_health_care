@@ -44,3 +44,4 @@ export const useAuthStore = create<AuthState>((set) => ({
       currentUser: state.currentUser.role === "patient" ? DEMO_DOCTOR : DEMO_PATIENT,
     })),
 }));
+

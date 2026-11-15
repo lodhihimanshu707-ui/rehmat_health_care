@@ -15,3 +15,4 @@ export const useWalletStore = create<WalletState>((set) => ({
   closeRechargeModal: () => set({ isRechargeModalOpen: false }),
   setCachedBalance: (balance) => set({ cachedBalance: balance }),
 }));
+

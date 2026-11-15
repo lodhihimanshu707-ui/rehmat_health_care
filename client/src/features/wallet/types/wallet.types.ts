@@ -17,3 +17,4 @@ export interface Wallet {
   currency: string;
   transactions?: Transaction[];
 }
+

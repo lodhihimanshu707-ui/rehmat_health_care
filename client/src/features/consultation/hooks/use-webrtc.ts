@@ -213,3 +213,4 @@ export function useWebRTC(consultationId: string | null, isInitiator: boolean) {
     connectionStatus,
   };
 }
+

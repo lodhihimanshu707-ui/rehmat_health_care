@@ -61,3 +61,4 @@ export function BalanceCard({ balance }: BalanceCardProps) {
     </Card>
   );
 }
+

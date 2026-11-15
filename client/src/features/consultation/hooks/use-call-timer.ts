@@ -80,3 +80,4 @@ export function useCallTimer(consultationId: string | null, ratePerMinute: numbe
     return () => clearInterval(interval);
   }, [callStatus, consultationId, ratePerMinute]);
 }
+

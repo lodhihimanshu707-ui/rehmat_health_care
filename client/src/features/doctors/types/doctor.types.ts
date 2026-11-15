@@ -20,3 +20,4 @@ export interface Doctor {
   about?: string;
   user: DoctorUser;
 }
+

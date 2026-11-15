@@ -15,3 +15,4 @@ export interface ChatMessage {
   sender?: ChatUser;
   receiver?: ChatUser;
 }
+

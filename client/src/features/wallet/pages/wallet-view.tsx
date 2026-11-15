@@ -45,3 +45,4 @@ export function WalletView() {
     </div>
   );
 }
+

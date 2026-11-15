@@ -88,3 +88,4 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     </div>
   );
 }
+

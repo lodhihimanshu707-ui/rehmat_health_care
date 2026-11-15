@@ -38,3 +38,4 @@ export function MessageInput({ onSend, disabled }: MessageInputProps) {
     </form>
   );
 }
+

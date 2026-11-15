@@ -93,3 +93,4 @@ export function TransactionList({ transactions, isLoading }: TransactionListProp
     </div>
   );
 }
+

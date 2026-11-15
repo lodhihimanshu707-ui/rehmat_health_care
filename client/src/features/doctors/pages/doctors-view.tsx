@@ -109,3 +109,4 @@ export function DoctorsView({ onOpenChat, onCallInitiated }: DoctorsViewProps) {
     </div>
   );
 }
+

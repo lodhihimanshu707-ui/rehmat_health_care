@@ -64,3 +64,4 @@ export function useWallet() {
     refetchWallet: walletQuery.refetch,
   };
 }
+

@@ -124,3 +124,4 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
     </header>
   );
 }
+

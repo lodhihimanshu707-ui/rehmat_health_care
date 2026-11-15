@@ -112,7 +112,9 @@ export function DoctorCard({ doctor, onOpenChat, onCallInitiated }: DoctorCardPr
             <div className="flex items-center justify-between gap-2">
               <h3 className="font-bold text-slate-900 text-base truncate flex items-center gap-1.5">
                 {doctor.user.name}
-                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" title="Verified Rehmat Doctor" />
+                <span title="Verified Rehmat Doctor">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                </span>
               </h3>
               <Badge variant="outline" className="border-amber-200 bg-amber-50 text-amber-900 gap-1 shrink-0">
                 <Star className="h-3 w-3 fill-amber-500 text-amber-500" />
