@@ -141,19 +141,15 @@ export function Footer() {
             </h4>
             <div className="rounded-xl bg-slate-800/80 p-3.5 border border-slate-700/60 text-xs space-y-2">
               <div>
-                <p className="font-semibold text-white">Mon – Sat (Morning):</p>
-                <p className="text-emerald-400">09:00 AM – 02:00 PM</p>
+                <p className="font-semibold text-white">Monday – Saturday:</p>
+                <p className="text-emerald-400">10:00 AM – 07:00 PM</p>
               </div>
               <div>
-                <p className="font-semibold text-white">Mon – Sat (Evening):</p>
-                <p className="text-emerald-400">05:00 PM – 09:00 PM</p>
+                <p className="font-semibold text-white">Sunday (Walk-in):</p>
+                <p className="text-rose-400">Closed (In-Clinic)</p>
               </div>
-              <div>
-                <p className="font-semibold text-white">Sunday OPD:</p>
-                <p className="text-slate-300">10:00 AM – 02:00 PM</p>
-              </div>
-              <div className="pt-1 border-t border-slate-700">
-                <p className="font-bold text-emerald-300">Virtual Video OPD: 24/7</p>
+              <div className="pt-1.5 border-t border-slate-700">
+                <p className="font-bold text-emerald-300">Virtual Video OPD: 24/7 Active</p>
               </div>
             </div>
           </div>

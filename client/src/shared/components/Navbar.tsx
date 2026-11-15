@@ -55,12 +55,12 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5 text-slate-300 font-medium">
               <MapPin className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-              <span>Near Mohan X-Ray, Malviya Nagar, Moradabad (244001)</span>
+              <span>Near Mohan Xray, Malviya Nagar, Moradabad (244001)</span>
             </span>
             <span className="text-slate-700">•</span>
             <span className="flex items-center gap-1.5 text-slate-300 font-medium">
               <Clock className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-              <span>Clinic OPD: 9 AM – 9 PM | Live Tele-OPD: 24/7</span>
+              <span>Clinic OPD: Mon – Sat 10 AM – 7 PM | Tele-OPD: 24/7</span>
             </span>
           </div>
 

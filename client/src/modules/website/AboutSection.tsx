@@ -29,7 +29,7 @@ export function AboutSection() {
             Providing Ethical, Compassionate Care in Moradabad
           </h2>
           <p className="text-base text-slate-600 sm:text-lg leading-relaxed max-w-2xl mx-auto">
-            Founded by <strong>Dr. Rehmat Ali</strong>, Rehmat Health Care was established to eliminate barriers to high-quality primary medical care for families across Moradabad, Sambhal, Rampur, and western Uttar Pradesh.
+            Established in 2016, <strong>Rehmat Health Care</strong> has been a trusted healthcare pillar in Malviya Nagar, Moradabad. Conveniently located Near Mohan Xray with a <strong>4.5-star Justdial rating (10 Years in Healthcare)</strong>, we provide high-quality general physician consultations, patient care, and 24/7 video OPD.
           </p>
         </div>
 

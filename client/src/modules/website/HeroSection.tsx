@@ -41,9 +41,9 @@ export function HeroSection({ onStartTeleconsult, onBookAppointment }: HeroSecti
               <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="font-bold text-emerald-800">{siteConfig.urduName}</span>
               <span className="text-slate-300">•</span>
-              <span>Malviya Nagar, Moradabad</span>
+              <span>10 Years in Healthcare (Est. 2016)</span>
               <span className="text-slate-300">•</span>
-              <span className="text-emerald-700 font-bold">Beside Mohan X-Ray</span>
+              <span className="text-emerald-700 font-bold">Near Mohan Xray, Malviya Nagar</span>
             </div>
 
             {/* Main Headline */}
@@ -118,7 +118,11 @@ export function HeroSection({ onStartTeleconsult, onBookAppointment }: HeroSecti
               </span>
               <span className="flex items-center gap-1.5 font-semibold text-slate-800">
                 <Clock className="h-4 w-4 text-emerald-600 shrink-0" />
-                Clinic OPD: 9:00 AM – 9:00 PM
+                Clinic OPD: Mon – Sat 10:00 AM – 7:00 PM
+              </span>
+              <span className="flex items-center gap-1.5 font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
+                4.5 ★ Justdial Verified
               </span>
             </div>
           </div>
@@ -225,16 +229,16 @@ export function HeroSection({ onStartTeleconsult, onBookAppointment }: HeroSecti
             <p className="text-xs font-semibold text-slate-600 mt-1">Patients Treated</p>
           </div>
           <div className="text-center sm:border-r border-slate-100 last:border-0 p-2">
-            <p className="text-2xl sm:text-3xl font-black text-slate-900">{siteConfig.stats.yearsService}</p>
-            <p className="text-xs font-semibold text-slate-600 mt-1">Years of Clinical Trust</p>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900">{siteConfig.stats.yearsInHealthcare}</p>
+            <p className="text-xs font-semibold text-slate-600 mt-1">In Healthcare (Est. 2016)</p>
           </div>
           <div className="text-center sm:border-r border-slate-100 last:border-0 p-2">
             <p className="text-2xl sm:text-3xl font-black text-emerald-700">₹15/min</p>
             <p className="text-xs font-semibold text-slate-600 mt-1">Transparent Teleconsult Fee</p>
           </div>
           <div className="text-center p-2">
-            <p className="text-2xl sm:text-3xl font-black text-amber-500">4.9 / 5.0</p>
-            <p className="text-xs font-semibold text-slate-600 mt-1">Patient Satisfaction Rating</p>
+            <p className="text-2xl sm:text-3xl font-black text-amber-500">{siteConfig.stats.rating}</p>
+            <p className="text-xs font-semibold text-slate-600 mt-1">Justdial Rating (Claimed)</p>
           </div>
         </div>
       </div>

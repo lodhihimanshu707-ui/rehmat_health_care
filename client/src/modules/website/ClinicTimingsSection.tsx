@@ -52,19 +52,18 @@ export function ClinicTimingsSection({ onBookAppointment }: ClinicTimingsSection
 
               <div className="mt-6 divide-y divide-slate-100 text-sm">
                 <div className="py-3.5 flex items-center justify-between">
-                  <span className="font-bold text-slate-800">Monday – Saturday (Morning)</span>
-                  <span className="font-black text-emerald-700">09:00 AM – 02:00 PM</span>
+                  <span className="font-bold text-slate-800">Monday – Saturday</span>
+                  <span className="font-black text-emerald-700">10:00 AM – 07:00 PM</span>
                 </div>
                 <div className="py-3.5 flex items-center justify-between">
-                  <span className="font-bold text-slate-800">Monday – Saturday (Evening)</span>
-                  <span className="font-black text-emerald-700">05:00 PM – 09:00 PM</span>
-                </div>
-                <div className="py-3.5 flex items-center justify-between">
-                  <span className="font-bold text-slate-800">Sunday (Morning OPD)</span>
-                  <span className="font-semibold text-slate-600">10:00 AM – 02:00 PM</span>
+                  <span className="font-bold text-slate-800">Sunday</span>
+                  <span className="font-semibold text-rose-600 bg-rose-50 px-2 py-0.5 rounded">Closed (Walk-in)</span>
                 </div>
                 <div className="py-4 flex items-center justify-between bg-emerald-50 px-4 rounded-2xl mt-2 border border-emerald-200/80">
-                  <span className="font-black text-emerald-950">Virtual Teleconsultations</span>
+                  <div>
+                    <span className="font-black text-emerald-950 block">Virtual Teleconsultations</span>
+                    <span className="text-[11px] text-emerald-700">Video call on-duty doctor anytime</span>
+                  </div>
                   <span className="font-black text-emerald-800">24 Hours / 7 Days Active</span>
                 </div>
               </div>
