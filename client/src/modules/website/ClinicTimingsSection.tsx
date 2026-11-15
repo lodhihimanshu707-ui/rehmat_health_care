@@ -22,7 +22,7 @@ interface ClinicTimingsSectionProps {
 export function ClinicTimingsSection({ onBookAppointment }: ClinicTimingsSectionProps) {
   return (
     <section id="timings" className="py-20 sm:py-28 bg-slate-50 border-t border-slate-200/90 relative">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
         {/* Section Header */}
         <div className="mx-auto max-w-3xl text-center space-y-4">
           <span className="inline-block rounded-full bg-emerald-100 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-emerald-800">

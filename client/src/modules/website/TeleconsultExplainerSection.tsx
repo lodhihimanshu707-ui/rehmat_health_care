@@ -43,7 +43,7 @@ export function TeleconsultExplainerSection({
       <div className="absolute top-0 right-10 -z-0 h-[500px] w-[500px] rounded-full bg-emerald-600/15 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-10 -z-0 h-[400px] w-[400px] rounded-full bg-teal-500/15 blur-3xl pointer-events-none" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
         {/* Header */}
         <div className="mx-auto max-w-3xl text-center space-y-4">
           <span className="inline-block rounded-full bg-emerald-800/80 border border-emerald-500/50 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-emerald-300">

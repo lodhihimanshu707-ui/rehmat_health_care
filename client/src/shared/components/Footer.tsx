@@ -17,7 +17,7 @@ export function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-slate-900 text-slate-300">
       {/* Main Footer Links */}
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:py-16">
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 py-12 lg:py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Col 1: Clinic Overview */}
           <div className="space-y-4">

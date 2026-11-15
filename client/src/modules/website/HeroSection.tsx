@@ -32,7 +32,7 @@ export function HeroSection({ onStartTeleconsult, onBookAppointment }: HeroSecti
       <div className="absolute top-0 right-1/4 -z-10 h-[500px] w-[500px] rounded-full bg-emerald-200/30 blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 left-10 -z-10 h-[400px] w-[400px] rounded-full bg-teal-200/20 blur-3xl pointer-events-none" />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
           {/* Left Column: Headlines & Call to Actions */}
           <div className="lg:col-span-7 space-y-6">
@@ -55,7 +55,7 @@ export function HeroSection({ onStartTeleconsult, onBookAppointment }: HeroSecti
             </h1>
 
             {/* Subtitle / Description */}
-            <p className="text-base text-slate-600 sm:text-lg leading-relaxed max-w-2xl font-normal">
+            <p className="text-base text-slate-600 sm:text-lg leading-relaxed max-w-3xl font-normal">
               Welcome to <strong>Rehmat Health Care</strong>. Consult our verified senior physicians online with transparent <strong>₹15/min</strong> wallet billing from the comfort of home, or visit our primary care clinic beside Mohan X-Ray in Moradabad for routine OPD and diagnostic checkups.
             </p>
 

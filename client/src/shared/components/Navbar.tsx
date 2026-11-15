@@ -51,7 +51,7 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
     <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
       {/* Top Clinic Info Strip */}
       <div className="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 hidden md:block">
-        <div className="mx-auto max-w-7xl flex items-center justify-between">
+        <div className="w-full px-2 sm:px-6 md:px-10 lg:px-14 xl:px-16 flex items-center justify-between">
           <div className="flex items-center gap-5">
             <span className="flex items-center gap-1.5 text-slate-300 font-medium">
               <MapPin className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
@@ -77,7 +77,7 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
       </div>
 
       {/* Main Navigation Bar */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className="w-full px-4 sm:px-6 md:px-10 lg:px-14 xl:px-16">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Brand Logo & Name */}
           <div

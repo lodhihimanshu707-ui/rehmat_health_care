@@ -36,7 +36,7 @@ export default function HomePage() {
         )}
 
         {activeTab === "teleconsult" && (
-          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+          <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 py-8">
             <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
               <div>
                 <span className="inline-block rounded-full bg-emerald-100 px-3 py-0.5 text-xs font-bold text-emerald-800 uppercase tracking-wider mb-1">
