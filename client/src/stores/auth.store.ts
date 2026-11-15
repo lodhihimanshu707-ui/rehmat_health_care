@@ -45,6 +45,7 @@ interface AuthState {
   currentUser: AuthUser;
   token: string | null;
   isAuthenticated: boolean;
+  isInitialized: boolean;
   isLoading: boolean;
   error: string | null;
 
@@ -68,6 +69,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   currentUser: DEMO_PATIENT,
   token: typeof window !== "undefined" ? localStorage.getItem("rehmat_auth_token") : null,
   isAuthenticated: false,
+  isInitialized: false,
   isLoading: false,
   error: null,
 
@@ -198,7 +200,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   checkAuth: async () => {
     const token = typeof window !== "undefined" ? localStorage.getItem("rehmat_auth_token") : null;
-    if (!token) return;
+    if (!token) {
+      set({ isInitialized: true, isAuthenticated: false });
+      return;
+    }
 
     try {
       const data = await apiClient.get<{
@@ -209,6 +214,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({
         currentUser: data.user,
         isAuthenticated: true,
+        isInitialized: true,
       });
 
       syncSocketUser(data.user.id);
@@ -220,7 +226,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (typeof window !== "undefined") {
         localStorage.removeItem("rehmat_auth_token");
       }
-      set({ token: null, isAuthenticated: false });
+      set({ token: null, isAuthenticated: false, isInitialized: true });
     }
   },
 

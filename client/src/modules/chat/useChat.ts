@@ -6,17 +6,17 @@ import { ChatMessage } from "./types";
 import { useAuthStore } from "@/stores/auth.store";
 
 export function useChat(activeRecipientId: string) {
-  const { currentUser } = useAuthStore();
+  const { currentUser, isAuthenticated } = useAuthStore();
 
-  const queryKey = ["chat-thread", currentUser.id, activeRecipientId];
+  const queryKey = ["chat-thread", currentUser?.id, activeRecipientId];
 
   const { data: initialMessages = [], isLoading } = useQuery<ChatMessage[]>({
     queryKey,
     queryFn: async () => {
-      if (!activeRecipientId) return [];
+      if (!activeRecipientId || !currentUser?.id) return [];
       return apiClient.get<ChatMessage[]>(`/messages/${currentUser.id}/${activeRecipientId}`);
     },
-    enabled: !!activeRecipientId,
+    enabled: !!activeRecipientId && !!currentUser?.id && isAuthenticated,
   });
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);

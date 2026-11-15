@@ -5,27 +5,29 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useWalletStore } from "@/stores/wallet.store";
 
 export function useWallet() {
-  const { currentUser } = useAuthStore();
+  const { currentUser, isAuthenticated } = useAuthStore();
   const { setCachedBalance } = useWalletStore();
   const queryClient = useQueryClient();
 
   const walletQuery = useQuery<Wallet>({
-    queryKey: ["wallet", currentUser.id],
+    queryKey: ["wallet", currentUser?.id],
     queryFn: async () => {
+      if (!currentUser?.id) throw new Error("Unauthenticated");
       const data = await apiClient.get<Wallet>(`/wallet/${currentUser.id}`);
       setCachedBalance(data.balance);
       return data;
     },
-    enabled: !!currentUser.id,
+    enabled: !!currentUser?.id && isAuthenticated,
     refetchInterval: 10000,
   });
 
   const transactionsQuery = useQuery<Transaction[]>({
-    queryKey: ["transactions", currentUser.id],
+    queryKey: ["transactions", currentUser?.id],
     queryFn: async () => {
+      if (!currentUser?.id) throw new Error("Unauthenticated");
       return apiClient.get<Transaction[]>(`/wallet/${currentUser.id}/transactions`);
     },
-    enabled: !!currentUser.id,
+    enabled: !!currentUser?.id && isAuthenticated,
   });
 
   const rechargeMutation = useMutation({

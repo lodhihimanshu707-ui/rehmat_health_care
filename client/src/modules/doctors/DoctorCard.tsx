@@ -21,14 +21,19 @@ interface DoctorCardProps {
 }
 
 export function DoctorCard({ doctor, onOpenChat, onCallInitiated }: DoctorCardProps) {
-  const { currentUser } = useAuthStore();
+  const { currentUser, isAuthenticated, openAuthModal } = useAuthStore();
   const { cachedBalance, openRechargeModal } = useWalletStore();
   const { startOutgoingCall } = useCallStore();
   const [isCalling, setIsCalling] = useState(false);
 
-  const isPatient = currentUser.role === "patient";
+  const isPatient = currentUser?.role === "patient";
 
   const handleStartCall = async () => {
+    if (!isAuthenticated) {
+      openAuthModal("login");
+      return;
+    }
+
     if (!isPatient) {
       alert("You are currently in Doctor Mode. Switch to Patient Mode in the header to place a consultation call.");
       return;

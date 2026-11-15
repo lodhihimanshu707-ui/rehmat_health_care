@@ -14,8 +14,8 @@ interface ChatViewProps {
 }
 
 export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewProps) {
-  const { currentUser } = useAuthStore();
-  const isPatient = currentUser.role === "patient";
+  const { currentUser, isAuthenticated } = useAuthStore();
+  const isPatient = currentUser?.role === "patient";
 
   const defaultRecipientId = initialRecipientId || (isPatient ? DEMO_DOCTOR.id : DEMO_PATIENT.id);
   const defaultRecipientName = initialRecipientName || (isPatient ? DEMO_DOCTOR.name : DEMO_PATIENT.name);
@@ -24,6 +24,10 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const [activeRecipientName, setActiveRecipientName] = useState(defaultRecipientName);
 
   const { messages, isLoading, sendMessage } = useChat(activeRecipientId);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">

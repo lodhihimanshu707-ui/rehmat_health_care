@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuthStore, DEMO_PATIENT, DEMO_DOCTOR } from "@/stores/auth.store";
 import { useWalletStore } from "@/stores/wallet.store";
 import { formatCurrency } from "@/shared/utils/format";
@@ -24,12 +26,12 @@ import {
 import { Button } from "@/shared/ui/button";
 
 interface NavbarProps {
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-  onOpenAppointmentModal?: () => void;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
 export function Navbar({ activeTab, onTabChange }: NavbarProps) {
+  const pathname = usePathname();
   const {
     currentUser,
     isAuthenticated,
@@ -39,20 +41,12 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
     quickLogin,
   } = useAuthStore();
   const { cachedBalance, openRechargeModal } = useWalletStore();
-  const isPatient = currentUser.role === "patient";
+  const isPatient = currentUser?.role === "patient";
 
-  const handleNavClick = (tab: string, anchorId?: string) => {
-    if (tab === "website") {
-      onTabChange("website");
-      if (anchorId) {
-        setTimeout(() => {
-          const el = document.getElementById(anchorId);
-          if (el) el.scrollIntoView({ behavior: "smooth" });
-        }, 80);
-      }
-    } else {
-      onTabChange(tab);
-    }
+  const isCurrent = (path: string) => {
+    if (activeTab) return activeTab === path;
+    if (path === "/" || path === "website") return pathname === "/";
+    return pathname.startsWith(path);
   };
 
   return (
@@ -88,9 +82,9 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
       <div className="w-full px-4 sm:px-6 md:px-10 lg:px-14 xl:px-16">
         <div className="flex h-16 items-center justify-between gap-4">
           {/* Brand Logo & Name */}
-          <div
-            className="flex items-center gap-3 cursor-pointer shrink-0 group"
-            onClick={() => handleNavClick("website")}
+          <Link
+            href="/"
+            className="flex items-center gap-3 shrink-0 group"
           >
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/25 group-hover:scale-105 transition-transform duration-200">
               <HeartPulse className="h-6 w-6" />
@@ -108,95 +102,96 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
                 Malviya Nagar • Beside Mohan X-Ray
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Nav Links */}
           <nav className="hidden xl:flex items-center gap-1 rounded-2xl bg-slate-100/80 p-1 border border-slate-200/60">
-            <button
-              onClick={() => handleNavClick("website")}
+            <Link
+              href="/"
               className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
-                activeTab === "website"
+                isCurrent("/")
                   ? "bg-white text-emerald-700 shadow-sm"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
               }`}
             >
               Home
-            </button>
-            <button
-              onClick={() => handleNavClick("website", "about")}
+            </Link>
+            <Link
+              href="/#about"
               className="rounded-xl px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 transition-all"
             >
               About
-            </button>
-            <button
-              onClick={() => handleNavClick("website", "services")}
+            </Link>
+            <Link
+              href="/#services"
               className="rounded-xl px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 transition-all"
             >
               Specialities
-            </button>
-            <button
-              onClick={() => handleNavClick("website", "doctors")}
+            </Link>
+            <Link
+              href="/#doctors"
               className="rounded-xl px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 transition-all"
             >
-              Doctors
-            </button>
-            <button
-              onClick={() => handleNavClick("teleconsult")}
+              Doctor
+            </Link>
+            <Link
+              href="/teleconsult"
               className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === "teleconsult"
+                isCurrent("/teleconsult")
                   ? "bg-emerald-600 text-white shadow-sm"
                   : "text-emerald-700 hover:bg-emerald-100/60"
               }`}
             >
               <Video className="h-3.5 w-3.5" />
               <span>Live Tele-OPD</span>
-            </button>
-            <button
-              onClick={() => handleNavClick("chat")}
+            </Link>
+            <Link
+              href="/chat"
               className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === "chat"
+                isCurrent("/chat")
                   ? "bg-white text-emerald-700 shadow-sm"
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
               }`}
             >
               <MessageSquare className="h-3.5 w-3.5" />
               <span>Chat</span>
-            </button>
+            </Link>
             {isAuthenticated && isPatient && (
-              <button
-                onClick={() => handleNavClick("wallet")}
+              <Link
+                href="/wallet"
                 className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  activeTab === "wallet"
+                  isCurrent("/wallet")
                     ? "bg-white text-emerald-700 shadow-sm"
                     : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
                 }`}
               >
                 <WalletIcon className="h-3.5 w-3.5" />
                 <span>Wallet</span>
-              </button>
+              </Link>
             )}
-            <button
-              onClick={() => handleNavClick("website", "timings")}
+            <Link
+              href="/#timings"
               className="rounded-xl px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 transition-all"
             >
               Timings
-            </button>
+            </Link>
           </nav>
 
           {/* Right Action Cluster */}
           <div className="flex items-center gap-2.5 shrink-0">
             {/* Quick Live Teleconsult button */}
-            <Button
-              size="sm"
-              onClick={() => onTabChange("teleconsult")}
-              className="hidden sm:inline-flex bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 gap-1.5 h-9 px-3.5 transition-all hover:scale-[1.02]"
-            >
-              <Video className="h-3.5 w-3.5" />
-              <span>Consult (₹15/m)</span>
-            </Button>
+            <Link href="/teleconsult">
+              <Button
+                size="sm"
+                className="hidden sm:inline-flex bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 gap-1.5 h-9 px-3.5 transition-all hover:scale-[1.02]"
+              >
+                <Video className="h-3.5 w-3.5" />
+                <span>Consult (₹15/m)</span>
+              </Button>
+            </Link>
 
             {/* If Authenticated: Show Wallet & Profile */}
-            {isAuthenticated ? (
+            {isAuthenticated && currentUser ? (
               <>
                 {/* Patient Wallet Badge */}
                 {isPatient && (
@@ -287,42 +282,44 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
         </div>
       </div>
 
-      {/* Mobile Tab Navigation */}
-      <div className="flex xl:hidden border-t border-slate-100 bg-slate-50/95 px-3 py-2 justify-around text-xs font-semibold backdrop-blur-sm">
-        <button
-          onClick={() => handleNavClick("website")}
+      {/* Mobile Subnav for quick section jumps */}
+      <div className="flex xl:hidden overflow-x-auto px-4 py-2 border-t border-slate-100 bg-white gap-2 text-xs scrollbar-none">
+        <Link
+          href="/"
           className={`py-1.5 px-3 rounded-xl transition-all ${
-            activeTab === "website" ? "bg-emerald-600 text-white font-bold shadow-xs" : "text-slate-600"
+            isCurrent("/") ? "bg-emerald-600 text-white font-bold shadow-xs" : "text-slate-600"
           }`}
         >
-          Website
-        </button>
-        <button
-          onClick={() => handleNavClick("teleconsult")}
-          className={`py-1.5 px-3 rounded-xl flex items-center gap-1 transition-all ${
-            activeTab === "teleconsult" ? "bg-emerald-600 text-white font-bold shadow-xs" : "text-slate-600"
+          Home
+        </Link>
+        <Link
+          href="/teleconsult"
+          className={`py-1.5 px-3 rounded-xl transition-all flex items-center gap-1 ${
+            isCurrent("/teleconsult")
+              ? "bg-emerald-600 text-white font-bold shadow-xs"
+              : "text-emerald-700 font-semibold"
           }`}
         >
-          <Video className="h-3.5 w-3.5" />
+          <Video className="h-3 w-3" />
           <span>Tele-OPD</span>
-        </button>
-        <button
-          onClick={() => handleNavClick("chat")}
+        </Link>
+        <Link
+          href="/chat"
           className={`py-1.5 px-3 rounded-xl transition-all ${
-            activeTab === "chat" ? "bg-emerald-600 text-white font-bold shadow-xs" : "text-slate-600"
+            isCurrent("/chat") ? "bg-emerald-600 text-white font-bold shadow-xs" : "text-slate-600"
           }`}
         >
           Chat
-        </button>
+        </Link>
         {isAuthenticated && isPatient && (
-          <button
-            onClick={() => handleNavClick("wallet")}
+          <Link
+            href="/wallet"
             className={`py-1.5 px-3 rounded-xl transition-all ${
-              activeTab === "wallet" ? "bg-emerald-600 text-white font-bold shadow-xs" : "text-slate-600"
+              isCurrent("/wallet") ? "bg-emerald-600 text-white font-bold shadow-xs" : "text-slate-600"
             }`}
           >
             Wallet
-          </button>
+          </Link>
         )}
       </div>
     </header>
