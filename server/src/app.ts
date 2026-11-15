@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import cors from "cors";
+import "./models/index.js";
 import { contextMiddleware } from "./core/context/context.middleware.js";
 import { BaseError } from "./core/errors/base-error.js";
 import { ENV } from "./config/env.js";
@@ -60,3 +61,4 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
     timestamp: new Date().toISOString(),
   });
 });
+

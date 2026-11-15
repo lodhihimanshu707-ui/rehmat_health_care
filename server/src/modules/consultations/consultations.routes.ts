@@ -17,3 +17,4 @@ router.get("/history/:userId?", consultationsController.getHistory);
 router.get("/:id", consultationsController.getById);
 
 export default router;
+

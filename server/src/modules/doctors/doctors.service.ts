@@ -1,6 +1,5 @@
 import { BaseService } from "../../core/base/base.service.js";
-import { Doctor } from "../../models/Doctor.js";
-import { User } from "../../models/User.js";
+import { Doctor, User } from "../../models/index.js";
 import { NotFoundError } from "../../core/errors/domain-errors.js";
 
 export class DoctorsService extends BaseService {
@@ -43,3 +42,4 @@ export class DoctorsService extends BaseService {
 }
 
 export const doctorsService = new DoctorsService();
+

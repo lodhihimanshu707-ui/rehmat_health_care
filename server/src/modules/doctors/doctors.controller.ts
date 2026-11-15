@@ -22,3 +22,4 @@ export class DoctorsController extends BaseController {
 }
 
 export const doctorsController = new DoctorsController();
+

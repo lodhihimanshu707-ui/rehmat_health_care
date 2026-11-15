@@ -1,7 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { BaseService } from "../../core/base/base.service.js";
-import { Wallet } from "../../models/Wallet.js";
-import { Transaction } from "../../models/Transaction.js";
+import { Wallet, Transaction } from "../../models/index.js";
 import { NotFoundError } from "../../core/errors/domain-errors.js";
 import { RechargeWalletInput } from "./wallet.schema.js";
 
@@ -100,3 +99,4 @@ export class WalletService extends BaseService {
 }
 
 export const walletService = new WalletService();
+

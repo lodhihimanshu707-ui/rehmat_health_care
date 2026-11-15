@@ -1,10 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { BaseService } from "../../core/base/base.service.js";
-import { Consultation } from "../../models/Consultation.js";
-import { Doctor } from "../../models/Doctor.js";
-import { Wallet } from "../../models/Wallet.js";
-import { Transaction } from "../../models/Transaction.js";
-import { User } from "../../models/User.js";
+import { Consultation, Doctor, Wallet, Transaction, User } from "../../models/index.js";
 import { NotFoundError, PaymentRequiredError } from "../../core/errors/domain-errors.js";
 import { InitiateConsultationInput, TickConsultationInput, EndConsultationInput } from "./consultations.schema.js";
 
@@ -181,3 +177,4 @@ export class ConsultationsService extends BaseService {
 }
 
 export const consultationsService = new ConsultationsService();
+

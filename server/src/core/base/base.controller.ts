@@ -14,3 +14,4 @@ export abstract class BaseController {
     return res.status(204).send();
   }
 }
+

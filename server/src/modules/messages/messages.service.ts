@@ -1,7 +1,6 @@
 import { Op } from "sequelize";
 import { BaseService } from "../../core/base/base.service.js";
-import { Message } from "../../models/Message.js";
-import { User } from "../../models/User.js";
+import { Message, User } from "../../models/index.js";
 
 export class MessagesService extends BaseService {
   async getThread(user1Id: string, user2Id: string) {
@@ -53,3 +52,4 @@ export class MessagesService extends BaseService {
 }
 
 export const messagesService = new MessagesService();
+

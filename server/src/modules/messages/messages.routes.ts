@@ -8,3 +8,4 @@ router.post("/", messagesController.send);
 router.post("/read", messagesController.markRead);
 
 export default router;
+

@@ -8,3 +8,4 @@ router.get("/:id", doctorsController.getById);
 router.patch("/:id/status", doctorsController.updateStatus);
 
 export default router;
+

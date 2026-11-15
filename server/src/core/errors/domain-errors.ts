@@ -77,3 +77,4 @@ export class InternalServerError extends BaseError {
     return [{ message: this.message }];
   }
 }
+

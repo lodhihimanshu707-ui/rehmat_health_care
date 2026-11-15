@@ -24,3 +24,4 @@ export class MessagesController extends BaseController {
 }
 
 export const messagesController = new MessagesController();
+

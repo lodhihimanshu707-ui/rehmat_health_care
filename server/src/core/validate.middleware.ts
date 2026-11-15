@@ -14,3 +14,4 @@ export const validate = (schema: AnyZodObject) =>
       throw error;
     }
   });
+

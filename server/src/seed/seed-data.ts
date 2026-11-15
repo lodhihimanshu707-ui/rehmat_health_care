@@ -1,8 +1,8 @@
 import { sequelize } from "../config/database.js";
-import { User, Doctor, Wallet, Transaction, Consultation, Message } from "../models/index.js";
+import { User, Doctor, Wallet, Transaction, Message } from "../models/index.js";
 
 export async function seedDatabase() {
-  console.log("🌱 Syncing database schema...");
+  console.log("🌱 Syncing database schema with PostgreSQL...");
   await sequelize.sync({ force: true });
   console.log("✅ Tables synced successfully.");
 
@@ -10,7 +10,7 @@ export async function seedDatabase() {
 
   // 1. Doctor: Dr. Rehmat Ali
   const drRehmatUser = await User.create({
-    id: "d1000000-0000-0000-0000-000000000001",
+    id: "b1000000-0000-0000-0000-000000000001",
     name: "Dr. Rehmat Ali",
     phone: "+91 98370 12345",
     email: "dr.rehmat@rehmathealthcare.com",
@@ -19,7 +19,7 @@ export async function seedDatabase() {
   });
 
   const drRehmat = await Doctor.create({
-    id: "doc-rehmat-01",
+    id: "b2000000-0000-0000-0000-000000000001",
     userId: drRehmatUser.id,
     specialization: "General Physician & Family Medicine",
     qualifications: "MBBS, MD (General Medicine)",
@@ -34,7 +34,7 @@ export async function seedDatabase() {
 
   // 2. Doctor: Dr. Sana Khan
   const drSanaUser = await User.create({
-    id: "d1000000-0000-0000-0000-000000000002",
+    id: "c1000000-0000-0000-0000-000000000002",
     name: "Dr. Sana Khan",
     phone: "+91 98370 67890",
     email: "dr.sana@rehmathealthcare.com",
@@ -43,7 +43,7 @@ export async function seedDatabase() {
   });
 
   const drSana = await Doctor.create({
-    id: "doc-sana-02",
+    id: "c2000000-0000-0000-0000-000000000002",
     userId: drSanaUser.id,
     specialization: "Women Health & Family Wellness",
     qualifications: "BUMS, Consultant Physician",
@@ -58,7 +58,7 @@ export async function seedDatabase() {
 
   // 3. Demo Patient: Mohd. Imran
   const patientUser = await User.create({
-    id: "p1000000-0000-0000-0000-000000000001",
+    id: "a1000000-0000-0000-0000-000000000001",
     name: "Mohd. Imran",
     phone: "+91 94120 54321",
     email: "imran.moradabad@gmail.com",
@@ -68,7 +68,7 @@ export async function seedDatabase() {
 
   // Create Patient Wallet with initial bonus of ₹150 (approx 10 minutes of consultation)
   const patientWallet = await Wallet.create({
-    id: "w1000000-0000-0000-0000-000000000001",
+    id: "e1000000-0000-0000-0000-000000000001",
     userId: patientUser.id,
     balance: 150.0,
     currency: "INR",
@@ -76,6 +76,7 @@ export async function seedDatabase() {
 
   // Create initial transaction record
   await Transaction.create({
+    id: "f1000000-0000-0000-0000-000000000001",
     walletId: patientWallet.id,
     type: "credit",
     amount: 150.0,
@@ -87,13 +88,14 @@ export async function seedDatabase() {
 
   // Create a welcome chat message from Dr. Rehmat Ali
   await Message.create({
+    id: "f2000000-0000-0000-0000-000000000001",
     senderId: drRehmatUser.id,
     receiverId: patientUser.id,
     text: "Hello Mohd. Imran! Welcome to Rehmat Health Care teleconsultation. You can initiate a live video call or text me here anytime you need medical advice.",
     isRead: false,
   });
 
-  console.log("🎉 Seed data created successfully!");
+  console.log("🎉 Neon PostgreSQL Seed completed successfully!");
   console.log({
     doctors: [drRehmat.id, drSana.id],
     patient: patientUser.id,
@@ -101,7 +103,6 @@ export async function seedDatabase() {
   });
 }
 
-// Run immediately if called directly via tsx
 seedDatabase()
   .then(() => {
     process.exit(0);

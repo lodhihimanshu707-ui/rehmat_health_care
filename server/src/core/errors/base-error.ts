@@ -31,3 +31,4 @@ export class ApiError extends BaseError {
     return [{ message: this.message }];
   }
 }
+

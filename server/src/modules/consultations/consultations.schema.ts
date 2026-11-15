@@ -19,3 +19,4 @@ export const endConsultationSchema = z.object({
 export type InitiateConsultationInput = z.infer<typeof initiateConsultationSchema>;
 export type TickConsultationInput = z.infer<typeof tickConsultationSchema>;
 export type EndConsultationInput = z.infer<typeof endConsultationSchema>;
+

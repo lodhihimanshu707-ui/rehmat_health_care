@@ -10,3 +10,4 @@ router.post("/recharge", validate(rechargeWalletSchema), walletController.rechar
 router.get("/:userId/transactions", walletController.getTransactions);
 
 export default router;
+

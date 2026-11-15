@@ -8,3 +8,4 @@ export const rechargeWalletSchema = z.object({
 });
 
 export type RechargeWalletInput = z.infer<typeof rechargeWalletSchema>;
+

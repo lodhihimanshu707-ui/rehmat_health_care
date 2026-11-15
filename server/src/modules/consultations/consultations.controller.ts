@@ -37,3 +37,4 @@ export class ConsultationsController extends BaseController {
 }
 
 export const consultationsController = new ConsultationsController();
+

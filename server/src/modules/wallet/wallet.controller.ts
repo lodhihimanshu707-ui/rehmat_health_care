@@ -23,3 +23,4 @@ export class WalletController extends BaseController {
 }
 
 export const walletController = new WalletController();
+
