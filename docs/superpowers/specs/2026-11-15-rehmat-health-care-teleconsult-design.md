@@ -3,20 +3,21 @@
 - **Client:** Rehmat Health Care (Malviya Nagar, Moradabad)
 - **Document Date:** 2026-11-15
 - **Type:** Architectural Specification & Enterprise System Design
-- **Architecture Pattern:** Feature-Driven Modular Architecture (`src/features/*`) + Node.js API Services
+- **Architecture Pattern:** Decoupled Architecture with `server/` (Node.js + Servercn + Sequelize + Socket.io) & `client/` (React + shadcn/ui + TanStack Query + Zustand + Modular `features/`)
 - **Status:** Approved for Implementation Planning
 
 ---
 
 ## 1. Executive Summary & Objective
 
-Rehmat Health Care requires a production-grade, highly responsive teleconsultation web application tailored for their clinic. The system enables patients to:
-1. Access a high-grade, mobile-responsive portal built with **Next.js (App Router)**, **React**, **TypeScript**, **shadcn/ui**, and **Tailwind CSS**.
+Rehmat Health Care requires a production-grade, highly responsive teleconsultation web application tailored for their clinic in Malviya Nagar, Moradabad. The system enables patients to:
+1. Access a high-grade, mobile-responsive portal built with **React**, **TypeScript**, **shadcn/ui**, and **Tailwind CSS**.
 2. Manage a prepaid medical wallet with simulated Indian payment gateways (UPI, Cards, NetBanking) powered by **Zustand** and **TanStack Query**.
 3. Browse verified Rehmat Health Care doctors with transparent per-minute consultation rates.
 4. Conduct real-time **Video Consultations** with live per-minute billing, dynamic duration tickers, low-balance warnings, and automated balance-exhaustion safety cutoffs.
 5. Communicate via real-time **In-App Messaging** for prescriptions and clinical inquiries.
-6. Persist and manage data through **Sequelize ORM** (with SQLite zero-config local database, switchable to PostgreSQL) with robust **Zod** schema validations and enterprise-grade repository/service layers.
+6. Real-time WebRTC signaling and instant incoming call ringing powered by a dedicated **Node.js + Socket.io** backend.
+7. Persist and manage data through **Sequelize ORM** (with SQLite zero-config local database, switchable to PostgreSQL) with robust **Zod** schema validations and **servercn** clean architecture patterns (`ApiError`, `ApiResponse`, `asyncHandler`, `validate` middleware).
 
 ---
 
@@ -24,299 +25,160 @@ Rehmat Health Care requires a production-grade, highly responsive teleconsultati
 
 | Layer | Technology | Purpose |
 |---|---|---|
-| **Framework & Runtime** | Next.js 15+ (App Router) + Node.js | Server components, API Route Handlers, SSR/CSR balance |
-| **Language** | TypeScript (strict mode) | Type safety across client, server, and database models |
-| **Architecture Pattern**| **Feature-Driven Modular (`src/features/*`)** | Colocation of components, hooks, services, and schemas per domain |
-| **UI Components** | **shadcn/ui** + Radix UI + Lucide Icons | Accessible, modern healthcare component design system |
-| **Styling** | Tailwind CSS + `class-variance-authority` | Mobile-first responsive layout (Moradabad clinic branding) |
+| **Backend Runtime** | Node.js (TypeScript) + Express | Modular REST API and WebSocket gateway |
+| **Backend Architecture** | **Servercn** Patterns (`ApiError`, `ApiResponse`, `asyncHandler`, `validate`) | Clean, unbundled, enterprise error and response formatting |
+| **Real-time Engine** | **Socket.io** | Instant video call ringing, WebRTC signaling, live status, chat |
+| **Database & ORM** | **Sequelize** + **SQLite / PostgreSQL** | Relational data persistence with strict foreign keys & transactions |
+| **Data Validation** | **Zod** | Strict runtime validation schemas for payloads and requests |
+| **Frontend Framework** | **React** + **Vite** + **TypeScript** | Lightning fast client, instant hot reload, and mobile-first responsive layout |
+| **Frontend UI System** | **shadcn/ui** + Radix UI + Lucide Icons | Accessible, high-end healthcare UI design system |
+| **Frontend Styling** | Tailwind CSS + `class-variance-authority` | Moradabad clinic branding (clean emerald/teal healthcare palette) |
+| **Client Architecture** | **Feature-Driven Modular (`src/features/*`)** | High cohesion: `wallet/`, `consultation/`, `doctors/`, `chat/`, `auth/` |
 | **Client State** | **Zustand** | Global call session, live timer ticker, wallet balance, active role |
 | **Server State / Caching** | **TanStack Query (React Query v5)** | Declarative queries, mutations, cache invalidation, loading states |
-| **Data Validation** | **Zod** | Runtime contract validation for API payloads, forms, and entities |
-| **ORM & Database** | **Sequelize** + **SQLite / PostgreSQL** | Relational data persistence with strict foreign keys & transactions |
-| **Video & Media** | WebRTC API + BroadcastChannel / Socket | P2P audio/video streaming, media controls, and signaling |
+| **Video & Media** | WebRTC API + Socket.io Signaling | P2P audio/video streaming, media controls, and status sync |
 
 ---
 
-## 3. Best-in-Class Modular `features/` Architecture & Folder Structure
-
-We organize code into self-contained feature modules under `src/features/`. Each feature encapsulates its own components, hooks, services, types, and schemas:
+## 3. Architecture & Project Layout
 
 ```
 c:\Users\Himanshu\OneDrive\Desktop\Project\Rehmat_Health_Care\
 ├── docs/
-│   └── superpowers/
-│       └── specs/
-│           └── 2026-11-15-rehmat-health-care-teleconsult-design.md
-├── src/
-│   ├── app/                                # Next.js App Router (Routing Only)
-│   │   ├── api/                            # Node.js API Endpoints (Delegates to Feature Services)
-│   │   │   ├── doctors/route.ts
-│   │   │   ├── wallet/
-│   │   │   │   ├── balance/route.ts
-│   │   │   │   ├── recharge/route.ts
-│   │   │   │   └── transactions/route.ts
-│   │   │   ├── consultations/
-│   │   │   │   ├── route.ts
-│   │   │   │   └── [id]/
-│   │   │   │       ├── tick/route.ts
-│   │   │   │       └── end/route.ts
-│   │   │   ├── messages/route.ts
-│   │   │   └── seed/route.ts
-│   │   ├── consultation/
-│   │   │   └── [id]/page.tsx               # Video Consultation Page
-│   │   ├── doctors/
-│   │   │   └── page.tsx                    # Doctors Directory Page
-│   │   ├── chat/
-│   │   │   └── page.tsx                    # Messaging Page
-│   │   ├── wallet/
-│   │   │   └── page.tsx                    # Wallet & Ledger Page
-│   │   ├── layout.tsx                      # Root Layout with Providers & Header
-│   │   ├── page.tsx                        # Clinic Landing Page
-│   │   └── globals.css                     # Tailwind & shadcn theme tokens
-│   │
-│   ├── features/                           # Feature Modules (High Cohesion, Low Coupling)
-│   │   ├── wallet/                         # Wallet & Payment Feature Module
-│   │   │   ├── components/
-│   │   │   │   ├── balance-card.tsx
-│   │   │   │   ├── recharge-modal.tsx      # Preset packs (₹100, ₹250, ₹500) + UPI
-│   │   │   │   └── transaction-list.tsx
-│   │   │   ├── hooks/
-│   │   │   │   ├── use-wallet-query.ts     # TanStack query for wallet balance
-│   │   │   │   └── use-recharge-mutation.ts
-│   │   │   ├── services/
-│   │   │   │   └── wallet.service.ts       # Atomic balance credit/debit logic
-│   │   │   ├── schemas/
-│   │   │   │   └── wallet.schema.ts        # Zod schemas for recharge & balance
-│   │   │   ├── store/
-│   │   │   │   └── use-wallet-store.ts     # Zustand client wallet store
-│   │   │   └── types/
-│   │   │       └── wallet.types.ts
-│   │   │
-│   │   ├── consultation/                   # Video Call & Per-Minute Billing Feature Module
-│   │   │   ├── components/
-│   │   │   │   ├── video-room.tsx          # Video canvas, local & remote streams
-│   │   │   │   ├── call-controls.tsx       # Mute, Camera toggle, End Call
-│   │   │   │   ├── billing-hud.tsx         # Live timer, rate ticker, remaining credit
-│   │   │   │   ├── low-balance-alert.tsx
-│   │   │   │   └── incoming-call-modal.tsx
-│   │   │   ├── hooks/
-│   │   │   │   ├── use-consultation-query.ts
-│   │   │   │   ├── use-call-timer.ts       # Real-time second & minute timer
-│   │   │   │   └── use-webrtc.ts           # WebRTC peer connection & media
-│   │   │   ├── services/
-│   │   │   │   ├── billing.service.ts      # Per-minute rate computation & auto-cutoff
-│   │   │   │   └── consultation.service.ts
-│   │   │   ├── schemas/
-│   │   │   │   └── consultation.schema.ts  # Zod schema for call events & ticks
-│   │   │   ├── store/
-│   │   │   │   └── use-call-store.ts       # Zustand call session store
-│   │   │   └── types/
-│   │   │       └── consultation.types.ts
-│   │   │
-│   │   ├── doctors/                        # Doctor Discovery Feature Module
-│   │   │   ├── components/
-│   │   │   │   ├── doctor-card.tsx
-│   │   │   │   └── doctor-filter.tsx
-│   │   │   ├── hooks/
-│   │   │   │   └── use-doctors-query.ts
-│   │   │   ├── services/
-│   │   │   │   └── doctors.service.ts
-│   │   │   ├── schemas/
-│   │   │   │   └── doctor.schema.ts
-│   │   │   └── types/
-│   │   │       └── doctor.types.ts
-│   │   │
-│   │   ├── chat/                           # Messaging Feature Module
-│   │   │   ├── components/
-│   │   │   │   ├── message-bubble.tsx
-│   │   │   │   ├── message-input.tsx
-│   │   │   │   └── chat-container.tsx
-│   │   │   ├── hooks/
-│   │   │   │   ├── use-messages-query.ts
-│   │   │   │   └── use-send-message.ts
-│   │   │   ├── services/
-│   │   │   │   └── chat.service.ts
-│   │   │   ├── schemas/
-│   │   │   │   └── message.schema.ts
-│   │   │   └── types/
-│   │   │       └── chat.types.ts
-│   │   │
-│   │   └── auth/                           # Demo Roles & Auth Feature Module
-│   │       ├── components/
-│   │       │   └── role-switcher.tsx       # Instant Patient <-> Doctor testing toggle
-│   │       ├── store/
-│   │       │   └── use-auth-store.ts       # Active demo user (Patient vs Doctor)
-│   │       └── types/
-│   │           └── auth.types.ts
-│   │
-│   ├── components/                         # Shared UI Components & Layout
-│   │   ├── ui/                             # shadcn/ui primitives
-│   │   │   ├── button.tsx
-│   │   │   ├── card.tsx
-│   │   │   ├── dialog.tsx
-│   │   │   ├── badge.tsx
-│   │   │   ├── input.tsx
-│   │   │   ├── toast.tsx
-│   │   │   ├── tabs.tsx
-│   │   │   ├── avatar.tsx
-│   │   │   └── progress.tsx
-│   │   └── layout/
-│   │       ├── navbar.tsx                  # Clinic Navigation & Active Balance
-│   │       └── footer.tsx                  # Rehmat Health Care details (Malviya Nagar)
-│   │
-│   ├── lib/                                # Core Shared Libraries & Infrastructure
-│   │   ├── db/
-│   │   │   ├── connection.ts               # Sequelize database instance & pool
-│   │   │   ├── models/
-│   │   │   │   ├── index.ts                # Model associations setup
-│   │   │   │   ├── User.ts
-│   │   │   │   ├── Doctor.ts
-│   │   │   │   ├── Wallet.ts
-│   │   │   │   ├── Transaction.ts
-│   │   │   │   ├── Consultation.ts
-│   │   │   │   └── Message.ts
-│   │   │   └── seed-data.ts                # Rehmat Health Care initial seed records
-│   │   ├── webrtc/
-│   │   │   ├── media-manager.ts            # Camera & mic stream handler
-│   │   │   └── signaling.ts                # Multi-tab BroadcastChannel & WebRTC sync
-│   │   └── utils.ts                        # shadcn `cn()` helper
-│   │
-│   └── providers/
-│       ├── query-provider.tsx              # TanStack QueryClientProvider
-│       └── toast-provider.tsx
+│   ├── superpowers/
+│   │   ├── specs/
+│   │   │   └── 2026-11-15-rehmat-health-care-teleconsult-design.md
+│   │   └── plans/
+│   │       └── 2026-11-15-rehmat-health-care-implementation-plan.md
 │
-├── package.json
-├── tsconfig.json
-├── tailwind.config.ts
-└── next.config.ts
+├── server/                                 # Node.js + Express + Sequelize + Socket.io Backend
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── src/
+│   │   ├── config/
+│   │   │   ├── database.ts                 # Sequelize instance & SQLite/Postgres connection
+│   │   │   └── env.ts                      # Zod-validated environment config
+│   │   ├── models/                         # Sequelize relational models
+│   │   │   ├── index.ts                    # Model associations
+│   │   │   ├── User.ts
+│   │   │   ├── Doctor.ts
+│   │   │   ├── Wallet.ts
+│   │   │   ├── Transaction.ts
+│   │   │   ├── Consultation.ts
+│   │   │   └── Message.ts
+│   │   ├── core/                           # Servercn Architecture Primitives
+│   │   │   ├── api-error.ts                # Standardized ApiError class
+│   │   │   ├── api-response.ts             # Standardized ApiResponse wrapper
+│   │   │   ├── async-handler.ts            # Catch-all async error wrapper
+│   │   │   └── validate.middleware.ts      # Zod schema validation middleware
+│   │   ├── modules/                        # Backend Feature Modules
+│   │   │   ├── doctors/
+│   │   │   │   ├── doctors.controller.ts
+│   │   │   │   ├── doctors.service.ts
+│   │   │   │   └── doctors.routes.ts
+│   │   │   ├── wallet/
+│   │   │   │   ├── wallet.controller.ts
+│   │   │   │   ├── wallet.service.ts
+│   │   │   │   ├── wallet.schema.ts
+│   │   │   │   └── wallet.routes.ts
+│   │   │   ├── consultations/
+│   │   │   │   ├── consultations.controller.ts
+│   │   │   │   ├── consultations.service.ts
+│   │   │   │   ├── consultations.schema.ts
+│   │   │   │   └── consultations.routes.ts
+│   │   │   └── messages/
+│   │   │       ├── messages.controller.ts
+│   │   │       ├── messages.service.ts
+│   │   │       └── messages.routes.ts
+│   │   ├── socket/                         # Socket.io Real-Time Handlers
+│   │   │   ├── index.ts                    # Socket server initialization
+│   │   │   ├── call.socket.ts              # WebRTC signaling, ringing, accept/reject
+│   │   │   └── chat.socket.ts              # Real-time text messaging
+│   │   ├── seed/
+│   │   │   └── seed-data.ts                # Initial clinic doctors and patient records
+│   │   ├── app.ts                          # Express app configuration & middlewares
+│   │   └── server.ts                       # HTTP + Socket.io bootstrap entry point
+│
+└── client/                                 # React + Vite + TypeScript + Tailwind + shadcn/ui Frontend
+    ├── package.json
+    ├── tsconfig.json
+    ├── vite.config.ts
+    ├── index.html
+    ├── src/
+    │   ├── components/                     # Shared UI Components & Layout
+    │   │   ├── ui/                         # shadcn/ui components (button, dialog, card, badge, etc.)
+    │   │   ├── layout/
+    │   │   │   ├── navbar.tsx              # Clinic header & role switcher
+    │   │   │   └── footer.tsx              # Rehmat Health Care details (Malviya Nagar)
+    │   ├── features/                       # Modular Feature-Driven Structure
+    │   │   ├── auth/                       # Demo Profile & Role Switcher
+    │   │   │   ├── components/role-switcher.tsx
+    │   │   │   ├── store/use-auth-store.ts
+    │   │   │   └── types/auth.types.ts
+    │   │   ├── wallet/                     # Wallet & Recharge Module
+    │   │   │   ├── components/
+    │   │   │   │   ├── balance-card.tsx
+    │   │   │   │   ├── recharge-modal.tsx
+    │   │   │   │   └── transaction-list.tsx
+    │   │   │   ├── hooks/use-wallet.ts     # TanStack query & mutations
+    │   │   │   └── types/wallet.types.ts
+    │   │   ├── doctors/                    # Doctor Directory Module
+    │   │   │   ├── components/
+    │   │   │   │   ├── doctor-card.tsx
+    │   │   │   │   └── doctor-filter.tsx
+    │   │   │   ├── hooks/use-doctors.ts    # TanStack query
+    │   │   │   └── types/doctor.types.ts
+    │   │   ├── consultation/               # Video Call & Live Billing Module
+    │   │   │   ├── components/
+    │   │   │   │   ├── video-room.tsx      # Video canvas & local/remote stream
+    │   │   │   │   ├── call-controls.tsx   # Camera, Mic, End Call controls
+    │   │   │   │   ├── billing-hud.tsx     # Live timer, rate ticker, remaining credit
+    │   │   │   │   ├── low-balance-alert.tsx
+    │   │   │   │   └── incoming-call-modal.tsx # Ringing alert for Doctor
+    │   │   │   ├── hooks/
+    │   │   │   │   ├── use-webrtc.ts       # WebRTC peer connection & media stream
+    │   │   │   │   └── use-call-timer.ts   # Live duration & balance deduction ticker
+    │   │   │   ├── store/use-call-store.ts # Zustand call state
+    │   │   │   └── types/consultation.types.ts
+    │   │   └── chat/                       # Live Messaging Module
+    │   │       ├── components/
+    │   │       │   ├── chat-container.tsx
+    │   │       │   ├── message-bubble.tsx
+    │   │       │   └── message-input.tsx
+    │   │       ├── hooks/use-chat.ts
+    │   │       └── types/chat.types.ts
+    │   ├── lib/
+    │   │   ├── api-client.ts               # Axios / Fetch client with baseUrl
+    │   │   ├── socket.ts                   # Client Socket.io connection instance
+    │   │   └── utils.ts                    # shadcn `cn()` helper
+    │   ├── providers/
+    │   │   ├── query-provider.tsx          # TanStack QueryClientProvider
+    │   │   └── toast-provider.tsx          # Toast notification provider
+    │   ├── App.tsx                         # Main Clinic App Shell
+    │   ├── main.tsx                        # Application mount
+    │   └── index.css                       # Tailwind CSS & theme tokens
 ```
 
 ---
 
 ## 4. Sequelize Relational Models & Zod Schemas
 
-### 4.1 `User` Model
-```typescript
-interface UserAttributes {
-  id: string; // UUID v4
-  name: string;
-  phone: string;
-  email?: string;
-  role: 'patient' | 'doctor' | 'admin';
-  avatarUrl?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
-```
-
-### 4.2 `Doctor` Model
-```typescript
-interface DoctorAttributes {
-  id: string;
-  userId: string; // FK -> User.id
-  specialization: string; // e.g. "General Physician", "Cardiologist"
-  qualifications: string; // e.g. "MBBS, MD"
-  experienceYears: number; // e.g. 12
-  clinicName: string; // "Rehmat Health Care"
-  ratePerMinute: number; // e.g. 15.00 INR
-  isOnline: boolean;
-  isBusy: boolean;
-  rating: number; // e.g. 4.9
-}
-```
-
-### 4.3 `Wallet` Model
-```typescript
-interface WalletAttributes {
-  id: string;
-  userId: string; // FK -> User.id
-  balance: number; // Current balance (e.g. 250.00 INR)
-  currency: string; // "INR"
-  updatedAt?: Date;
-}
-```
-
-### 4.4 `Transaction` Model
-```typescript
-interface TransactionAttributes {
-  id: string; // UUID v4
-  walletId: string; // FK -> Wallet.id
-  type: 'credit' | 'debit';
-  amount: number;
-  paymentMethod: 'UPI' | 'Card' | 'NetBanking' | 'Wallet';
-  referenceId?: string; // Links to Consultation.id for debits
-  status: 'success' | 'pending' | 'failed';
-  description: string;
-  createdAt?: Date;
-}
-```
-
-### 4.5 `Consultation` (Call Session) Model
-```typescript
-interface ConsultationAttributes {
-  id: string;
-  patientId: string; // FK -> User.id
-  doctorId: string; // FK -> Doctor.id
-  type: 'video' | 'audio';
-  status: 'ringing' | 'connected' | 'completed' | 'ended_zero_balance' | 'rejected';
-  ratePerMinute: number; // Snapshot of rate at initiation
-  startedAt?: Date;
-  endedAt?: Date;
-  durationSeconds: number;
-  billedMinutes: number; // Math.ceil(durationSeconds / 60)
-  totalCost: number;
-}
-```
-
-### 4.6 `Message` Model
-```typescript
-interface MessageAttributes {
-  id: string;
-  senderId: string; // FK -> User.id
-  receiverId: string; // FK -> User.id
-  consultationId?: string;
-  text: string;
-  isRead: boolean;
-  createdAt?: Date;
-}
-```
+### 4.1 Database Models
+1. **User**: `id` (UUID), `name`, `phone`, `role` ('patient' | 'doctor'), `avatarUrl`.
+2. **Doctor**: `id` (UUID), `userId` (FK), `specialization`, `qualifications`, `experienceYears`, `clinicName`, `ratePerMinute`, `isOnline`, `isBusy`, `rating`.
+3. **Wallet**: `id` (UUID), `userId` (FK), `balance` (DECIMAL), `currency` ('INR').
+4. **Transaction**: `id` (UUID), `walletId` (FK), `type` ('credit' | 'debit'), `amount`, `paymentMethod`, `referenceId`, `status`, `description`.
+5. **Consultation**: `id` (UUID), `patientId` (FK), `doctorId` (FK), `type` ('video' | 'audio'), `status`, `ratePerMinute`, `startedAt`, `endedAt`, `durationSeconds`, `billedMinutes`, `totalCost`.
+6. **Message**: `id` (UUID), `senderId` (FK), `receiverId` (FK), `text`, `isRead`.
 
 ---
 
 ## 5. Per-Minute Billing Engine & Real-Time Auto Cutoff Logic
 
-### Billing Formula:
-$$\text{Billed Minutes} = \max\left(1, \left\lceil \frac{\text{Duration in Seconds}}{60} \right\rceil\right)$$
-$$\text{Live Deducted Amount} = \text{Billed Minutes} \times \text{Rate Per Minute}$$
-
-### Cutoff Logic & Safety:
-1. **Pre-Call Check:** Ensure `wallet.balance >= doctor.ratePerMinute`. If lower, prevent call and trigger the Recharge modal.
-2. **Real-time Live Tick:**
-   - Every second, the client updates the UI timer.
-   - At each 60-second boundary (or in live ticks), the system calculates remaining time:
-     $$\text{Remaining Minutes} = \left\lfloor \frac{\text{Wallet Balance}}{\text{Rate Per Minute}} \right\rfloor$$
-3. **Threshold Alerts:**
-   - **Warning Banner:** Triggers when remaining balance is $< 60$ seconds.
-   - **Auto-Cutoff:** When balance reaches zero, the WebRTC stream is closed, call status is marked as `ended_zero_balance`, and a summary dialog appears informing the user.
-
----
-
-## 6. Implementation Workflow & Next Steps
-
-1. **Step 1: Write Detailed Implementation Plan** (via `writing-plans` skill)
-2. **Step 2: Scaffold Next.js Project & Dependencies**
-   - Setup Tailwind CSS, Lucide, Radix UI primitives, `@tanstack/react-query`, `zustand`, `zod`, `sequelize`, `sqlite3`.
-3. **Step 3: Setup Database, Models, and Seed Data**
-   - Initialize Sequelize models, relationships, and Rehmat Health Care sample doctors.
-4. **Step 4: Implement Core State & API Services**
-   - Wallet recharge API & service with atomic transactions.
-   - Consultation lifecycle & billing tick API.
-   - Messaging API.
-5. **Step 5: Build UI Components & Pages**
-   - Clinic header & Role Switcher (Patient / Doctor demo modes).
-   - Doctors Directory with rate badges and call buttons.
-   - Recharge Modal with instant UPI / Card simulation.
-   - Live Video Consultation Room with controls, HUD, and live WebRTC streaming.
-   - In-App Messaging room.
-6. **Step 6: End-to-End Verification & Walkthrough**
-   - Simulate patient recharge -> start call -> live billing tick -> zero-balance cutoff -> chat.
+### Billing Rules:
+- Minimum initial balance requirement: `wallet.balance >= doctor.ratePerMinute`.
+- Live metering ticker:
+  $$\text{Billed Minutes} = \max\left(1, \left\lceil \frac{\text{Duration in Seconds}}{60} \right\rceil\right)$$
+  $$\text{Total Deducted} = \text{Billed Minutes} \times \text{Rate Per Minute}$$
+- When remaining balance $< 60$ seconds, trigger audio/visual low-balance warning banner.
+- When balance hits ₹0.00, server & client immediately end call with status `ended_zero_balance` and display consultation receipt.
