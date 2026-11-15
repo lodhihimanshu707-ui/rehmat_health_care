@@ -10,7 +10,7 @@ export function useChat(activeRecipientId: string) {
 
   const queryKey = ["chat-thread", currentUser?.id, activeRecipientId];
 
-  const { data: initialMessages = [], isLoading } = useQuery<ChatMessage[]>({
+  const { data: initialMessages, isLoading } = useQuery<ChatMessage[]>({
     queryKey,
     queryFn: async () => {
       if (!activeRecipientId || !currentUser?.id) return [];
@@ -22,7 +22,9 @@ export function useChat(activeRecipientId: string) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   useEffect(() => {
-    setMessages(initialMessages);
+    if (initialMessages) {
+      setMessages(initialMessages);
+    }
   }, [initialMessages]);
 
   useEffect(() => {

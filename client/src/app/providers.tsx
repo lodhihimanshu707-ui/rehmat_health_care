@@ -13,15 +13,20 @@ import { useCallStore } from "@/stores/call.store";
 import { getSocket, syncSocketUser } from "@/lib/socket";
 
 function SocketBootstrap() {
-  const { currentUser, checkAuth } = useAuthStore();
-  const { receiveIncomingCall } = useCallStore();
+  const currentUserId = useAuthStore((s) => s.currentUser?.id);
+  const checkAuth = useAuthStore((s) => s.checkAuth);
+  const receiveIncomingCall = useCallStore((s) => s.receiveIncomingCall);
 
+  // Check auth once on mount
   useEffect(() => {
-    // Check if stored JWT exists on load
     checkAuth();
+  }, []); // Run strictly once on mount
 
+  // Sync socket user and listen for incoming calls
+  useEffect(() => {
+    if (!currentUserId) return;
     const socket = getSocket();
-    syncSocketUser(currentUser.id);
+    syncSocketUser(currentUserId);
 
     const handleIncomingCall = (data: {
       consultationId: string;
@@ -47,7 +52,7 @@ function SocketBootstrap() {
     return () => {
       socket.off("incoming-call", handleIncomingCall);
     };
-  }, [currentUser.id, receiveIncomingCall, checkAuth]);
+  }, [currentUserId, receiveIncomingCall]);
 
   return null;
 }

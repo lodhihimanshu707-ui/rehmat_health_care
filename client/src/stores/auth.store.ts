@@ -217,6 +217,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   checkAuth: async () => {
+    if (get().isInitialized) return;
     const token = typeof window !== "undefined" ? localStorage.getItem("rehmat_auth_token") : null;
     if (!token) {
       set({ isInitialized: true, isAuthenticated: false });
