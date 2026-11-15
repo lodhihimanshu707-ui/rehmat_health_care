@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { RoleSwitcher } from "./RoleSwitcher";
-import { useAuthStore } from "@/stores/auth.store";
+import { useAuthStore, DEMO_PATIENT, DEMO_DOCTOR } from "@/stores/auth.store";
 import { useWalletStore } from "@/stores/wallet.store";
 import { formatCurrency } from "@/shared/utils/format";
 import { siteConfig } from "@/config/site";
@@ -17,7 +16,9 @@ import {
   MessageSquare,
   LogIn,
   LogOut,
-  User,
+  UserCheck,
+  Stethoscope,
+  ArrowLeftRight,
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
@@ -29,7 +30,14 @@ interface NavbarProps {
 }
 
 export function Navbar({ activeTab, onTabChange }: NavbarProps) {
-  const { currentUser, isAuthenticated, openAuthModal, logout } = useAuthStore();
+  const {
+    currentUser,
+    isAuthenticated,
+    openAuthModal,
+    logout,
+    toggleRole,
+    quickLogin,
+  } = useAuthStore();
   const { cachedBalance, openRechargeModal } = useWalletStore();
   const isPatient = currentUser.role === "patient";
 
@@ -154,17 +162,19 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
               <MessageSquare className="h-3.5 w-3.5" />
               <span>Chat</span>
             </button>
-            <button
-              onClick={() => handleNavClick("wallet")}
-              className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${
-                activeTab === "wallet"
-                  ? "bg-white text-emerald-700 shadow-sm"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
-              }`}
-            >
-              <WalletIcon className="h-3.5 w-3.5" />
-              <span>Wallet</span>
-            </button>
+            {isAuthenticated && isPatient && (
+              <button
+                onClick={() => handleNavClick("wallet")}
+                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeTab === "wallet"
+                    ? "bg-white text-emerald-700 shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/50"
+                }`}
+              >
+                <WalletIcon className="h-3.5 w-3.5" />
+                <span>Wallet</span>
+              </button>
+            )}
             <button
               onClick={() => handleNavClick("website", "timings")}
               className="rounded-xl px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-200/50 transition-all"
@@ -185,59 +195,94 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
               <span>Consult (₹15/m)</span>
             </Button>
 
-            {/* Patient Wallet Badge */}
-            {isPatient && (
-              <div className="flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 shadow-2xs">
-                <WalletIcon className="h-4 w-4 text-emerald-700 shrink-0" />
-                <span className="text-xs font-extrabold text-emerald-950">
-                  {formatCurrency(cachedBalance)}
-                </span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={openRechargeModal}
-                  className="h-5 w-5 p-0 text-emerald-700 hover:bg-emerald-200/60 rounded-full"
-                  title="Add balance to Health Wallet"
-                >
-                  <PlusCircle className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            )}
-
-            {/* Auth / Profile Pill */}
+            {/* If Authenticated: Show Wallet & Profile */}
             {isAuthenticated ? (
-              <div className="flex items-center gap-1.5">
-                <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2.5 py-1 text-xs shadow-2xs">
-                  <div className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[11px]">
-                    {currentUser.name[0]}
+              <>
+                {/* Patient Wallet Badge */}
+                {isPatient && (
+                  <div className="flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 shadow-2xs">
+                    <WalletIcon className="h-4 w-4 text-emerald-700 shrink-0" />
+                    <span className="text-xs font-extrabold text-emerald-950">
+                      {formatCurrency(cachedBalance)}
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={openRechargeModal}
+                      className="h-5 w-5 p-0 text-emerald-700 hover:bg-emerald-200/60 rounded-full"
+                      title="Add balance to Health Wallet"
+                    >
+                      <PlusCircle className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
-                  <span className="font-bold text-slate-800 max-w-[85px] truncate">
-                    {currentUser.name}
-                  </span>
+                )}
+
+                {/* Logged-In User Profile */}
+                <div className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white p-1 shadow-2xs">
+                  <div className="flex items-center gap-1.5 px-2 py-0.5">
+                    {isPatient ? (
+                      <UserCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                    ) : (
+                      <Stethoscope className="h-4 w-4 text-blue-600 shrink-0" />
+                    )}
+                    <div className="flex flex-col text-left leading-none">
+                      <span className="text-xs font-extrabold text-slate-900 truncate max-w-[95px]">
+                        {currentUser.name}
+                      </span>
+                      <span className="text-[9px] text-slate-500 font-semibold capitalize">
+                        {currentUser.role} Mode
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Switch Demo Role */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={toggleRole}
+                    className="h-7 gap-1 rounded-lg bg-slate-100 px-2 text-[11px] font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors"
+                    title="Switch between Patient and Doctor for demo testing"
+                  >
+                    <ArrowLeftRight className="h-3 w-3" />
+                    <span>Switch</span>
+                  </Button>
+
+                  {/* Sign Out */}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={logout}
+                    className="h-7 w-7 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg ml-0.5"
+                    title="Sign Out"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                  </Button>
                 </div>
+              </>
+            ) : (
+              /* If NOT Authenticated: Show Clean Sign In & 1-Click Demo Login */
+              <div className="flex items-center gap-2">
                 <Button
                   size="sm"
-                  variant="ghost"
-                  onClick={logout}
-                  className="h-8 w-8 p-0 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl"
-                  title="Sign Out"
+                  onClick={() => openAuthModal("login")}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs gap-1.5 h-9 px-3.5"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogIn className="h-3.5 w-3.5" />
+                  <span>Sign In</span>
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => quickLogin(DEMO_PATIENT.id)}
+                  className="bg-white border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-xl shadow-2xs gap-1.5 h-9 px-3"
+                  title="One-click demo login as Mohd. Imran"
+                >
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
+                  <span>Demo Login</span>
                 </Button>
               </div>
-            ) : (
-              <Button
-                size="sm"
-                onClick={() => openAuthModal("login")}
-                className="bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl shadow-2xs gap-1.5 h-9 px-3"
-              >
-                <LogIn className="h-3.5 w-3.5 text-emerald-600" />
-                <span>Sign In</span>
-              </Button>
             )}
-
-            {/* Demo Role Switcher */}
-            <RoleSwitcher />
           </div>
         </div>
       </div>
@@ -269,14 +314,16 @@ export function Navbar({ activeTab, onTabChange }: NavbarProps) {
         >
           Chat
         </button>
-        <button
-          onClick={() => handleNavClick("wallet")}
-          className={`py-1.5 px-3 rounded-xl transition-all ${
-            activeTab === "wallet" ? "bg-emerald-600 text-white font-bold shadow-xs" : "text-slate-600"
-          }`}
-        >
-          Wallet
-        </button>
+        {isAuthenticated && isPatient && (
+          <button
+            onClick={() => handleNavClick("wallet")}
+            className={`py-1.5 px-3 rounded-xl transition-all ${
+              activeTab === "wallet" ? "bg-emerald-600 text-white font-bold shadow-xs" : "text-slate-600"
+            }`}
+          >
+            Wallet
+          </button>
+        )}
       </div>
     </header>
   );
