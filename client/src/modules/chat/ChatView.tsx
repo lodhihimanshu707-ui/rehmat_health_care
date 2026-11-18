@@ -32,7 +32,22 @@ import {
   PhoneOutgoing,
   X,
   Home,
+  UserCheck,
+  FileText,
+  Trash2,
+  ShieldCheck,
+  Stethoscope,
+  MapPin,
+  Clock,
+  Printer,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/shared/ui/dialog";
 
 interface Contact {
   id: string;
@@ -149,6 +164,8 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const [presetText, setPresetText] = useState("");
   const [isMuted, setIsMuted] = useState(soundManager.isMuted());
   const [showMenu, setShowMenu] = useState(false);
+  const [showDoctorInfo, setShowDoctorInfo] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   // Dynamic unread count tracking (clears to 0 for active / opened contact)
@@ -171,7 +188,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     }
   }, [activeRecipient?.id]);
 
-  const { messages, isLoading, sendMessage, markOutgoingAsRead } = useChat(activeRecipient.id);
+  const { messages, isLoading, sendMessage, markOutgoingAsRead, clearMessages } = useChat(activeRecipient.id);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -263,38 +280,50 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   };
 
   const handleStartCall = (callType: "video" | "audio" = "video") => {
-    if (!currentUser) return;
-    const isDoctorCalling = currentUser.role === "doctor";
+    const caller = currentUser || DEMO_PATIENT_1;
+    const isDoctorCalling = caller.role === "doctor";
     const newConsultationId = `cons-${Date.now()}`;
+
+    // Play instant sound feedback so user knows action fired immediately
+    if (callType === "video") {
+      soundManager.playCallConnected();
+    } else {
+      soundManager.playMessageSent();
+    }
 
     startOutgoingCall({
       id: newConsultationId,
-      patientId: isDoctorCalling ? activeRecipient.id : currentUser.id,
-      patientName: isDoctorCalling ? activeRecipient.name : currentUser.name,
-      patientAvatar: isDoctorCalling ? activeRecipient.avatarUrl : currentUser.avatarUrl,
-      doctorId: isDoctorCalling ? currentUser.id : activeRecipient.id,
-      doctorName: isDoctorCalling ? currentUser.name : activeRecipient.name,
-      doctorAvatar: isDoctorCalling ? currentUser.avatarUrl : activeRecipient.avatarUrl,
-      ratePerMinute: 15,
-      callerRole: isDoctorCalling ? "doctor" : "patient",
-      callType,
-    });
-
-    const socket = getSocket();
-    socket.emit("call-user", {
-      consultationId: newConsultationId,
-      patientId: isDoctorCalling ? activeRecipient.id : currentUser.id,
-      patientName: isDoctorCalling ? activeRecipient.name : currentUser.name,
-      patientAvatar: isDoctorCalling ? activeRecipient.avatarUrl : currentUser.avatarUrl,
-      doctorId: isDoctorCalling ? currentUser.id : activeRecipient.id,
-      doctorUserId: isDoctorCalling ? currentUser.id : activeRecipient.id,
-      doctorName: isDoctorCalling ? currentUser.name : activeRecipient.name,
-      doctorAvatar: isDoctorCalling ? currentUser.avatarUrl : activeRecipient.avatarUrl,
+      patientId: isDoctorCalling ? activeRecipient.id : caller.id,
+      patientName: isDoctorCalling ? activeRecipient.name : caller.name,
+      patientAvatar: isDoctorCalling ? activeRecipient.avatarUrl : caller.avatarUrl,
+      doctorId: isDoctorCalling ? caller.id : activeRecipient.id,
+      doctorName: isDoctorCalling ? caller.name : activeRecipient.name,
+      doctorAvatar: isDoctorCalling ? caller.avatarUrl : activeRecipient.avatarUrl,
       doctorSpecialization: "MBBS, MD - General Medicine (Beside Mohan X-Ray)",
       ratePerMinute: 15,
       callerRole: isDoctorCalling ? "doctor" : "patient",
       callType,
     });
+
+    try {
+      const socket = getSocket();
+      socket.emit("call-user", {
+        consultationId: newConsultationId,
+        patientId: isDoctorCalling ? activeRecipient.id : caller.id,
+        patientName: isDoctorCalling ? activeRecipient.name : caller.name,
+        patientAvatar: isDoctorCalling ? activeRecipient.avatarUrl : caller.avatarUrl,
+        doctorId: isDoctorCalling ? caller.id : activeRecipient.id,
+        doctorUserId: isDoctorCalling ? caller.id : activeRecipient.id,
+        doctorName: isDoctorCalling ? caller.name : activeRecipient.name,
+        doctorAvatar: isDoctorCalling ? caller.avatarUrl : activeRecipient.avatarUrl,
+        doctorSpecialization: "MBBS, MD - General Medicine (Beside Mohan X-Ray)",
+        ratePerMinute: 15,
+        callerRole: isDoctorCalling ? "doctor" : "patient",
+        callType,
+      });
+    } catch (e) {
+      console.warn("Socket emit error:", e);
+    }
   };
 
   const filteredContacts = contactList.filter((c) =>
@@ -605,19 +634,21 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
           </div>
 
           {/* Consultation Action Buttons: Direct Video OPD & Audio Call */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
+              type="button"
               onClick={() => handleStartCall("video")}
-              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+              className="h-9 px-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95 shrink-0"
               title="Start Live Video Tele-OPD"
             >
-              <Video className="h-4 w-4" />
+              <Video className="h-4 w-4 shrink-0" />
               <span className="hidden sm:inline">Video OPD</span>
             </button>
 
             <button
+              type="button"
               onClick={() => handleStartCall("audio")}
-              className="p-2 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              className="h-9 w-9 flex items-center justify-center text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer active:scale-95 shrink-0"
               title="Audio Consultation Call"
             >
               <Phone className="h-4 w-4" />
@@ -625,30 +656,93 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
 
             <div className="relative">
               <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-                title="Options"
+                type="button"
+                onClick={() => setShowMenu((prev) => !prev)}
+                className="h-9 w-9 flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer active:scale-95 shrink-0"
+                title="Options Menu"
               >
                 <MoreVertical className="h-4 w-4" />
               </button>
 
               {showMenu && (
-                <div className="absolute right-0 top-10 w-44 bg-white text-slate-800 rounded-xl shadow-xl border border-slate-100 py-1.5 z-50 text-xs">
-                  <Link
-                    href={isDoctor ? "/doctor" : "/patient"}
-                    className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 font-bold text-slate-700"
-                  >
-                    <Home className="h-4 w-4 text-emerald-600" />
-                    <span>Exit to Dashboard</span>
-                  </Link>
-                  <button
-                    onClick={toggleSound}
-                    className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-slate-50 font-semibold cursor-pointer"
-                  >
-                    <Volume2 className="h-4 w-4 text-slate-500" />
-                    <span>{isMuted ? "Unmute Sounds" : "Mute Sounds"}</span>
-                  </button>
-                </div>
+                <>
+                  {/* Backdrop to close dropdown on outside click */}
+                  <div
+                    className="fixed inset-0 z-40 bg-black/5"
+                    onClick={() => setShowMenu(false)}
+                  />
+
+                  {/* Options Card Dropdown */}
+                  <div className="absolute right-0 top-11 w-56 bg-white text-slate-800 rounded-2xl shadow-2xl border border-slate-200/80 py-1.5 z-50 text-xs divide-y divide-slate-100 animate-in fade-in zoom-in-95 duration-100 select-none">
+                    <div className="py-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowMenu(false);
+                          setShowDoctorInfo(true);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-emerald-50 text-left font-semibold text-slate-800 cursor-pointer transition-colors"
+                      >
+                        <UserCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <span>Doctor Profile & OPD</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowMenu(false);
+                          setShowReceiptModal(true);
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-emerald-50 text-left font-semibold text-slate-800 cursor-pointer transition-colors"
+                      >
+                        <FileText className="h-4 w-4 text-emerald-600 shrink-0" />
+                        <span>View OPD Receipt #RH-101</span>
+                      </button>
+                    </div>
+
+                    <div className="py-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowMenu(false);
+                          toggleSound();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 text-left font-medium text-slate-700 cursor-pointer transition-colors"
+                      >
+                        {isMuted ? (
+                          <VolumeX className="h-4 w-4 text-rose-500 shrink-0" />
+                        ) : (
+                          <Volume2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                        )}
+                        <span>{isMuted ? "Unmute Sound Chimes" : "Mute Sound Chimes"}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowMenu(false);
+                          clearMessages();
+                          soundManager.playCallEnded();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3.5 py-2 hover:bg-rose-50 text-left font-medium text-rose-600 cursor-pointer transition-colors"
+                      >
+                        <Trash2 className="h-4 w-4 text-rose-500 shrink-0" />
+                        <span>Clear Consultation</span>
+                      </button>
+                    </div>
+
+                    <div className="py-1">
+                      <Link
+                        href={isDoctor ? "/doctor" : "/patient"}
+                        onClick={() => setShowMenu(false)}
+                        className="flex items-center gap-2.5 px-3.5 py-2 hover:bg-slate-50 font-bold text-slate-700 transition-colors"
+                      >
+                        <Home className="h-4 w-4 text-slate-500 shrink-0" />
+                        <span>Exit to Dashboard</span>
+                      </Link>
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -721,6 +815,129 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
           onClearPreset={() => setPresetText("")}
         />
       </div>
+
+      {/* Modal 1: Doctor Profile & OPD Desk */}
+      <Dialog open={showDoctorInfo} onOpenChange={setShowDoctorInfo}>
+        <DialogContent className="w-[92vw] sm:max-w-md bg-white rounded-3xl p-5 sm:p-6 text-slate-800">
+          <DialogHeader className="text-center sm:text-left">
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-2">
+              <Avatar className="h-16 w-16 border-2 border-emerald-500 shadow-md">
+                <AvatarImage src={DEMO_DOCTOR.avatarUrl} />
+                <AvatarFallback className="bg-emerald-600 text-white font-bold">RA</AvatarFallback>
+              </Avatar>
+              <div className="text-center sm:text-left">
+                <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full mb-1">
+                  <ShieldCheck className="h-3 w-3 text-emerald-600" />
+                  <span>Verified Chief Physician</span>
+                </div>
+                <DialogTitle className="text-lg font-bold text-slate-900 leading-tight">
+                  Dr. Raees Akhtar
+                </DialogTitle>
+                <p className="text-xs text-slate-500">MBBS, MD - General Medicine</p>
+              </div>
+            </div>
+            <DialogDescription className="text-xs text-slate-500 text-left pt-2">
+              Senior Consultant at Rehmat Health Care. Diagnostic synergy partner with Mohan X-Ray.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-2 space-y-2.5 text-xs text-slate-600">
+            <div className="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-xl">
+              <MapPin className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span>Beside Mohan X-Ray, Malviya Nagar, Moradabad (U.P.)</span>
+            </div>
+            <div className="flex items-center gap-2.5 p-2.5 bg-slate-50 rounded-xl">
+              <Clock className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span>OPD Timings: Monday – Saturday (10:00 AM – 08:00 PM)</span>
+            </div>
+            <div className="flex items-center gap-2.5 p-2.5 bg-emerald-50 text-emerald-800 rounded-xl font-medium">
+              <Phone className="h-4 w-4 text-emerald-600 shrink-0" />
+              <span>Tele-OPD Voice & Video Rate: ₹15 / Minute</span>
+            </div>
+          </div>
+
+          <div className="pt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setShowDoctorInfo(false);
+                handleStartCall("video");
+              }}
+              className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <Video className="h-4 w-4" />
+              <span>Start Video OPD</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowDoctorInfo(false);
+                handleStartCall("audio");
+              }}
+              className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <Phone className="h-4 w-4 text-emerald-600" />
+              <span>Voice Call</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal 2: Digital OPD Receipt #RH-101 */}
+      <Dialog open={showReceiptModal} onOpenChange={setShowReceiptModal}>
+        <DialogContent className="w-[92vw] sm:max-w-md bg-white rounded-3xl p-5 sm:p-6 text-slate-800">
+          <DialogHeader>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <DialogTitle className="text-base font-bold text-slate-900">
+                  Rehmat Health Care
+                </DialogTitle>
+                <p className="text-[11px] text-slate-500">Digital OPD Consultation Receipt</p>
+              </div>
+              <span className="text-[11px] font-mono font-bold bg-emerald-50 text-emerald-700 px-2 py-1 rounded-md border border-emerald-200">
+                #RH-101
+              </span>
+            </div>
+            <DialogDescription className="sr-only">OPD Receipt details</DialogDescription>
+          </DialogHeader>
+
+          <div className="py-2 space-y-2 text-xs divide-y divide-slate-100">
+            <div className="pt-1 flex justify-between">
+              <span className="text-slate-500">Patient Name:</span>
+              <span className="font-bold text-slate-900">{currentUser?.name || "Rahul Sharma"}</span>
+            </div>
+            <div className="pt-2 flex justify-between">
+              <span className="text-slate-500">Consulting Doctor:</span>
+              <span className="font-bold text-slate-900">Dr. Raees Akhtar (MD)</span>
+            </div>
+            <div className="pt-2 flex justify-between">
+              <span className="text-slate-500">Facility / Clinic:</span>
+              <span className="text-slate-800 text-right">Beside Mohan X-Ray, Moradabad</span>
+            </div>
+            <div className="pt-2 flex justify-between">
+              <span className="text-slate-500">Tele-OPD Rate:</span>
+              <span className="font-bold text-emerald-700">₹15.00 / Minute</span>
+            </div>
+            <div className="pt-2 flex justify-between">
+              <span className="text-slate-500">Status:</span>
+              <span className="font-bold text-emerald-600 flex items-center gap-1">
+                <CheckCheck className="h-3.5 w-3.5 text-emerald-600" />
+                <span>Verified Desk Consultation</span>
+              </span>
+            </div>
+          </div>
+
+          <div className="pt-3">
+            <button
+              type="button"
+              onClick={() => setShowReceiptModal(false)}
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl cursor-pointer"
+            >
+              Close Receipt
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );

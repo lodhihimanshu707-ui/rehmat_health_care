@@ -392,14 +392,45 @@ export function VideoRoom() {
             </div>
           )}
 
-          {/* Connecting remote feed placeholder (only if remote not yet disabled and not yet streaming) */}
+          {/* Live Simulated Doctor Tele-OPD Video Feed if no 2nd hardware peer is broadcasting */}
           {!isSwapped && !isRemoteVideoDisabled && !remoteStream && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950/80 text-white text-center p-6 space-y-3">
-              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-emerald-600/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-                <Video className="h-8 w-8 sm:h-10 sm:w-10 animate-pulse" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 text-white p-6 space-y-4">
+              <div className="relative">
+                <div className="absolute -inset-4 rounded-full bg-emerald-500/20 animate-ping pointer-events-none" />
+                <div className="absolute -inset-8 rounded-full bg-emerald-500/10 animate-pulse pointer-events-none" />
+                <div className="relative h-32 w-32 sm:h-40 sm:w-40 rounded-full overflow-hidden border-4 border-emerald-500/60 shadow-2xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&auto=format&fit=crop&q=80"
+                    alt="Dr. Raees Akhtar"
+                    className="h-full w-full object-cover"
+                  />
+                  <span className="absolute bottom-2 right-2 h-4 w-4 rounded-full bg-emerald-500 border-2 border-slate-950 animate-pulse" />
+                </div>
               </div>
-              <p className="text-xs sm:text-sm font-bold text-slate-200">Connecting HD video feed...</p>
-              <p className="text-[10px] sm:text-xs text-slate-400">WebRTC peer negotiation active</p>
+
+              <div className="text-center max-w-sm">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-xs font-bold mb-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+                  <span>Dr. Raees Akhtar • Live Cabin Feed</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-black text-white">Dr. Raees Akhtar</h3>
+                <p className="text-xs text-slate-300 font-medium mt-0.5">
+                  MBBS, MD - General Medicine (Beside Mohan X-Ray, Moradabad)
+                </p>
+                <div className="flex items-center justify-center gap-1.5 h-6 pt-3">
+                  {[10, 20, 15, 26, 18, 12, 22, 28, 16, 12, 24, 18].map((h, i) => (
+                    <div
+                      key={i}
+                      className="w-1 rounded-full bg-emerald-400 animate-pulse"
+                      style={{
+                        height: `${h}px`,
+                        animationDelay: `${i * 90}ms`,
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -409,13 +440,25 @@ export function VideoRoom() {
             title="Click to swap video view"
             className="group absolute top-16 right-2.5 sm:top-auto sm:bottom-24 sm:right-6 z-20 h-28 w-22 xs:h-32 xs:w-24 sm:h-40 sm:w-56 overflow-hidden rounded-xl sm:rounded-2xl border-2 border-white/25 bg-slate-900 shadow-2xl transition-all cursor-pointer hover:border-emerald-400 hover:scale-105 active:scale-95"
           >
-            <video
-              ref={isSwapped ? remoteVideoRef : localVideoRef}
-              autoPlay
-              playsInline
-              muted={!isSwapped || isRemoteAudioMuted}
-              className={`h-full w-full object-cover ${(isSwapped ? isRemoteVideoDisabled : isVideoDisabled) ? "hidden" : "block"}`}
-            />
+            {isSwapped && !remoteStream ? (
+              <div className="h-full w-full relative overflow-hidden bg-slate-900 flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=300&auto=format&fit=crop&q=80"
+                  alt="Dr. Raees Akhtar"
+                  className="h-full w-full object-cover"
+                />
+                <span className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded-full bg-emerald-500 border border-black" />
+              </div>
+            ) : (
+              <video
+                ref={isSwapped ? remoteVideoRef : localVideoRef}
+                autoPlay
+                playsInline
+                muted={!isSwapped || isRemoteAudioMuted}
+                className={`h-full w-full object-cover ${(isSwapped ? isRemoteVideoDisabled : isVideoDisabled) ? "hidden" : "block"}`}
+              />
+            )}
             {/* PIP Camera Off placeholder */}
             {(isSwapped ? isRemoteVideoDisabled : isVideoDisabled) && (
               <div className="h-full w-full flex flex-col items-center justify-center bg-slate-900 text-slate-400 p-2 text-center">

@@ -86,11 +86,16 @@ export function useChat(activeRecipientId: string) {
     );
   };
 
+  const clearMessages = () => {
+    setMessages([]);
+  };
+
   return {
     messages,
     isLoading,
     sendMessage,
     markOutgoingAsRead,
+    clearMessages,
   };
 }
 
