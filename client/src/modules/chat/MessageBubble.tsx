@@ -114,14 +114,21 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             <p className="leading-relaxed whitespace-pre-wrap break-words">{message.text}</p>
           )}
 
-          {/* Time & Double Blue Read Ticks */}
+          {/* Time & Read Status Ticks (Authentic WhatsApp UX: Grey = Delivered, Blue = Seen by Recipient) */}
           <div className="flex items-center justify-end gap-1 float-right ml-2 -mb-0.5 mt-0.5">
             <span className="text-[10px] text-[#667781] select-none">{timeFormatted}</span>
             {isMe && (
-              <CheckCheck
-                className="h-3.5 w-3.5 text-[#53bdeb] stroke-[2.5]"
-                aria-label="Read"
-              />
+              message.isRead ? (
+                <CheckCheck
+                  className="h-3.5 w-3.5 text-[#53bdeb] stroke-[2.5]"
+                  aria-label="Seen / Read by recipient"
+                />
+              ) : (
+                <CheckCheck
+                  className="h-3.5 w-3.5 text-[#8696a0] stroke-[2.2]"
+                  aria-label="Delivered (Not seen yet)"
+                />
+              )
             )}
           </div>
         </div>

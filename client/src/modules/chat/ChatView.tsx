@@ -45,6 +45,8 @@ interface Contact {
   avatarUrl?: string;
   phone?: string;
   isOnline: boolean;
+  lastMessageFromMe?: boolean;
+  lastMessageRead?: boolean;
 }
 
 interface ChatViewProps {
@@ -148,7 +150,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const [showMenu, setShowMenu] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
-  const { messages, isLoading, sendMessage } = useChat(activeRecipient.id);
+  const { messages, isLoading, sendMessage, markOutgoingAsRead } = useChat(activeRecipient.id);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -167,15 +169,18 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const handleSendWrapper = (text: string) => {
     sendMessage(text);
 
-    // Simulate doctor typing response after patient sends message
+    // Authentic WhatsApp flow:
+    // Message is initially DELIVERED (grey ticks).
+    // When the doctor actually opens/views the chat, the doctor begins typing and ticks turn BLUE (Seen).
     if (isPatient && activeRecipient.id === DEMO_DOCTOR.id) {
       setTimeout(() => {
+        markOutgoingAsRead(); // Turns ticks from grey to blue upon doctor viewing
         setIsTyping(true);
-      }, 1000);
+      }, 2500);
 
       setTimeout(() => {
         setIsTyping(false);
-      }, 3500);
+      }, 5500);
     }
   };
 
@@ -391,8 +396,16 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
 
                     <div className="flex items-center justify-between mt-0.5">
                       <p className="text-xs text-[#667781] truncate flex items-center gap-1">
-                        <CheckCheck className="h-3.5 w-3.5 text-[#53bdeb] shrink-0" />
-                        <span className="truncate">{contact.lastMessage}</span>
+                        {contact.lastMessageFromMe && (
+                          contact.lastMessageRead ? (
+                            <CheckCheck className="h-3.5 w-3.5 text-[#53bdeb] shrink-0" />
+                          ) : (
+                            <CheckCheck className="h-3.5 w-3.5 text-[#8696a0] shrink-0" />
+                          )
+                        )}
+                        <span className={`truncate ${contact.unreadCount ? "text-[#111b21] font-medium" : "text-[#667781]"}`}>
+                          {contact.lastMessage}
+                        </span>
                       </p>
                       {contact.unreadCount ? (
                         <span className="h-5 min-w-[20px] px-1 rounded-full bg-[#00a884] text-white font-bold text-[10px] flex items-center justify-center shrink-0 ml-1.5 shadow-2xs">

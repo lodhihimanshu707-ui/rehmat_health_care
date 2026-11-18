@@ -36,7 +36,18 @@ export function useChat(activeRecipientId: string) {
         (msg.senderId === activeRecipientId && msg.receiverId === currentUser.id) ||
         (msg.senderId === currentUser.id && msg.receiverId === activeRecipientId)
       ) {
-        setMessages((prev) => [...prev, msg]);
+        setMessages((prev) => {
+          // If the other party sent this message, our earlier sent messages are now seen/read!
+          if (msg.senderId !== currentUser.id) {
+            return [
+              ...prev.map((m) =>
+                m.senderId === currentUser.id ? { ...m, isRead: true } : m
+              ),
+              msg,
+            ];
+          }
+          return [...prev, msg];
+        });
 
         // Play received notification sound if sender is the other party
         if (msg.senderId !== currentUser.id) {
@@ -67,10 +78,19 @@ export function useChat(activeRecipientId: string) {
     });
   };
 
+  const markOutgoingAsRead = () => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.senderId === currentUser?.id ? { ...m, isRead: true } : m
+      )
+    );
+  };
+
   return {
     messages,
     isLoading,
     sendMessage,
+    markOutgoingAsRead,
   };
 }
 
