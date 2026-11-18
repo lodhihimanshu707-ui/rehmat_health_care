@@ -27,7 +27,6 @@ import {
   Sparkles,
   ArrowLeft,
   CheckCheck,
-  Camera,
   MessageSquare,
   PhoneIncoming,
   PhoneOutgoing,
@@ -59,7 +58,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const isPatient = currentUser?.role === "patient";
   const isDoctor = currentUser?.role === "doctor";
 
-  // Build authentic WhatsApp contacts list
+  // Authentic WhatsApp contacts based on current user role
   const contacts: Contact[] = isDoctor
     ? [
         {
@@ -137,8 +136,9 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     contacts[0];
 
   const [activeRecipient, setActiveRecipient] = useState<Contact>(defaultRecipient);
+  // Default to list view on mobile unless specific recipient query parameter was supplied
   const [mobileScreen, setMobileScreen] = useState<"list" | "chat">(
-    initialRecipientId || initialRecipientName ? "chat" : "chat"
+    initialRecipientId || initialRecipientName ? "chat" : "list"
   );
   const [activeTab, setActiveTab] = useState<"chats" | "calls">("chats");
   const [searchQuery, setSearchQuery] = useState("");
@@ -146,13 +146,14 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const [presetText, setPresetText] = useState("");
   const [isMuted, setIsMuted] = useState(soundManager.isMuted());
   const [showMenu, setShowMenu] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const { messages, isLoading, sendMessage } = useChat(activeRecipient.id);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+  }, [messages, isTyping]);
 
   const toggleSound = () => {
     const next = !isMuted;
@@ -160,6 +161,21 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     soundManager.setMuted(next);
     if (!next) {
       soundManager.playMessageReceived();
+    }
+  };
+
+  const handleSendWrapper = (text: string) => {
+    sendMessage(text);
+
+    // Simulate doctor typing response after patient sends message
+    if (isPatient && activeRecipient.id === DEMO_DOCTOR.id) {
+      setTimeout(() => {
+        setIsTyping(true);
+      }, 1000);
+
+      setTimeout(() => {
+        setIsTyping(false);
+      }, 3500);
     }
   };
 
@@ -217,7 +233,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     <div className="h-[100dvh] w-full flex bg-[#efeae2] overflow-hidden select-none">
       
       {/* ========================================================================= */}
-      {/* 1. WHATSAPP CHATS LIST / CALLS TAB (Mobile List view & Desktop Left Side) */}
+      {/* 1. WHATSAPP CHATS LIST / CALLS TAB (Mobile List View & Desktop Left Side) */}
       {/* ========================================================================= */}
       <div
         className={`w-full md:w-[380px] lg:w-[420px] bg-white border-r border-[#d1d7db] flex flex-col shrink-0 h-full ${
@@ -234,7 +250,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
               </span>
             </div>
 
-            <div className="flex items-center gap-3 text-white/90">
+            <div className="flex items-center gap-2 text-white/90">
               <button
                 onClick={() => setShowSearchInput(!showSearchInput)}
                 className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
@@ -282,7 +298,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
             </div>
           </div>
 
-          {/* Search Input Bar (when toggled or always on desktop) */}
+          {/* Search Input Bar (Expandable on tap) */}
           {showSearchInput && (
             <div className="mt-2.5 flex items-center gap-2 bg-white rounded-lg px-3 py-1.5 shadow-inner">
               <Search className="h-4 w-4 text-slate-400" />
@@ -363,7 +379,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-bold text-[14px] text-[#111b21] truncate">
+                      <h3 className="font-bold text-[14.5px] text-[#111b21] truncate">
                         {contact.name}
                       </h3>
                       <span
@@ -452,7 +468,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
         <div className="p-4 bg-white flex justify-end">
           <button
             onClick={() => setActiveTab("chats")}
-            className="h-14 w-14 rounded-full bg-[#00a884] hover:bg-[#008f6f] text-white shadow-xl flex items-center justify-center transition-all active:scale-90"
+            className="h-14 w-14 rounded-full bg-[#00a884] hover:bg-[#008f6f] text-white shadow-xl flex items-center justify-center transition-all active:scale-90 cursor-pointer"
             title="New Chat"
           >
             <MessageSquare className="h-6 w-6" />
@@ -473,12 +489,12 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
         }}
       >
         {/* WhatsApp Conversation Top App Bar (Classic WhatsApp Green Header) */}
-        <div className="h-14 sm:h-16 px-3 sm:px-4 bg-[#008069] text-white flex items-center justify-between shrink-0 shadow-md z-20">
+        <div className="h-14 sm:h-16 px-3 sm:px-4 bg-[#008069] text-white flex items-center justify-between shrink-0 shadow-md z-20 select-none">
           <div className="flex items-center gap-2 min-w-0">
             {/* Back button returns to WhatsApp chats list on mobile */}
             <button
               onClick={() => setMobileScreen("list")}
-              className="p-1 -ml-1 text-white hover:bg-white/10 rounded-full transition-colors flex items-center"
+              className="p-1 -ml-1 text-white hover:bg-white/10 rounded-full transition-colors flex items-center cursor-pointer"
               title="Back to WhatsApp Chats"
             >
               <ArrowLeft className="h-6 w-6" />
@@ -500,11 +516,17 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
               <h2 className="font-bold text-sm sm:text-base text-white truncate leading-tight">
                 {activeRecipient.name}
               </h2>
-              <p className="text-[11px] text-emerald-100 truncate flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#25d366] animate-pulse" />
-                <span>online</span>
-                <span className="text-white/60 hidden sm:inline">• Beside Mohan X-Ray</span>
-              </p>
+              {isTyping ? (
+                <p className="text-[11px] text-[#25d366] font-bold animate-pulse">
+                  typing...
+                </p>
+              ) : (
+                <p className="text-[11px] text-emerald-100 truncate flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#25d366] animate-pulse" />
+                  <span>online</span>
+                  <span className="text-white/60 hidden sm:inline">• Beside Mohan X-Ray</span>
+                </p>
+              )}
             </div>
           </div>
 
@@ -512,7 +534,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
           <div className="flex items-center gap-1 sm:gap-2 text-white">
             <button
               onClick={handleStartCall}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
               title="WhatsApp Video Consultation Call"
             >
               <Video className="h-5 w-5" />
@@ -520,7 +542,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
 
             <button
               onClick={handleStartCall}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
               title="Voice Call"
             >
               <Phone className="h-4 w-4" />
@@ -529,7 +551,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
             <div className="relative">
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
                 title="Options"
               >
                 <MoreVertical className="h-5 w-5" />
@@ -546,7 +568,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
                   </Link>
                   <button
                     onClick={toggleSound}
-                    className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-slate-50 font-semibold"
+                    className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-slate-50 font-semibold cursor-pointer"
                   >
                     <Volume2 className="h-4 w-4 text-slate-500" />
                     <span>{isMuted ? "Unmute Sounds" : "Mute Sounds"}</span>
@@ -617,7 +639,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
 
         {/* WhatsApp Mobile Input Bar */}
         <MessageInput
-          onSend={sendMessage}
+          onSend={handleSendWrapper}
           presetText={presetText}
           onClearPreset={() => setPresetText("")}
         />
