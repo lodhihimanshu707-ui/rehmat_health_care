@@ -169,14 +169,14 @@ export function VideoRoom() {
             />
           </div>
 
-          {/* WhatsApp Header Strip */}
+          {/* Rehmat Health Care Header Strip */}
           <div className="flex flex-col items-center pt-2 sm:pt-4 space-y-1">
             <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#8696a0] uppercase tracking-wider">
               <span className="h-2 w-2 rounded-full bg-[#00a884] animate-ping" />
-              <span>WhatsApp Video Call</span>
+              <span>Tele-OPD Video Call</span>
             </div>
             <span className="text-[10px] text-[#00a884] font-medium">
-              Rehmat Health Care • Tele-OPD (Beside Mohan X-Ray)
+              Rehmat Health Care • Moradabad (Beside Mohan X-Ray)
             </span>
           </div>
 

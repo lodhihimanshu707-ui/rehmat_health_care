@@ -99,7 +99,7 @@ export function IncomingCallModal() {
 
           <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#8696a0] uppercase tracking-wider">
             <Lock className="h-3 w-3 text-[#00a884]" />
-            <span>WhatsApp Video Call</span>
+            <span>Tele-OPD Video Consultation</span>
           </div>
 
           <h2 className="text-2xl font-black text-white tracking-tight pt-1">

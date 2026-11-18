@@ -152,7 +152,7 @@ export default function PatientDashboardPage() {
                 <Link href="/chat">
                   <button className="bg-[#f0f2f5] hover:bg-[#e9edef] active:scale-95 text-[#008069] border border-[#d1d7db] font-extrabold h-11 px-4 rounded-2xl text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer">
                     <MessageSquare className="h-4 w-4 text-[#008069]" />
-                    <span>WhatsApp Chat</span>
+                    <span>Doctor Chat</span>
                   </button>
                 </Link>
               </div>
@@ -216,17 +216,17 @@ export default function PatientDashboardPage() {
               </div>
             </Link>
 
-            {/* Tile 2: WhatsApp Chat */}
+            {/* Tile 2: Consultation Chat */}
             <Link
               href="/chat"
               className="group p-4 sm:p-5 rounded-3xl bg-white border border-[#d1d7db] hover:border-[#008069] hover:shadow-md transition-all flex flex-col justify-between"
             >
-              <div className="h-11 w-11 rounded-2xl bg-[#25d366]/20 text-[#008069] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+              <div className="h-11 w-11 rounded-2xl bg-[#008069]/15 text-[#008069] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                 <MessageSquare className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="font-extrabold text-slate-900 text-sm group-hover:text-[#008069] transition-colors">
-                  WhatsApp Chat
+                  Consultation Chat
                 </h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">Direct doctor consultation</p>
               </div>

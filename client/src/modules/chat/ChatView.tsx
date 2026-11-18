@@ -240,14 +240,19 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
           mobileScreen === "chat" ? "hidden md:flex" : "flex"
         }`}
       >
-        {/* WhatsApp App Green Top Bar */}
+        {/* Rehmat Health Care Green Top Bar */}
         <div className="bg-[#008069] text-white px-4 pt-3.5 pb-2 shadow-md shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight">WhatsApp</h1>
-              <span className="text-[10px] bg-white/20 text-white font-bold px-2 py-0.5 rounded-full">
-                Rehmat Care
-              </span>
+              <div className="h-8 w-8 rounded-xl bg-white/20 flex items-center justify-center">
+                <MessageSquare className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-black tracking-tight leading-tight">Rehmat Care</h1>
+                <span className="text-[10px] text-emerald-100 font-semibold block -mt-0.5">
+                  Consultation Desk
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center gap-2 text-white/90">
@@ -262,7 +267,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
               <button
                 onClick={toggleSound}
                 className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
-                title={isMuted ? "Unmute WhatsApp sounds" : "Mute WhatsApp sounds"}
+                title={isMuted ? "Unmute Consultation Sounds" : "Mute Consultation Sounds"}
               >
                 {isMuted ? <VolumeX className="h-5 w-5 text-rose-300" /> : <Volume2 className="h-5 w-5 text-white" />}
               </button>
@@ -463,21 +468,10 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
             </div>
           </div>
         )}
-
-        {/* WhatsApp Mobile Floating Action Button (New Chat) */}
-        <div className="p-4 bg-white flex justify-end">
-          <button
-            onClick={() => setActiveTab("chats")}
-            className="h-14 w-14 rounded-full bg-[#00a884] hover:bg-[#008f6f] text-white shadow-xl flex items-center justify-center transition-all active:scale-90 cursor-pointer"
-            title="New Chat"
-          >
-            <MessageSquare className="h-6 w-6" />
-          </button>
-        </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. WHATSAPP CHAT ROOM (Mobile Full Screen & Desktop Right Side)            */}
+      {/* 2. REHMAT HEALTH CARE CHAT ROOM (Mobile Full Screen & Desktop Right Side) */}
       {/* ========================================================================= */}
       <div
         className={`flex-1 flex flex-col h-full bg-[#efeae2] relative min-w-0 ${
@@ -535,7 +529,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
             <button
               onClick={handleStartCall}
               className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
-              title="WhatsApp Video Consultation Call"
+              title="Video Consultation Call"
             >
               <Video className="h-5 w-5" />
             </button>
@@ -599,7 +593,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
 
           {isLoading ? (
             <div className="flex items-center justify-center h-48 text-xs text-[#667781]">
-              Loading WhatsApp messages...
+              Loading consultation messages...
             </div>
           ) : messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-48 text-center space-y-2 select-none">
@@ -610,7 +604,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
                 Direct Consultation with {activeRecipient.name}
               </h4>
               <p className="text-xs text-[#667781] max-w-sm">
-                Discuss medical symptoms, medication dosage, lab results, and follow-up advice in real-time with instant WhatsApp sound chimes.
+                Discuss medical symptoms, medication dosage, lab results, and follow-up advice in real-time with instant sound chimes.
               </p>
             </div>
           ) : (

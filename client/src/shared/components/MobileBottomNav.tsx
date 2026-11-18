@@ -187,7 +187,7 @@ export function MobileBottomNav() {
                 <span className="text-[10px] leading-tight mt-0.5 font-medium">Video OPD</span>
               </Link>
 
-              {/* 3. WhatsApp Chat */}
+              {/* 3. Consultation Chat */}
               <Link
                 href="/chat"
                 className={`flex flex-col items-center justify-center flex-1 py-1 rounded-xl transition-all ${
@@ -202,11 +202,11 @@ export function MobileBottomNav() {
                   }`}
                 >
                   <MessageSquare className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-[#00a884] text-white text-[9px] font-bold flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-[#008069] text-white text-[9px] font-bold flex items-center justify-center">
                     1
                   </span>
                 </div>
-                <span className="text-[10px] leading-tight mt-0.5 font-medium">WhatsApp</span>
+                <span className="text-[10px] leading-tight mt-0.5 font-medium">Chat</span>
               </Link>
 
               {/* 4. Wallet */}

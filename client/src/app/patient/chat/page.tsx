@@ -28,7 +28,7 @@ export default function PatientChatPage() {
           <div className="flex h-[100dvh] w-full items-center justify-center bg-[#efeae2]">
             <div className="flex flex-col items-center gap-2">
               <div className="h-10 w-10 animate-spin rounded-full border-3 border-[#00a884] border-t-transparent" />
-              <span className="text-xs font-bold text-[#54656f]">Loading WhatsApp...</span>
+              <span className="text-xs font-bold text-[#54656f]">Loading Rehmat Care...</span>
             </div>
           </div>
         }
