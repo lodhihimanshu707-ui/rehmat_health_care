@@ -253,72 +253,40 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   if (!isAuthenticated) return null;
 
   return (
-    <div className="h-[calc(100dvh-56px)] md:h-[100dvh] w-full flex bg-[#efeae2] overflow-hidden select-none">
+    <div className="h-[calc(100dvh-56px)] md:h-[100dvh] w-full flex bg-slate-100 overflow-hidden select-none">
       
       {/* ========================================================================= */}
-      {/* 1. WHATSAPP CHATS LIST / CALLS TAB (Mobile List View & Desktop Left Side) */}
+      {/* 1. CHATS LIST / CALLS TAB (Mobile List View & Desktop Left Side)          */}
       {/* ========================================================================= */}
       <div
-        className={`w-full md:w-[380px] lg:w-[420px] bg-white border-r border-[#d1d7db] flex flex-col shrink-0 h-full ${
+        className={`w-full md:w-[380px] lg:w-[420px] bg-white border-r border-slate-200 flex flex-col shrink-0 h-full ${
           mobileScreen === "chat" ? "hidden md:flex" : "flex"
         }`}
       >
-        {/* ========================================================================= */}
-        {/* Modern Clean Header (Rehmat Health Care Consultation Desk)               */}
-        {/* ========================================================================= */}
-        <div className="bg-white border-b border-[#e9edef] px-4 pt-3.5 pb-2.5 space-y-3 shrink-0 select-none">
-          {/* Top Title & Quick Action Bar */}
+        {/* Sleek App Header */}
+        <div className="bg-white border-b border-slate-200 px-4 pt-3.5 pb-2.5 space-y-3 shrink-0 select-none">
+          {/* Top Title & Quick Actions */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <Avatar className="h-9 w-9 border border-slate-200 shrink-0">
-                <AvatarImage src={currentUser?.avatarUrl} />
-                <AvatarFallback className="bg-[#008069] text-white font-bold text-xs">
-                  {currentUser?.name?.slice(0, 2).toUpperCase() || "PT"}
-                </AvatarFallback>
-              </Avatar>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Chats
+            </h1>
 
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <h1 className="text-lg sm:text-xl font-black text-[#111b21] tracking-tight leading-none">
-                    Consultations
-                  </h1>
-                  <span className="text-[10px] font-bold text-[#008069] bg-[#008069]/10 px-2 py-0.5 rounded-full">
-                    Rehmat Care
-                  </span>
-                </div>
-                <span className="text-[11px] text-[#667781] block mt-0.5">
-                  {isDoctor ? "Doctor Cockpit Desk" : "Patient Medical Desk"}
-                </span>
-              </div>
-            </div>
-
-            {/* Right Action Icons: Sound Mute & Dashboard Link */}
-            <div className="flex items-center gap-1.5 text-[#54656f]">
+            <div className="flex items-center gap-1">
               <button
                 onClick={toggleSound}
-                className={`px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all border ${
-                  isMuted
-                    ? "bg-slate-100 text-slate-400 border-slate-200"
-                    : "bg-[#008069]/10 text-[#008069] border-[#008069]/20 hover:bg-[#008069]/20"
-                }`}
+                className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
                 title={isMuted ? "Unmute Consultation Sounds" : "Mute Consultation Sounds"}
               >
                 {isMuted ? (
-                  <>
-                    <VolumeX className="h-3.5 w-3.5 text-rose-500" />
-                    <span className="text-[10px]">Muted</span>
-                  </>
+                  <VolumeX className="h-5 w-5 text-rose-500" />
                 ) : (
-                  <>
-                    <Volume2 className="h-3.5 w-3.5 text-[#008069]" />
-                    <span className="text-[10px]">Sound</span>
-                  </>
+                  <Volume2 className="h-5 w-5 text-emerald-600" />
                 )}
               </button>
 
               <Link
                 href={isDoctor ? "/doctor" : "/patient"}
-                className="p-1.5 hover:bg-slate-100 rounded-full text-[#54656f] hover:text-[#111b21] transition-colors"
+                className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-colors"
                 title="Back to Dashboard"
               >
                 <Home className="h-5 w-5" />
@@ -326,46 +294,46 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
             </div>
           </div>
 
-          {/* Integrated Modern Search Capsule */}
-          <div className="flex items-center gap-2 bg-[#f0f2f5] hover:bg-[#eaeef1] focus-within:bg-white focus-within:border-[#008069]/40 border border-[#e9edef] rounded-xl px-3 py-1.5 transition-all">
-            <Search className="h-4 w-4 text-[#54656f] shrink-0" />
+          {/* Clean Integrated Search */}
+          <div className="flex items-center gap-2.5 bg-slate-100 hover:bg-slate-100/90 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500/40 border border-slate-200/80 rounded-xl px-3.5 py-1.5 transition-all">
+            <Search className="h-4 w-4 text-slate-400 shrink-0" />
             <input
               type="text"
-              placeholder="Search doctor, patient, symptoms..."
+              placeholder="Search or start new consultation..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-transparent text-xs text-[#111b21] placeholder-[#8696a0] focus:outline-none"
+              className="w-full bg-transparent text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none"
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery("")} className="text-[#8696a0] hover:text-[#111b21]">
-                <X className="h-3.5 w-3.5" />
+              <button onClick={() => setSearchQuery("")} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+                <X className="h-4 w-4" />
               </button>
             )}
           </div>
 
-          {/* Modern Filter Pills (All / Doctors / Staff / Calls) */}
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-0.5">
+          {/* Refined Filter Chips */}
+          <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab("chats")}
-              className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 border ${
+              className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all shrink-0 cursor-pointer ${
                 activeTab === "chats"
-                  ? "bg-[#008069] text-white border-[#008069] shadow-xs"
-                  : "bg-[#f0f2f5] text-[#54656f] hover:bg-[#e9edef] border-transparent"
+                  ? "bg-emerald-100 text-emerald-800 font-bold"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
-              All Chats ({contacts.length})
+              All
             </button>
 
             <button
               onClick={() => setActiveTab("calls")}
-              className={`px-3 py-1 rounded-full text-xs font-bold transition-all shrink-0 flex items-center gap-1 border ${
+              className={`px-3.5 py-1 rounded-full text-xs font-semibold transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
                 activeTab === "calls"
-                  ? "bg-[#008069] text-white border-[#008069] shadow-xs"
-                  : "bg-[#f0f2f5] text-[#54656f] hover:bg-[#e9edef] border-transparent"
+                  ? "bg-emerald-100 text-emerald-800 font-bold"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
               }`}
             >
               <Phone className="h-3 w-3" />
-              <span>Call Log</span>
+              <span>Calls</span>
             </button>
           </div>
         </div>
