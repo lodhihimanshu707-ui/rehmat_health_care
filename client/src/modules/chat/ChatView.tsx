@@ -137,6 +137,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     contacts.find((c) => c.name === initialRecipientName) ||
     contacts[0];
 
+  const [contactList, setContactList] = useState<Contact[]>(contacts);
   const [activeRecipient, setActiveRecipient] = useState<Contact>(defaultRecipient);
   // Default to list view on mobile unless specific recipient query parameter was supplied
   const [mobileScreen, setMobileScreen] = useState<"list" | "chat">(
@@ -177,6 +178,33 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
+  // Synchronize contact preview in sidebar with latest message
+  useEffect(() => {
+    if (messages.length > 0 && activeRecipient) {
+      const lastMsg = messages[messages.length - 1];
+      const timeStr = new Date(lastMsg.createdAt).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+
+      setContactList((prev) => {
+        return prev.map((c) => {
+          if (c.id === activeRecipient.id) {
+            return {
+              ...c,
+              lastMessage: lastMsg.text,
+              lastTime: timeStr,
+              lastMessageFromMe: lastMsg.senderId === currentUser?.id,
+              lastMessageRead: lastMsg.isRead,
+            };
+          }
+          return c;
+        });
+      });
+    }
+  }, [messages, activeRecipient?.id, currentUser?.id]);
+
   const toggleSound = () => {
     const next = !isMuted;
     setIsMuted(next);
@@ -189,10 +217,42 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const handleSendWrapper = (text: string) => {
     sendMessage(text);
 
+    const timeStr = new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    // Immediately update contact preview in list with the new message
+    setContactList((prev) => {
+      const updated = prev.map((c) => {
+        if (c.id === activeRecipient.id) {
+          return {
+            ...c,
+            lastMessage: text,
+            lastTime: timeStr,
+            lastMessageFromMe: true,
+            lastMessageRead: false,
+          };
+        }
+        return c;
+      });
+
+      // Move the active contact to the top of the conversation list
+      const current = updated.find((c) => c.id === activeRecipient.id);
+      const rest = updated.filter((c) => c.id !== activeRecipient.id);
+      return current ? [current, ...rest] : updated;
+    });
+
     // When the doctor actually opens/views the chat, doctor marks as seen (turns ticks to seen) and types reply
     if (isPatient && activeRecipient.id === DEMO_DOCTOR.id) {
       setTimeout(() => {
-        markOutgoingAsRead(); // Turns ticks to seen when doctor views
+        markOutgoingAsRead(); // Turns ticks to seen in chat
+        setContactList((prev) =>
+          prev.map((c) =>
+            c.id === DEMO_DOCTOR.id ? { ...c, lastMessageRead: true } : c
+          )
+        );
         setIsTyping(true);
       }, 1000);
 
@@ -231,7 +291,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     });
   };
 
-  const filteredContacts = contacts.filter((c) =>
+  const filteredContacts = contactList.filter((c) =>
     c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
