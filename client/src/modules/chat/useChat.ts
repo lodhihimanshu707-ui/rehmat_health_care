@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/api/client";
 import { getSocket } from "@/lib/socket";
+import { soundManager } from "@/lib/sound";
 import { ChatMessage } from "./types";
 import { useAuthStore } from "@/stores/auth.store";
 
@@ -36,6 +37,11 @@ export function useChat(activeRecipientId: string) {
         (msg.senderId === currentUser.id && msg.receiverId === activeRecipientId)
       ) {
         setMessages((prev) => [...prev, msg]);
+
+        // Play received notification sound if sender is the other party
+        if (msg.senderId !== currentUser.id) {
+          soundManager.playMessageReceived();
+        }
       }
     };
 
@@ -50,6 +56,8 @@ export function useChat(activeRecipientId: string) {
 
   const sendMessage = (text: string) => {
     if (!text.trim() || !activeRecipientId) return;
+
+    soundManager.playMessageSent();
 
     const socket = getSocket();
     socket.emit("send-message", {

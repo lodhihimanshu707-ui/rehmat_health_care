@@ -2,6 +2,7 @@ import React from "react";
 import { ChatMessage } from "./types";
 import { useAuthStore } from "@/stores/auth.store";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/ui/avatar";
+import { CheckCheck, FileText } from "lucide-react";
 
 interface MessageBubbleProps {
   message: ChatMessage;
@@ -15,6 +16,8 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     hour: "2-digit",
     minute: "2-digit",
   });
+
+  const hasAttachment = message.text.includes("[Attached:");
 
   return (
     <div className={`flex items-end gap-2.5 ${isMe ? "justify-end" : "justify-start"}`}>
@@ -34,16 +37,33 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             : "bg-white text-slate-800 border border-slate-200/80 rounded-bl-xs"
         }`}
       >
-        <p className="leading-relaxed whitespace-pre-wrap">{message.text}</p>
+        {hasAttachment ? (
+          <div className="space-y-1.5">
+            <p className="leading-relaxed whitespace-pre-wrap">
+              {message.text.split("[Attached:")[0].trim()}
+            </p>
+            <div
+              className={`flex items-center gap-1.5 p-2 rounded-xl text-xs font-semibold ${
+                isMe ? "bg-emerald-700/60 text-white" : "bg-slate-100 text-slate-800"
+              }`}
+            >
+              <FileText className="h-4 w-4 shrink-0 text-emerald-300" />
+              <span>Mohan X-Ray Scan #MXR-9842.pdf</span>
+            </div>
+          </div>
+        ) : (
+          <p className="leading-relaxed whitespace-pre-wrap">{message.text}</p>
+        )}
+
         <div
-          className={`text-[9px] mt-1 text-right ${
+          className={`text-[9px] mt-1 flex items-center justify-end gap-1 ${
             isMe ? "text-emerald-200" : "text-slate-400"
           }`}
         >
-          {timeFormatted}
+          <span>{timeFormatted}</span>
+          {isMe && <CheckCheck className="h-3 w-3 text-emerald-300" />}
         </div>
       </div>
     </div>
   );
 }
-

@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useCallStore } from "@/stores/call.store";
 import { formatCurrency } from "@/shared/utils/format";
 import { getSocket } from "@/lib/socket";
+import { soundManager } from "@/lib/sound";
 import {
   Dialog,
   DialogContent,
@@ -12,10 +13,11 @@ import {
 } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/ui/avatar";
-import { PhoneOff, Video } from "lucide-react";
+import { PhoneOff, Video, BellRing, Volume2, VolumeX } from "lucide-react";
 
 export function IncomingCallModal() {
   const { callStatus, activeConsultation, setConnected, resetCall } = useCallStore();
+  const [isMuted, setIsMuted] = useState(false);
 
   const isIncoming = callStatus === "incoming" && activeConsultation !== null;
   const isDoctorCaller = activeConsultation?.callerRole === "doctor";
@@ -29,7 +31,33 @@ export function IncomingCallModal() {
     ? "Chief Physician • Rehmat Health Care, Moradabad"
     : "Rehmat Health Care Patient";
 
+  // Play incoming ringtone while incoming call is active
+  useEffect(() => {
+    if (isIncoming && !isMuted) {
+      soundManager.startIncomingRingtone();
+    } else {
+      soundManager.stopIncomingRingtone();
+    }
+
+    return () => {
+      soundManager.stopIncomingRingtone();
+    };
+  }, [isIncoming, isMuted]);
+
+  const toggleMute = () => {
+    const nextMuted = !isMuted;
+    setIsMuted(nextMuted);
+    if (nextMuted) {
+      soundManager.stopIncomingRingtone();
+    } else {
+      soundManager.startIncomingRingtone();
+    }
+  };
+
   const handleAccept = () => {
+    soundManager.stopIncomingRingtone();
+    soundManager.playCallConnected();
+
     if (!activeConsultation) return;
 
     const socket = getSocket();
@@ -44,6 +72,9 @@ export function IncomingCallModal() {
   };
 
   const handleReject = () => {
+    soundManager.stopIncomingRingtone();
+    soundManager.playCallEnded();
+
     if (!activeConsultation) return;
 
     const socket = getSocket();
@@ -59,9 +90,19 @@ export function IncomingCallModal() {
     <Dialog open={isIncoming} onOpenChange={() => {}}>
       <DialogContent className="w-[95vw] sm:max-w-md max-h-[92vh] overflow-y-auto bg-slate-900 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border-slate-800 text-center">
         <DialogHeader>
-          <DialogTitle className="text-center text-sm font-semibold tracking-wider text-emerald-400 uppercase">
-            Incoming Video Consultation
-          </DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-center flex-1 text-sm font-semibold tracking-wider text-emerald-400 uppercase flex items-center justify-center gap-1.5">
+              <BellRing className="h-4 w-4 animate-bounce text-emerald-400" />
+              Incoming Video Consultation
+            </DialogTitle>
+            <button
+              onClick={toggleMute}
+              className="text-xs text-slate-400 hover:text-white p-1 rounded-lg bg-white/5 border border-white/10"
+              title={isMuted ? "Unmute Ringtone" : "Mute Ringtone"}
+            >
+              {isMuted ? <VolumeX className="h-4 w-4 text-rose-400" /> : <Volume2 className="h-4 w-4 text-emerald-400" />}
+            </button>
+          </div>
         </DialogHeader>
 
         <div className="py-6 flex flex-col items-center space-y-4">
@@ -80,6 +121,13 @@ export function IncomingCallModal() {
               {callerName}
             </h3>
             <p className="text-xs text-slate-400 mt-1">{callerSubtitle}</p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-semibold">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+              Ringing...
+            </span>
           </div>
 
           <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-2 text-xs text-slate-300">

@@ -9,6 +9,7 @@ import { BillingHUD } from "./BillingHUD";
 import { LowBalanceAlert } from "./LowBalanceAlert";
 import { CallControls } from "./CallControls";
 import { getSocket } from "@/lib/socket";
+import { soundManager } from "@/lib/sound";
 import { PhoneOff, Video, VideoOff, MicOff, Stethoscope, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 
@@ -56,15 +57,32 @@ export function VideoRoom() {
 
   useCallTimer(consultationId, ratePerMinute);
 
+  // Outgoing Calling Tone ("calling toon" / ringback tone)
+  useEffect(() => {
+    if (callStatus === "ringing_outgoing") {
+      soundManager.startCallingTone();
+    } else {
+      soundManager.stopCallingTone();
+    }
+
+    return () => {
+      soundManager.stopCallingTone();
+    };
+  }, [callStatus]);
+
   useEffect(() => {
     if (!consultationId) return;
     const socket = getSocket();
 
     const handleCallAccepted = () => {
+      soundManager.stopCallingTone();
+      soundManager.playCallConnected();
       setConnected();
     };
 
     const handleCallRejected = () => {
+      soundManager.stopCallingTone();
+      soundManager.playCallEnded();
       stopMediaTracks();
       alert("The doctor is currently attending another patient. Please try again shortly.");
       resetCall();
@@ -74,6 +92,8 @@ export function VideoRoom() {
       durationSeconds: number;
       reason?: "user_ended" | "ended_zero_balance" | "error";
     }) => {
+      soundManager.stopCallingTone();
+      soundManager.playCallEnded();
       // Immediately shut down camera and mic hardware when remote peer ends call
       stopMediaTracks();
       const actualDuration = data.durationSeconds || durationSeconds;
@@ -101,6 +121,8 @@ export function VideoRoom() {
   }, [consultationId, durationSeconds, ratePerMinute, activeConsultation, setConnected, resetCall, endCall, stopMediaTracks]);
 
   const handleEndCall = () => {
+    soundManager.stopCallingTone();
+    soundManager.playCallEnded();
     stopMediaTracks();
     if (!consultationId) return;
 
@@ -124,6 +146,7 @@ export function VideoRoom() {
   };
 
   const handleCancelCall = () => {
+    soundManager.stopCallingTone();
     stopMediaTracks();
     resetCall();
   };

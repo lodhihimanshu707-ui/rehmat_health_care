@@ -12,6 +12,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useCallStore } from "@/stores/call.store";
 import { useWalletStore } from "@/stores/wallet.store";
 import { getSocket, syncSocketUser } from "@/lib/socket";
+import { soundManager } from "@/lib/sound";
 
 function SocketBootstrap() {
   const currentUserId = useAuthStore((s) => s.currentUser?.id);
@@ -77,14 +78,26 @@ function SocketBootstrap() {
       }
     };
 
+    const handleGlobalMessage = (msg: { receiverId?: string; text?: string; sender?: any }) => {
+      if (
+        msg.receiverId === currentUserId &&
+        typeof window !== "undefined" &&
+        !window.location.pathname.includes("/chat")
+      ) {
+        soundManager.playMessageReceived();
+      }
+    };
+
     socket.on("incoming-call", handleIncomingCall);
     socket.on("wallet-updated", handleWalletUpdated);
     socket.on("call-ended", handleGlobalCallEnded);
+    socket.on("receive-message", handleGlobalMessage);
 
     return () => {
       socket.off("incoming-call", handleIncomingCall);
       socket.off("wallet-updated", handleWalletUpdated);
       socket.off("call-ended", handleGlobalCallEnded);
+      socket.off("receive-message", handleGlobalMessage);
     };
   }, [currentUserId, receiveIncomingCall]);
 
