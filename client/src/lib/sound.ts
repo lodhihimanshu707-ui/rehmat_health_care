@@ -1,10 +1,10 @@
 /**
- * Rehmat Health Care - Web Audio Sound Engine
- * Synthesizes ringtones, calling tones, and chat notifications purely in code.
- * Zero external mp3 dependencies, 0ms network latency, 100% reliable across browsers.
+ * Rehmat Health Care - WhatsApp Style Web Audio Sound Engine
+ * Synthesizes authentic WhatsApp calling tones, incoming ringtones,
+ * and chat sent/received sounds purely in Web Audio API.
  */
 
-class SoundEngine {
+class WhatsAppSoundEngine {
   private ctx: AudioContext | null = null;
   private callingInterval: any = null;
   private ringtoneInterval: any = null;
@@ -14,7 +14,6 @@ class SoundEngine {
 
   constructor() {
     if (typeof window !== "undefined") {
-      // Auto-unlock audio context on first user interaction
       const unlockAudio = () => {
         if (this.ctx && this.ctx.state === "suspended") {
           this.ctx.resume().catch(() => {});
@@ -57,50 +56,53 @@ class SoundEngine {
   }
 
   // =========================================================================
-  // 1. OUTGOING CALLING TONE (Ringback: Dual 440Hz + 480Hz periodic tone)
-  // Standard telecom "Tutuut... Tutuut..." sound when calling a patient/doctor
+  // 1. WHATSAPP OUTGOING CALLING TONE (VoIP Ringback: Double Beep Cadence)
+  // Pattern: "beep-beep .......... beep-beep .......... beep-beep"
+  // Freq: 425Hz European/WhatsApp standard PBX tone
   // =========================================================================
   public startCallingTone() {
     if (this.isCallingPlaying || this.muted) return;
     this.isCallingPlaying = true;
 
-    const playBurst = () => {
+    const playDoubleBeep = () => {
       if (!this.isCallingPlaying || this.muted) return;
       const ctx = this.getContext();
       if (!ctx) return;
 
       const now = ctx.currentTime;
-      const duration = 1.2; // 1.2s tone
 
-      // Dual frequencies standard in telecom ringback (440Hz + 480Hz)
+      // Beep 1 (100ms)
       const osc1 = ctx.createOscillator();
-      const osc2 = ctx.createOscillator();
-      const gain = ctx.createGain();
-
+      const gain1 = ctx.createGain();
       osc1.type = "sine";
-      osc2.type = "sine";
-      osc1.frequency.setValueAtTime(440, now);
-      osc2.frequency.setValueAtTime(480, now);
-
-      // Smooth attack and release to prevent audio clicking
-      gain.gain.setValueAtTime(0.001, now);
-      gain.gain.linearRampToValueAtTime(0.12, now + 0.05);
-      gain.gain.setValueAtTime(0.12, now + duration - 0.05);
-      gain.gain.linearRampToValueAtTime(0.001, now + duration);
-
-      osc1.connect(gain);
-      osc2.connect(gain);
-      gain.connect(ctx.destination);
-
+      osc1.frequency.setValueAtTime(425, now);
+      gain1.gain.setValueAtTime(0.001, now);
+      gain1.gain.linearRampToValueAtTime(0.18, now + 0.02);
+      gain1.gain.setValueAtTime(0.18, now + 0.10);
+      gain1.gain.linearRampToValueAtTime(0.001, now + 0.12);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
       osc1.start(now);
-      osc2.start(now);
-      osc1.stop(now + duration);
-      osc2.stop(now + duration);
+      osc1.stop(now + 0.12);
+
+      // Beep 2 (100ms, starts 220ms after beep 1)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(425, now + 0.22);
+      gain2.gain.setValueAtTime(0.001, now + 0.22);
+      gain2.gain.linearRampToValueAtTime(0.18, now + 0.24);
+      gain2.gain.setValueAtTime(0.18, now + 0.32);
+      gain2.gain.linearRampToValueAtTime(0.001, now + 0.34);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.22);
+      osc2.stop(now + 0.34);
     };
 
-    // Play immediately, then repeat every 3.2 seconds (1.2s sound + 2.0s silence)
-    playBurst();
-    this.callingInterval = setInterval(playBurst, 3200);
+    // Play immediately, then repeat every 2.6 seconds
+    playDoubleBeep();
+    this.callingInterval = setInterval(playDoubleBeep, 2600);
   }
 
   public stopCallingTone() {
@@ -112,53 +114,57 @@ class SoundEngine {
   }
 
   // =========================================================================
-  // 2. INCOMING CALL RINGTONE (Melodic smartphone / clinic bell melody loop)
-  // Cheerful, high-clarity bell chime sequence for incoming consultations
+  // 2. WHATSAPP INCOMING CALL RINGTONE
+  // The iconic marimba chime melody:
+  // D5 -> F#5 -> A5 -> D6 -> C#6 -> A5 -> B5 -> D6
   // =========================================================================
   public startIncomingRingtone() {
     if (this.isRingtonePlaying || this.muted) return;
     this.isRingtonePlaying = true;
 
-    const playMelody = () => {
+    const playMarimbaRingtone = () => {
       if (!this.isRingtonePlaying || this.muted) return;
       const ctx = this.getContext();
       if (!ctx) return;
 
       const now = ctx.currentTime;
 
-      // Note frequencies (E5, G#5, B5, E6, B5, E6)
+      // Authentic WhatsApp Marimba notes: [freq, startOffset, duration]
       const notes = [
-        { freq: 659.25, start: 0.00, dur: 0.14 }, // E5
-        { freq: 830.61, start: 0.16, dur: 0.14 }, // G#5
-        { freq: 987.77, start: 0.32, dur: 0.16 }, // B5
-        { freq: 1318.51, start: 0.50, dur: 0.28 }, // E6
-        { freq: 987.77, start: 0.82, dur: 0.14 }, // B5
-        { freq: 1318.51, start: 0.98, dur: 0.38 }, // E6
+        { freq: 587.33, t: 0.00, d: 0.12 }, // D5
+        { freq: 739.99, t: 0.14, d: 0.12 }, // F#5
+        { freq: 880.00, t: 0.28, d: 0.14 }, // A5
+        { freq: 1174.66, t: 0.44, d: 0.22 }, // D6
+        { freq: 1108.73, t: 0.68, d: 0.14 }, // C#6
+        { freq: 880.00, t: 0.84, d: 0.14 }, // A5
+        { freq: 987.77, t: 1.02, d: 0.18 }, // B5
+        { freq: 1174.66, t: 1.22, d: 0.35 }, // D6 (accent)
       ];
 
-      notes.forEach(({ freq, start, dur }) => {
+      notes.forEach(({ freq, t, d }) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
-        // Warm bell timbre with triangle wave
+        // Triangle wave gives the rich wooden percussive marimba sound
         osc.type = "triangle";
-        osc.frequency.setValueAtTime(freq, now + start);
+        osc.frequency.setValueAtTime(freq, now + t);
 
-        gain.gain.setValueAtTime(0.001, now + start);
-        gain.gain.linearRampToValueAtTime(0.22, now + start + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + start + dur);
+        // Percussive strike envelope
+        gain.gain.setValueAtTime(0.001, now + t);
+        gain.gain.linearRampToValueAtTime(0.24, now + t + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + t + d);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
 
-        osc.start(now + start);
-        osc.stop(now + start + dur);
+        osc.start(now + t);
+        osc.stop(now + t + d);
       });
     };
 
-    // Play immediately, then repeat every 2.4 seconds
-    playMelody();
-    this.ringtoneInterval = setInterval(playMelody, 2400);
+    // Play immediately, then loop every 2.4 seconds
+    playMarimbaRingtone();
+    this.ringtoneInterval = setInterval(playMarimbaRingtone, 2400);
   }
 
   public stopIncomingRingtone() {
@@ -170,10 +176,12 @@ class SoundEngine {
   }
 
   // =========================================================================
-  // 3. CHAT SOUNDS (Sent & Received message audio cues)
+  // 3. WHATSAPP CHAT SOUNDS
+  // - Sent: Classic WhatsApp bubble 'pop'
+  // - Received: Classic WhatsApp two-note chime bell ('Ding-dong')
   // =========================================================================
 
-  // Crisp short bubble chirp on sending message
+  // WhatsApp Message Sent Pop
   public playMessageSent() {
     if (this.muted) return;
     const ctx = this.getContext();
@@ -185,21 +193,22 @@ class SoundEngine {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(540, now);
-      osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
+      // Frequency drop simulates the WhatsApp message sent water droplet / pop
+      osc.frequency.setValueAtTime(850, now);
+      osc.frequency.exponentialRampToValueAtTime(320, now + 0.05);
 
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+      gain.gain.setValueAtTime(0.22, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.09);
+      osc.stop(now + 0.06);
     } catch {}
   }
 
-  // Gentle double ping on incoming chat message
+  // WhatsApp Incoming Message Chime
   public playMessageReceived() {
     if (this.muted) return;
     const ctx = this.getContext();
@@ -208,37 +217,33 @@ class SoundEngine {
     try {
       const now = ctx.currentTime;
 
-      // Ping 1 (800Hz)
+      // Note 1: E6 (1318.5Hz)
       const osc1 = ctx.createOscillator();
       const gain1 = ctx.createGain();
       osc1.type = "sine";
-      osc1.frequency.setValueAtTime(800, now);
-      gain1.gain.setValueAtTime(0.15, now);
-      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+      osc1.frequency.setValueAtTime(1318.51, now);
+      gain1.gain.setValueAtTime(0.22, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
       osc1.connect(gain1);
       gain1.connect(ctx.destination);
       osc1.start(now);
-      osc1.stop(now + 0.08);
+      osc1.stop(now + 0.12);
 
-      // Ping 2 (1200Hz, slightly delayed)
+      // Note 2: G#6 (1661.2Hz) - crisp harmonic high chime
       const osc2 = ctx.createOscillator();
       const gain2 = ctx.createGain();
       osc2.type = "sine";
-      osc2.frequency.setValueAtTime(1200, now + 0.09);
-      gain2.gain.setValueAtTime(0.15, now + 0.09);
-      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc2.frequency.setValueAtTime(1661.22, now + 0.08);
+      gain2.gain.setValueAtTime(0.25, now + 0.08);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
       osc2.connect(gain2);
       gain2.connect(ctx.destination);
-      osc2.start(now + 0.09);
-      osc2.stop(now + 0.22);
+      osc2.start(now + 0.08);
+      osc2.stop(now + 0.28);
     } catch {}
   }
 
-  // =========================================================================
-  // 4. CALL STATUS TRANSITIONS (Connected & Disconnected)
-  // =========================================================================
-
-  // Ascending cheerful chime when call connects
+  // Call Connected: subtle upward chime
   public playCallConnected() {
     if (this.muted) return;
     const ctx = this.getContext();
@@ -250,21 +255,21 @@ class SoundEngine {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(523.25, now); // C5
-      osc.frequency.setValueAtTime(783.99, now + 0.15); // G5
+      osc.frequency.setValueAtTime(587.33, now); // D5
+      osc.frequency.setValueAtTime(880.00, now + 0.12); // A5
 
-      gain.gain.setValueAtTime(0.18, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      gain.gain.setValueAtTime(0.20, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.40);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.45);
+      osc.stop(now + 0.40);
     } catch {}
   }
 
-  // Descending tones when call ends or is rejected
+  // Call Ended / Dropped: three subtle descending beeps
   public playCallEnded() {
     if (this.muted) return;
     const ctx = this.getContext();
@@ -276,11 +281,11 @@ class SoundEngine {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(440, now); // A4
-      osc.frequency.setValueAtTime(370, now + 0.1); // F#4
-      osc.frequency.setValueAtTime(293.66, now + 0.2); // D4
+      osc.frequency.setValueAtTime(425, now);
+      osc.frequency.setValueAtTime(350, now + 0.1);
+      osc.frequency.setValueAtTime(280, now + 0.2);
 
-      gain.gain.setValueAtTime(0.15, now);
+      gain.gain.setValueAtTime(0.18, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
 
       osc.connect(gain);
@@ -292,5 +297,4 @@ class SoundEngine {
   }
 }
 
-// Global Singleton Instance
-export const soundManager = new SoundEngine();
+export const soundManager = new WhatsAppSoundEngine();

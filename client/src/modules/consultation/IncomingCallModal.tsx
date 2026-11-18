@@ -8,12 +8,9 @@ import { soundManager } from "@/lib/sound";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/shared/ui/dialog";
-import { Button } from "@/shared/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/ui/avatar";
-import { PhoneOff, Video, BellRing, Volume2, VolumeX } from "lucide-react";
+import { PhoneOff, Video, Lock, Volume2, VolumeX, ShieldCheck } from "lucide-react";
 
 export function IncomingCallModal() {
   const { callStatus, activeConsultation, setConnected, resetCall } = useCallStore();
@@ -29,9 +26,9 @@ export function IncomingCallModal() {
     : activeConsultation?.patientAvatar;
   const callerSubtitle = isDoctorCaller
     ? "Chief Physician • Rehmat Health Care, Moradabad"
-    : "Rehmat Health Care Patient";
+    : "Rehmat Health Care Patient • OPD Queue";
 
-  // Play incoming ringtone while incoming call is active
+  // Play WhatsApp marimba ringtone loop while incoming
   useEffect(() => {
     if (isIncoming && !isMuted) {
       soundManager.startIncomingRingtone();
@@ -88,75 +85,84 @@ export function IncomingCallModal() {
 
   return (
     <Dialog open={isIncoming} onOpenChange={() => {}}>
-      <DialogContent className="w-[95vw] sm:max-w-md max-h-[92vh] overflow-y-auto bg-slate-900 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border-slate-800 text-center">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-center flex-1 text-sm font-semibold tracking-wider text-emerald-400 uppercase flex items-center justify-center gap-1.5">
-              <BellRing className="h-4 w-4 animate-bounce text-emerald-400" />
-              Incoming Video Consultation
-            </DialogTitle>
-            <button
-              onClick={toggleMute}
-              className="text-xs text-slate-400 hover:text-white p-1 rounded-lg bg-white/5 border border-white/10"
-              title={isMuted ? "Unmute Ringtone" : "Mute Ringtone"}
-            >
-              {isMuted ? <VolumeX className="h-4 w-4 text-rose-400" /> : <Volume2 className="h-4 w-4 text-emerald-400" />}
-            </button>
-          </div>
-        </DialogHeader>
+      <DialogContent className="w-[95vw] sm:max-w-md max-h-[95vh] overflow-hidden bg-[#111b21] text-white rounded-3xl p-0 border-[#222e35] shadow-2xl select-none">
+        
+        {/* WhatsApp Video Call Header */}
+        <div className="pt-6 px-6 pb-2 text-center space-y-1 relative">
+          <button
+            onClick={toggleMute}
+            className="absolute top-5 right-5 p-2 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 transition-colors"
+            title={isMuted ? "Unmute Ringtone" : "Mute Ringtone"}
+          >
+            {isMuted ? <VolumeX className="h-4 w-4 text-rose-400" /> : <Volume2 className="h-4 w-4 text-[#00a884]" />}
+          </button>
 
-        <div className="py-6 flex flex-col items-center space-y-4">
+          <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#8696a0] uppercase tracking-wider">
+            <Lock className="h-3 w-3 text-[#00a884]" />
+            <span>WhatsApp Video Call</span>
+          </div>
+
+          <h2 className="text-2xl font-black text-white tracking-tight pt-1">
+            {callerName}
+          </h2>
+          <p className="text-xs text-[#00a884] font-medium flex items-center justify-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-[#00a884] animate-ping" />
+            <span>Incoming video consultation...</span>
+          </p>
+        </div>
+
+        {/* Central WhatsApp Pulsing Avatar */}
+        <div className="py-8 flex flex-col items-center justify-center">
           <div className="relative">
-            <div className="ring-pulse-animation absolute inset-0 rounded-full bg-emerald-500/30" />
-            <Avatar className="h-24 w-24 border-4 border-emerald-500 shadow-xl relative z-10">
+            {/* WhatsApp Green Pulsing Glow Rings */}
+            <div className="absolute -inset-4 rounded-full bg-[#00a884]/20 animate-ping pointer-events-none" />
+            <div className="absolute -inset-8 rounded-full bg-[#00a884]/10 animate-pulse pointer-events-none" />
+            
+            <Avatar className="h-32 w-32 border-4 border-[#00a884] shadow-2xl relative z-10">
               <AvatarImage src={callerAvatar} />
-              <AvatarFallback className="bg-emerald-800 text-white font-bold text-2xl">
+              <AvatarFallback className="bg-[#00a884] text-white font-extrabold text-3xl">
                 {callerName.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </div>
 
-          <div>
-            <h3 className="text-xl font-extrabold text-white">
-              {callerName}
-            </h3>
-            <p className="text-xs text-slate-400 mt-1">{callerSubtitle}</p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 text-[11px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-semibold">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
-              Ringing...
-            </span>
-          </div>
-
-          <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-2 text-xs text-slate-300">
-            Consultation Billing:{" "}
-            <strong className="text-emerald-400">
-              {formatCurrency(activeConsultation?.ratePerMinute || 15)}/min
-            </strong>
+          <div className="mt-5 text-center px-6">
+            <p className="text-xs text-[#8696a0]">{callerSubtitle}</p>
+            <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-[#d1d7db]">
+              <ShieldCheck className="h-3.5 w-3.5 text-[#00a884]" />
+              <span>
+                Rate: <strong className="text-white">{formatCurrency(activeConsultation?.ratePerMinute || 15)}/min</strong>
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-4 pt-2">
-          <Button
-            onClick={handleReject}
-            className="flex-1 h-12 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-bold gap-2 text-sm"
-          >
-            <PhoneOff className="h-5 w-5" />
-            <span>Decline</span>
-          </Button>
+        {/* WhatsApp Call Action Bottom Bar */}
+        <div className="bg-[#202c33] px-8 py-6 flex items-center justify-around border-t border-[#222e35]">
+          {/* Decline (Red Circle) */}
+          <div className="flex flex-col items-center gap-1.5">
+            <button
+              onClick={handleReject}
+              className="h-16 w-16 rounded-full bg-[#ea0038] hover:bg-[#d00030] active:scale-90 text-white flex items-center justify-center shadow-lg shadow-rose-950/40 transition-all cursor-pointer"
+            >
+              <PhoneOff className="h-7 w-7" />
+            </button>
+            <span className="text-[11px] font-semibold text-[#8696a0]">Decline</span>
+          </div>
 
-          <Button
-            onClick={handleAccept}
-            className="flex-1 h-12 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold gap-2 text-sm shadow-lg shadow-emerald-600/40"
-          >
-            <Video className="h-5 w-5" />
-            <span>Accept Call</span>
-          </Button>
+          {/* Accept (WhatsApp Green Circle) */}
+          <div className="flex flex-col items-center gap-1.5">
+            <button
+              onClick={handleAccept}
+              className="h-16 w-16 rounded-full bg-[#00a884] hover:bg-[#008f6f] active:scale-90 text-white flex items-center justify-center shadow-lg shadow-[#00a884]/30 transition-all animate-bounce cursor-pointer"
+            >
+              <Video className="h-7 w-7" />
+            </button>
+            <span className="text-[11px] font-bold text-[#00a884]">Accept Video</span>
+          </div>
         </div>
+
       </DialogContent>
     </Dialog>
   );
 }
-

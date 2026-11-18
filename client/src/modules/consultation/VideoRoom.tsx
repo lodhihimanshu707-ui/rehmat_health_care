@@ -155,11 +155,11 @@ export function VideoRoom() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 overflow-hidden select-none">
-      {/* 1. Outgoing Ringing Screen with Local Camera Self-Preview */}
+      {/* 1. WhatsApp Outgoing Ringing Screen with Local Camera Self-Preview */}
       {callStatus === "ringing_outgoing" && (
-        <div className="relative h-full w-full flex flex-col items-center justify-between p-4 sm:p-8 text-white text-center overflow-y-auto max-h-screen">
+        <div className="relative h-full w-full flex flex-col items-center justify-between p-4 sm:p-8 text-white text-center overflow-y-auto max-h-screen bg-[#111b21]">
           {/* Background blurred camera preview */}
-          <div className="absolute inset-0 -z-10 overflow-hidden opacity-25">
+          <div className="absolute inset-0 -z-10 overflow-hidden opacity-20">
             <video
               ref={localVideoRef}
               autoPlay
@@ -169,21 +169,25 @@ export function VideoRoom() {
             />
           </div>
 
-          {/* Top Branding Header */}
-          <div className="flex items-center gap-2 pt-2 sm:pt-4">
-            <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-xl bg-emerald-500 flex items-center justify-center shadow-md">
-              <Stethoscope className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
+          {/* WhatsApp Header Strip */}
+          <div className="flex flex-col items-center pt-2 sm:pt-4 space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#8696a0] uppercase tracking-wider">
+              <span className="h-2 w-2 rounded-full bg-[#00a884] animate-ping" />
+              <span>WhatsApp Video Call</span>
             </div>
-            <span className="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-300">
-              Rehmat Health Care • Tele-OPD
+            <span className="text-[10px] text-[#00a884] font-medium">
+              Rehmat Health Care • Tele-OPD (Beside Mohan X-Ray)
             </span>
           </div>
 
-          {/* Central Profile Card & Ringing Animation */}
-          <div className="flex flex-col items-center space-y-3 sm:space-y-4 max-w-sm my-auto py-4">
+          {/* Central Profile Card & WhatsApp Ringing Animation */}
+          <div className="flex flex-col items-center space-y-4 max-w-sm my-auto py-4">
             <div className="relative">
-              <div className="ring-pulse-animation absolute inset-0 rounded-full bg-emerald-500/30" />
-              <div className="relative z-10 flex h-20 w-20 sm:h-28 sm:w-28 items-center justify-center rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-extrabold text-2xl sm:text-3xl shadow-2xl border-4 border-white/20">
+              {/* WhatsApp Green Pulsing Rings */}
+              <div className="absolute -inset-4 rounded-full bg-[#00a884]/20 animate-ping pointer-events-none" />
+              <div className="absolute -inset-8 rounded-full bg-[#00a884]/10 animate-pulse pointer-events-none" />
+
+              <div className="relative z-10 flex h-28 w-28 sm:h-32 sm:w-32 items-center justify-center rounded-full bg-gradient-to-tr from-[#00a884] to-[#128c7e] text-white font-extrabold text-3xl sm:text-4xl shadow-2xl border-4 border-white/20">
                 {activeConsultation?.callerRole === "doctor"
                   ? (activeConsultation?.patientName?.slice(0, 2).toUpperCase() || "PT")
                   : (activeConsultation?.doctorName
@@ -199,23 +203,19 @@ export function VideoRoom() {
             </div>
 
             <div>
-              <h2 className="text-lg sm:text-2xl font-black text-white leading-tight">
-                Calling {activeConsultation?.callerRole === "doctor"
-                  ? (activeConsultation?.patientName || "Patient")
-                  : (activeConsultation?.doctorName || "Dr. Raees Akhtar")}...
-              </h2>
-              <p className="text-[11px] sm:text-xs font-semibold text-emerald-300 mt-1">
+              <h2 className="text-xl sm:text-2xl font-black text-white leading-tight">
                 {activeConsultation?.callerRole === "doctor"
-                  ? "Rehmat Health Care • Video OPD Queue"
-                  : (activeConsultation?.doctorSpecialization || "General Physician & Family Medicine")}
-              </p>
-              <div className="mt-2.5 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-slate-200 text-[11px] sm:text-xs backdrop-blur-sm border border-white/10">
-                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                <span>
-                  {activeConsultation?.callerRole === "doctor"
-                    ? "Ringing patient device..."
-                    : "Ringing doctor's cockpit..."}
+                  ? (activeConsultation?.patientName || "Patient")
+                  : (activeConsultation?.doctorName || "Dr. Raees Akhtar")}
+              </h2>
+              <p className="text-xs font-semibold text-[#00a884] mt-1 flex items-center justify-center gap-1">
+                <span>Ringing...</span>
+                <span className="text-[#8696a0] font-mono text-[10px] pl-1 border-l border-white/20">
+                  ♫ Double-beep tone
                 </span>
+              </p>
+              <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-slate-300 text-[11px] backdrop-blur-sm border border-white/10">
+                <span>{activeConsultation?.doctorSpecialization || "General Physician & Family Medicine"}</span>
               </div>
             </div>
 
@@ -234,15 +234,16 @@ export function VideoRoom() {
             </div>
           </div>
 
-          {/* Cancel Call Button */}
-          <div className="pb-4 sm:pb-6">
-            <Button
+          {/* Cancel Call Button (WhatsApp Large Red Circle) */}
+          <div className="pb-6 sm:pb-8 flex flex-col items-center gap-2">
+            <button
               onClick={handleCancelCall}
-              className="rounded-full bg-rose-600 hover:bg-rose-700 text-white font-bold px-6 sm:px-8 h-10 sm:h-12 gap-2 shadow-xl shadow-rose-600/40 text-xs sm:text-sm active:scale-95 transition-transform"
+              className="h-16 w-16 rounded-full bg-[#ea0038] hover:bg-[#d00030] text-white flex items-center justify-center shadow-2xl shadow-rose-950/60 active:scale-90 transition-transform cursor-pointer"
+              title="Cancel Call"
             >
-              <PhoneOff className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Cancel Call</span>
-            </Button>
+              <PhoneOff className="h-7 w-7" />
+            </button>
+            <span className="text-xs font-semibold text-[#8696a0]">Cancel Call</span>
           </div>
         </div>
       )}
