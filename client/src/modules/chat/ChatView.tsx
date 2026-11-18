@@ -150,6 +150,26 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const [showMenu, setShowMenu] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
+  // Dynamic unread count tracking (clears to 0 for active / opened contact)
+  const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>(() => {
+    const map: Record<string, number> = {};
+    contacts.forEach((c) => {
+      // The initially active/open contact has 0 unread messages
+      map[c.id] = c.id === defaultRecipient.id ? 0 : (c.unreadCount || 0);
+    });
+    return map;
+  });
+
+  // Whenever activeRecipient changes, clear its unread badge
+  useEffect(() => {
+    if (activeRecipient?.id) {
+      setUnreadCounts((prev) => ({
+        ...prev,
+        [activeRecipient.id]: 0,
+      }));
+    }
+  }, [activeRecipient?.id]);
+
   const { messages, isLoading, sendMessage, markOutgoingAsRead } = useChat(activeRecipient.id);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -169,18 +189,16 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const handleSendWrapper = (text: string) => {
     sendMessage(text);
 
-    // Authentic WhatsApp flow:
-    // Message is initially DELIVERED (grey ticks).
-    // When the doctor actually opens/views the chat, the doctor begins typing and ticks turn BLUE (Seen).
+    // When the doctor actually opens/views the chat, doctor marks as seen (turns ticks to seen) and types reply
     if (isPatient && activeRecipient.id === DEMO_DOCTOR.id) {
       setTimeout(() => {
-        markOutgoingAsRead(); // Turns ticks from grey to blue upon doctor viewing
+        markOutgoingAsRead(); // Turns ticks to seen when doctor views
         setIsTyping(true);
-      }, 2500);
+      }, 1000);
 
       setTimeout(() => {
         setIsTyping(false);
-      }, 5500);
+      }, 3500);
     }
   };
 
@@ -357,12 +375,14 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
           <div className="flex-1 overflow-y-auto divide-y divide-[#f2f2f2] bg-white">
             {filteredContacts.map((contact) => {
               const isSelected = contact.id === activeRecipient.id;
+              const unread = isSelected ? 0 : (unreadCounts[contact.id] ?? 0);
               return (
                 <div
                   key={contact.id}
                   onClick={() => {
                     setActiveRecipient(contact);
                     setMobileScreen("chat");
+                    setUnreadCounts((prev) => ({ ...prev, [contact.id]: 0 }));
                   }}
                   className={`flex items-center gap-3.5 px-4 py-3 cursor-pointer transition-colors ${
                     isSelected ? "bg-[#f0f2f5]" : "hover:bg-[#f5f6f6]"
@@ -387,7 +407,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
                       </h3>
                       <span
                         className={`text-[11px] shrink-0 ${
-                          contact.unreadCount ? "text-[#00a884] font-bold" : "text-[#667781]"
+                          unread > 0 ? "text-[#00a884] font-bold" : "text-[#667781]"
                         }`}
                       >
                         {contact.lastTime}
@@ -403,13 +423,13 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
                             <CheckCheck className="h-3.5 w-3.5 text-[#8696a0] shrink-0" />
                           )
                         )}
-                        <span className={`truncate ${contact.unreadCount ? "text-[#111b21] font-medium" : "text-[#667781]"}`}>
+                        <span className={`truncate ${unread > 0 ? "text-[#111b21] font-semibold" : "text-[#667781]"}`}>
                           {contact.lastMessage}
                         </span>
                       </p>
-                      {contact.unreadCount ? (
+                      {unread > 0 ? (
                         <span className="h-5 min-w-[20px] px-1 rounded-full bg-[#00a884] text-white font-bold text-[10px] flex items-center justify-center shrink-0 ml-1.5 shadow-2xs">
-                          {contact.unreadCount}
+                          {unread}
                         </span>
                       ) : null}
                     </div>
