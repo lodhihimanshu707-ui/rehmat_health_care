@@ -480,70 +480,73 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
       {/* 2. REHMAT HEALTH CARE CHAT ROOM (Mobile Full Screen & Desktop Right Side) */}
       {/* ========================================================================= */}
       <div
-        className={`flex-1 flex flex-col h-full bg-[#efeae2] relative min-w-0 ${
+        className={`flex-1 flex flex-col h-full bg-slate-50 relative min-w-0 ${
           mobileScreen === "list" ? "hidden md:flex" : "flex"
         }`}
-        style={{
-          backgroundImage: `radial-gradient(#d1d7db 0.8px, transparent 0.8px)`,
-          backgroundSize: "22px 22px",
-        }}
       >
-        {/* WhatsApp Conversation Top App Bar (Classic WhatsApp Green Header) */}
-        <div className="h-14 sm:h-16 px-3 sm:px-4 bg-[#008069] text-white flex items-center justify-between shrink-0 shadow-md z-20 select-none">
-          <div className="flex items-center gap-2 min-w-0">
-            {/* Back button returns to WhatsApp chats list on mobile */}
+        {/* Modern Medical Consultation Header */}
+        <div className="h-16 px-4 bg-white border-b border-slate-200 text-slate-800 flex items-center justify-between shrink-0 shadow-xs z-20 select-none">
+          <div className="flex items-center gap-3 min-w-0">
+            {/* Back button returns to consultations list on mobile */}
             <button
               onClick={() => setMobileScreen("list")}
-              className="p-1 -ml-1 text-white hover:bg-white/10 rounded-full transition-colors flex items-center cursor-pointer"
-              title="Back to WhatsApp Chats"
+              className="p-1.5 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors md:hidden cursor-pointer"
+              title="Back to Consultations"
             >
-              <ArrowLeft className="h-6 w-6" />
+              <ArrowLeft className="h-5 w-5" />
             </button>
 
             <div className="relative shrink-0">
-              <Avatar className="h-9 w-9 sm:h-10 sm:w-10 border border-white/40">
+              <Avatar className="h-10 w-10 border border-slate-200 shadow-2xs">
                 <AvatarImage src={activeRecipient.avatarUrl} />
-                <AvatarFallback className="bg-white/20 text-white font-bold text-xs">
+                <AvatarFallback className="bg-emerald-600 text-white font-bold text-xs">
                   {activeRecipient.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               {activeRecipient.isOnline && (
-                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-[#25d366] border-2 border-[#008069]" />
+                <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 border-2 border-white" />
               )}
             </div>
 
             <div className="min-w-0">
-              <h2 className="font-bold text-sm sm:text-base text-white truncate leading-tight">
-                {activeRecipient.name}
-              </h2>
+              <div className="flex items-center gap-1.5">
+                <h2 className="font-bold text-sm sm:text-base text-slate-900 truncate leading-tight">
+                  {activeRecipient.name}
+                </h2>
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0">
+                  Verified
+                </span>
+              </div>
               {isTyping ? (
-                <p className="text-[11px] text-[#25d366] font-bold animate-pulse">
-                  typing...
+                <p className="text-[11px] text-emerald-600 font-bold animate-pulse flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                  <span>Doctor is replying...</span>
                 </p>
               ) : (
-                <p className="text-[11px] text-emerald-100 truncate flex items-center gap-1">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#25d366] animate-pulse" />
-                  <span>online</span>
-                  <span className="text-white/60 hidden sm:inline">• Beside Mohan X-Ray</span>
+                <p className="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  <span className="font-medium text-emerald-700">Online</span>
+                  <span className="text-slate-400 hidden sm:inline">• MBBS, MD (Beside Mohan X-Ray)</span>
                 </p>
               )}
             </div>
           </div>
 
-          {/* WhatsApp Header Icons (Video, Phone, Menu) */}
-          <div className="flex items-center gap-1 sm:gap-2 text-white">
+          {/* Consultation Action Buttons: Direct Video OPD & Audio Call */}
+          <div className="flex items-center gap-2">
             <button
               onClick={handleStartCall}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
-              title="Video Consultation Call"
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
+              title="Start Live Video Tele-OPD"
             >
-              <Video className="h-5 w-5" />
+              <Video className="h-4 w-4" />
+              <span className="hidden sm:inline">Video OPD</span>
             </button>
 
             <button
               onClick={handleStartCall}
-              className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
-              title="Voice Call"
+              className="p-2 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+              title="Audio Consultation Call"
             >
               <Phone className="h-4 w-4" />
             </button>
@@ -551,10 +554,10 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
             <div className="relative">
               <button
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                className="p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
                 title="Options"
               >
-                <MoreVertical className="h-5 w-5" />
+                <MoreVertical className="h-4 w-4" />
               </button>
 
               {showMenu && (
@@ -563,7 +566,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
                     href={isDoctor ? "/doctor" : "/patient"}
                     className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 font-bold text-slate-700"
                   >
-                    <Home className="h-4 w-4 text-[#008069]" />
+                    <Home className="h-4 w-4 text-emerald-600" />
                     <span>Exit to Dashboard</span>
                   </Link>
                   <button
@@ -579,20 +582,22 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
           </div>
         </div>
 
-        {/* WhatsApp Chat Messages Canvas */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2">
-          {/* End-to-End Encryption Banner */}
-          <div className="mx-auto max-w-sm rounded-lg bg-[#ffeecd] px-3 py-1.5 text-[11px] text-[#54656f] text-center shadow-2xs border border-[#ffdb99]/70 select-none">
-            <span className="font-bold flex items-center justify-center gap-1 text-[#111b21] mb-0.5">
-              <Lock className="h-3 w-3 text-[#54656f]" />
-              End-to-End Encrypted Consultation
-            </span>
-            Messages and calls are encrypted. No one outside of this chat, not even Rehmat Health Care, can read or listen to them.
+        {/* Medical Consultation Messages Canvas */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2.5">
+          {/* Medical Privacy & Confidentiality Badge */}
+          <div className="mx-auto max-w-md rounded-xl bg-emerald-50/80 border border-emerald-200/70 px-3.5 py-2 text-center shadow-2xs select-none">
+            <div className="flex items-center justify-center gap-1.5 font-bold text-xs text-emerald-800 mb-0.5">
+              <Lock className="h-3.5 w-3.5 text-emerald-600" />
+              <span>Confidential Tele-OPD Consultation</span>
+            </div>
+            <p className="text-[11px] text-emerald-700/90 leading-tight">
+              Direct clinic desk with Dr. Raees Akhtar. Diagnostics synced with Mohan X-Ray, Malviya Nagar.
+            </p>
           </div>
 
-          {/* Date Bubble: TODAY */}
+          {/* Date Separator Pill */}
           <div className="flex justify-center my-2 select-none">
-            <span className="rounded-lg bg-white/95 px-3 py-0.5 text-[10px] font-bold text-[#54656f] shadow-2xs border border-[#e9edef]">
+            <span className="rounded-full bg-slate-200/80 px-3 py-0.5 text-[10px] font-bold text-slate-600">
               TODAY
             </span>
           </div>

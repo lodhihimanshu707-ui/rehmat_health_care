@@ -25,51 +25,29 @@ export function MessageBubble({ message }: MessageBubbleProps) {
 
   return (
     <div
-      className={`group relative flex w-full ${isMe ? "justify-end" : "justify-start"} my-1.5 px-2 select-text`}
+      className={`group relative flex w-full ${isMe ? "justify-end" : "justify-start"} my-1.5 px-1 select-text`}
       onMouseLeave={() => setShowReactionPicker(false)}
     >
-      {/* WhatsApp Message Bubble Container */}
+      {/* Modern Medical Consultation Message Card */}
       <div
-        className={`relative max-w-[85%] sm:max-w-[65%] text-[13.5px] sm:text-[14.5px] shadow-xs transition-shadow ${
+        className={`relative max-w-[85%] sm:max-w-[70%] text-[13.5px] sm:text-[14px] transition-shadow ${
           isMe
-            ? "bg-[#d9fdd3] text-[#111b21] rounded-2xl rounded-tr-xs" // WhatsApp Outgoing
-            : "bg-white text-[#111b21] rounded-2xl rounded-tl-xs border border-[#e9edef]/80" // WhatsApp Incoming
+            ? "bg-emerald-600 text-white rounded-2xl rounded-br-xs shadow-xs"
+            : "bg-white text-slate-800 rounded-2xl rounded-bl-xs border border-slate-200 shadow-xs"
         }`}
-        style={{
-          boxShadow: "0 1px 0.5px rgba(11, 20, 26, 0.13)",
-        }}
       >
-        {/* WhatsApp Tail Triangle */}
-        {isMe ? (
-          <div
-            className="absolute top-0 -right-2 w-0 h-0 pointer-events-none"
-            style={{
-              borderTop: "10px solid #d9fdd3",
-              borderRight: "10px solid transparent",
-            }}
-          />
-        ) : (
-          <div
-            className="absolute top-0 -left-2 w-0 h-0 pointer-events-none"
-            style={{
-              borderTop: "10px solid #ffffff",
-              borderLeft: "10px solid transparent",
-            }}
-          />
-        )}
-
-        <div className="p-2 sm:p-2.5 space-y-1">
-          {/* 1. Voice Note Player (WhatsApp Audio Message UX) */}
+        <div className="p-2.5 sm:p-3 space-y-1.5">
+          {/* 1. Voice Note Player (Audio Consultation) */}
           {isVoiceNote ? (
             <div className="flex items-center gap-2.5 py-1 min-w-[210px] sm:min-w-[240px]">
               <button
                 type="button"
                 onClick={() => setIsPlayingVoice(!isPlayingVoice)}
                 className={`h-9 w-9 rounded-full flex items-center justify-center transition-all ${
-                  isMe ? "bg-[#00a884] text-white" : "bg-[#00a884] text-white"
+                  isMe ? "bg-white/20 hover:bg-white/30 text-white" : "bg-emerald-600 hover:bg-emerald-700 text-white"
                 }`}
               >
-                {isPlayingVoice ? <Pause className="h-4 w-4 fill-white" /> : <Play className="h-4 w-4 fill-white ml-0.5" />}
+                {isPlayingVoice ? <Pause className="h-4 w-4 fill-current" /> : <Play className="h-4 w-4 fill-current ml-0.5" />}
               </button>
 
               <div className="flex-1 space-y-1">
@@ -79,33 +57,43 @@ export function MessageBubble({ message }: MessageBubbleProps) {
                     <div
                       key={i}
                       className={`w-1 rounded-full transition-all ${
-                        isPlayingVoice && i < 8 ? "bg-[#00a884]" : "bg-[#8696a0]"
+                        isMe
+                          ? isPlayingVoice && i < 8 ? "bg-white" : "bg-emerald-300/70"
+                          : isPlayingVoice && i < 8 ? "bg-emerald-600" : "bg-slate-300"
                       }`}
                       style={{ height: `${h}px` }}
                     />
                   ))}
                 </div>
-                <div className="flex justify-between text-[10px] text-[#667781]">
+                <div className={`flex justify-between text-[10px] ${isMe ? "text-emerald-100" : "text-slate-500"}`}>
                   <span>{isPlayingVoice ? "0:04" : "0:14"}</span>
-                  <span className="font-semibold">Voice Consultation</span>
+                  <span className="font-semibold">Audio Consultation Note</span>
                 </div>
               </div>
             </div>
           ) : isAttachment ? (
-            /* 2. PDF Document Attachment (WhatsApp File Card UX) */
-            <div className="space-y-1.5">
+            /* 2. PDF Document Attachment (Mohan X-Ray Card) */
+            <div className="space-y-2">
               <p className="leading-relaxed whitespace-pre-wrap break-words">
                 {message.text.split("[Attached:")[0].trim()}
               </p>
-              <div className="flex items-center gap-3 p-2.5 rounded-xl bg-black/5 border border-black/5 hover:bg-black/10 transition-colors cursor-pointer">
-                <div className="h-10 w-10 rounded-lg bg-[#ea0038] text-white flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs uppercase">
+              <div
+                className={`flex items-center gap-3 p-2.5 rounded-xl border transition-colors cursor-pointer ${
+                  isMe
+                    ? "bg-black/15 border-white/20 hover:bg-black/20"
+                    : "bg-slate-50 border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                <div className="h-10 w-10 rounded-lg bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-2xs font-bold text-xs uppercase">
                   PDF
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-xs text-[#111b21] truncate">
+                  <p className={`font-semibold text-xs truncate ${isMe ? "text-white" : "text-slate-900"}`}>
                     Mohan_XRay_Report_#MXR-9842.pdf
                   </p>
-                  <p className="text-[10px] text-[#667781]">2 pages • 1.4 MB • Mohan X-Ray, Malviya Nagar</p>
+                  <p className={`text-[10px] ${isMe ? "text-emerald-100/90" : "text-slate-500"}`}>
+                    2 pages • 1.4 MB • Mohan X-Ray Diagnostics
+                  </p>
                 </div>
               </div>
             </div>
@@ -114,19 +102,21 @@ export function MessageBubble({ message }: MessageBubbleProps) {
             <p className="leading-relaxed whitespace-pre-wrap break-words">{message.text}</p>
           )}
 
-          {/* Time & Read Status Ticks (Authentic WhatsApp UX: Grey = Delivered, Blue = Seen by Recipient) */}
+          {/* Time & Read Status Ticks */}
           <div className="flex items-center justify-end gap-1 float-right ml-2 -mb-0.5 mt-0.5">
-            <span className="text-[10px] text-[#667781] select-none">{timeFormatted}</span>
+            <span className={`text-[10px] select-none ${isMe ? "text-emerald-100/90" : "text-slate-400"}`}>
+              {timeFormatted}
+            </span>
             {isMe && (
               message.isRead ? (
                 <CheckCheck
-                  className="h-3.5 w-3.5 text-[#53bdeb] stroke-[2.5]"
-                  aria-label="Seen / Read by recipient"
+                  className="h-3.5 w-3.5 text-sky-200 stroke-[2.5]"
+                  aria-label="Seen by doctor"
                 />
               ) : (
                 <CheckCheck
-                  className="h-3.5 w-3.5 text-[#8696a0] stroke-[2.2]"
-                  aria-label="Delivered (Not seen yet)"
+                  className="h-3.5 w-3.5 text-emerald-200/80 stroke-[2]"
+                  aria-label="Delivered"
                 />
               )
             )}
