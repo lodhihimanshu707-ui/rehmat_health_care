@@ -13,6 +13,7 @@ export interface ActiveConsultation {
   doctorSpecialization?: string;
   ratePerMinute: number;
   callerRole?: "doctor" | "patient";
+  callType?: "video" | "audio";
 }
 
 export interface CallSummary {

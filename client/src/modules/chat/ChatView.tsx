@@ -262,12 +262,13 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     }
   };
 
-  const handleStartCall = () => {
+  const handleStartCall = (callType: "video" | "audio" = "video") => {
     if (!currentUser) return;
     const isDoctorCalling = currentUser.role === "doctor";
+    const newConsultationId = `cons-${Date.now()}`;
 
     startOutgoingCall({
-      id: `cons-${Date.now()}`,
+      id: newConsultationId,
       patientId: isDoctorCalling ? activeRecipient.id : currentUser.id,
       patientName: isDoctorCalling ? activeRecipient.name : currentUser.name,
       patientAvatar: isDoctorCalling ? activeRecipient.avatarUrl : currentUser.avatarUrl,
@@ -276,11 +277,12 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
       doctorAvatar: isDoctorCalling ? currentUser.avatarUrl : activeRecipient.avatarUrl,
       ratePerMinute: 15,
       callerRole: isDoctorCalling ? "doctor" : "patient",
+      callType,
     });
 
     const socket = getSocket();
     socket.emit("call-user", {
-      consultationId: `cons-${Date.now()}`,
+      consultationId: newConsultationId,
       patientId: isDoctorCalling ? activeRecipient.id : currentUser.id,
       patientName: isDoctorCalling ? activeRecipient.name : currentUser.name,
       patientAvatar: isDoctorCalling ? activeRecipient.avatarUrl : currentUser.avatarUrl,
@@ -288,6 +290,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
       doctorUserId: isDoctorCalling ? activeRecipient.id : currentUser.id,
       ratePerMinute: 15,
       callerRole: isDoctorCalling ? "doctor" : "patient",
+      callType,
     });
   };
 
@@ -489,13 +492,22 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleStartCall}
-                className="p-2.5 rounded-full hover:bg-emerald-50 text-[#008069]"
-                title="Call Again"
-              >
-                <Video className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => handleStartCall("audio")}
+                  className="p-2 rounded-full hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 cursor-pointer"
+                  title="Audio Call"
+                >
+                  <Phone className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleStartCall("video")}
+                  className="p-2 rounded-full hover:bg-emerald-50 text-emerald-600 cursor-pointer"
+                  title="Video Call"
+                >
+                  <Video className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             <div className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors">
@@ -512,13 +524,22 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
                   </p>
                 </div>
               </div>
-              <button
-                onClick={handleStartCall}
-                className="p-2.5 rounded-full hover:bg-emerald-50 text-[#008069]"
-                title="Call Again"
-              >
-                <Video className="h-5 w-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => handleStartCall("audio")}
+                  className="p-2 rounded-full hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 cursor-pointer"
+                  title="Audio Call"
+                >
+                  <Phone className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => handleStartCall("video")}
+                  className="p-2 rounded-full hover:bg-emerald-50 text-emerald-600 cursor-pointer"
+                  title="Video Call"
+                >
+                  <Video className="h-4 w-4" />
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -583,7 +604,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
           {/* Consultation Action Buttons: Direct Video OPD & Audio Call */}
           <div className="flex items-center gap-2">
             <button
-              onClick={handleStartCall}
+              onClick={() => handleStartCall("video")}
               className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs flex items-center gap-1.5 transition-all cursor-pointer active:scale-95"
               title="Start Live Video Tele-OPD"
             >
@@ -592,7 +613,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
             </button>
 
             <button
-              onClick={handleStartCall}
+              onClick={() => handleStartCall("audio")}
               className="p-2 text-slate-600 hover:text-emerald-700 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
               title="Audio Consultation Call"
             >

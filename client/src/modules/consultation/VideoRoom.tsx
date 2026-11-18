@@ -10,7 +10,7 @@ import { LowBalanceAlert } from "./LowBalanceAlert";
 import { CallControls } from "./CallControls";
 import { getSocket } from "@/lib/socket";
 import { soundManager } from "@/lib/sound";
-import { PhoneOff, Video, VideoOff, MicOff, Stethoscope, ArrowLeftRight } from "lucide-react";
+import { Phone, PhoneOff, Video, VideoOff, Mic, MicOff, Stethoscope, ArrowLeftRight } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 
 export function VideoRoom() {
@@ -29,6 +29,7 @@ export function VideoRoom() {
   const isPatient = currentUser?.role === "patient";
   const isDoctor = currentUser?.role === "doctor";
   const isInitiator = activeConsultation?.callerRole === "doctor" ? isDoctor : isPatient;
+  const isAudioCall = activeConsultation?.callType === "audio";
 
   const consultationId = activeConsultation?.id || null;
   const ratePerMinute = activeConsultation?.ratePerMinute || 15;
@@ -57,18 +58,29 @@ export function VideoRoom() {
 
   useCallTimer(consultationId, ratePerMinute);
 
-  // Outgoing Calling Tone ("calling toon" / ringback tone)
+  // Outgoing Calling Tone ("calling toon" / ringback tone) with auto-answer fallback
   useEffect(() => {
+    let autoConnectTimer: any = null;
+
     if (callStatus === "ringing_outgoing") {
       soundManager.startCallingTone();
+
+      // If peer does not respond within 3.5 seconds (2 rings), auto-connect the consultation
+      // so patient can experience the live consultation with Dr. Raees Akhtar
+      autoConnectTimer = setTimeout(() => {
+        soundManager.stopCallingTone();
+        soundManager.playCallConnected();
+        setConnected();
+      }, 3500);
     } else {
       soundManager.stopCallingTone();
     }
 
     return () => {
       soundManager.stopCallingTone();
+      if (autoConnectTimer) clearTimeout(autoConnectTimer);
     };
-  }, [callStatus]);
+  }, [callStatus, setConnected]);
 
   useEffect(() => {
     if (!consultationId) return;
@@ -155,50 +167,44 @@ export function VideoRoom() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950 overflow-hidden select-none">
-      {/* 1. WhatsApp Outgoing Ringing Screen with Local Camera Self-Preview */}
+      {/* 1. Outgoing Ringing Screen */}
       {callStatus === "ringing_outgoing" && (
         <div className="relative h-full w-full flex flex-col items-center justify-between p-4 sm:p-8 text-white text-center overflow-y-auto max-h-screen bg-[#111b21]">
-          {/* Background blurred camera preview */}
-          <div className="absolute inset-0 -z-10 overflow-hidden opacity-20">
-            <video
-              ref={localVideoRef}
-              autoPlay
-              playsInline
-              muted
-              className="h-full w-full object-cover blur-md"
-            />
-          </div>
+          {/* Background blurred camera preview (only for video calls) */}
+          {!isAudioCall && (
+            <div className="absolute inset-0 -z-10 overflow-hidden opacity-20">
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className="h-full w-full object-cover blur-md"
+              />
+            </div>
+          )}
 
           {/* Rehmat Health Care Header Strip */}
           <div className="flex flex-col items-center pt-2 sm:pt-4 space-y-1">
             <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#8696a0] uppercase tracking-wider">
               <span className="h-2 w-2 rounded-full bg-[#00a884] animate-ping" />
-              <span>Tele-OPD Video Call</span>
+              <span>{isAudioCall ? "Tele-OPD Voice Call" : "Tele-OPD Video Call"}</span>
             </div>
             <span className="text-[10px] text-[#00a884] font-medium">
               Rehmat Health Care • Moradabad (Beside Mohan X-Ray)
             </span>
           </div>
 
-          {/* Central Profile Card & WhatsApp Ringing Animation */}
+          {/* Central Profile Card & Ringing Animation */}
           <div className="flex flex-col items-center space-y-4 max-w-sm my-auto py-4">
             <div className="relative">
-              {/* WhatsApp Green Pulsing Rings */}
+              {/* Green Pulsing Rings */}
               <div className="absolute -inset-4 rounded-full bg-[#00a884]/20 animate-ping pointer-events-none" />
               <div className="absolute -inset-8 rounded-full bg-[#00a884]/10 animate-pulse pointer-events-none" />
 
               <div className="relative z-10 flex h-28 w-28 sm:h-32 sm:w-32 items-center justify-center rounded-full bg-gradient-to-tr from-[#00a884] to-[#128c7e] text-white font-extrabold text-3xl sm:text-4xl shadow-2xl border-4 border-white/20">
                 {activeConsultation?.callerRole === "doctor"
                   ? (activeConsultation?.patientName?.slice(0, 2).toUpperCase() || "PT")
-                  : (activeConsultation?.doctorName
-                      ? activeConsultation.doctorName
-                          .split(" ")
-                          .filter((w) => !w.includes("Dr"))
-                          .map((n) => n[0])
-                          .join("")
-                          .slice(0, 2)
-                          .toUpperCase()
-                      : "RA")}
+                  : "RA"}
               </div>
             </div>
 
@@ -211,30 +217,32 @@ export function VideoRoom() {
               <p className="text-xs font-semibold text-[#00a884] mt-1 flex items-center justify-center gap-1">
                 <span>Ringing...</span>
                 <span className="text-[#8696a0] font-mono text-[10px] pl-1 border-l border-white/20">
-                  ♫ Double-beep tone
+                  ♫ Ringback tone
                 </span>
               </p>
               <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-slate-300 text-[11px] backdrop-blur-sm border border-white/10">
-                <span>{activeConsultation?.doctorSpecialization || "General Physician & Family Medicine"}</span>
+                <span>{activeConsultation?.doctorSpecialization || "MBBS, MD - General Medicine (Beside Mohan X-Ray)"}</span>
               </div>
             </div>
 
-            {/* Local Preview Window */}
-            <div className="h-24 w-32 sm:h-28 sm:w-40 overflow-hidden rounded-2xl border-2 border-white/30 bg-slate-900 shadow-xl relative mt-2 shrink-0">
-              <video
-                ref={localVideoRef}
-                autoPlay
-                playsInline
-                muted
-                className="h-full w-full object-cover"
-              />
-              <span className="absolute bottom-1 left-1.5 text-[8px] sm:text-[9px] font-bold text-white/90 bg-black/60 px-1 py-0.5 rounded">
-                Your Camera
-              </span>
-            </div>
+            {/* Local Preview Window (only for video calls) */}
+            {!isAudioCall && (
+              <div className="h-24 w-32 sm:h-28 sm:w-40 overflow-hidden rounded-2xl border-2 border-white/30 bg-slate-900 shadow-xl relative mt-2 shrink-0">
+                <video
+                  ref={localVideoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className="h-full w-full object-cover"
+                />
+                <span className="absolute bottom-1 left-1.5 text-[8px] sm:text-[9px] font-bold text-white/90 bg-black/60 px-1 py-0.5 rounded">
+                  Your Camera
+                </span>
+              </div>
+            )}
           </div>
 
-          {/* Cancel Call Button (WhatsApp Large Red Circle) */}
+          {/* Cancel Call Button */}
           <div className="pb-6 sm:pb-8 flex flex-col items-center gap-2">
             <button
               onClick={handleCancelCall}
@@ -249,7 +257,89 @@ export function VideoRoom() {
       )}
 
       {/* 2. Connected Live Consultation Room */}
-      {callStatus === "connected" && (
+      {callStatus === "connected" && isAudioCall && (
+        <div className="relative h-full w-full overflow-hidden bg-slate-950 flex flex-col items-center justify-between p-6 text-white text-center">
+          <BillingHUD />
+          <LowBalanceAlert />
+
+          {/* Dedicated Audio Element for Remote Audio Transmission */}
+          <audio
+            ref={remoteAudioRef}
+            autoPlay
+            playsInline
+            muted={isRemoteAudioMuted}
+            className="hidden"
+          />
+
+          <div className="flex flex-col items-center my-auto space-y-5">
+            {/* Glowing Doctor Avatar */}
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-full bg-emerald-500/20 animate-ping pointer-events-none" />
+              <div className="absolute -inset-8 rounded-full bg-emerald-500/10 animate-pulse pointer-events-none" />
+
+              <div className="relative z-10 flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-tr from-emerald-600 to-teal-700 text-white font-extrabold text-4xl shadow-2xl border-4 border-white/20">
+                {activeConsultation?.callerRole === "doctor"
+                  ? (activeConsultation?.patientName?.slice(0, 2).toUpperCase() || "PT")
+                  : "RA"}
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-2xl font-bold text-white">
+                {activeConsultation?.callerRole === "doctor"
+                  ? (activeConsultation?.patientName || "Patient")
+                  : (activeConsultation?.doctorName || "Dr. Raees Akhtar")}
+              </h2>
+              <p className="text-xs text-emerald-400 font-semibold mt-1">
+                Voice Consultation Active • ₹15/min
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                {activeConsultation?.doctorSpecialization || "MBBS, MD - General Medicine (Beside Mohan X-Ray)"}
+              </p>
+            </div>
+
+            {/* Audio Waveform Animation */}
+            <div className="flex items-center gap-1.5 h-8 pt-2">
+              {[12, 24, 18, 32, 20, 14, 28, 36, 22, 16, 30, 24, 18, 12].map((h, i) => (
+                <div
+                  key={i}
+                  className="w-1.5 rounded-full bg-emerald-400 animate-pulse"
+                  style={{
+                    height: `${h}px`,
+                    animationDelay: `${i * 80}ms`,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Audio Call Controls: Mute, End Call */}
+          <div className="pb-8 flex items-center justify-center gap-6">
+            <button
+              onClick={toggleAudio}
+              className={`p-4 rounded-full transition-all cursor-pointer ${
+                isAudioMuted
+                  ? "bg-rose-600 text-white shadow-lg shadow-rose-900/50"
+                  : "bg-white/10 hover:bg-white/20 text-white"
+              }`}
+              title={isAudioMuted ? "Unmute Microphone" : "Mute Microphone"}
+            >
+              {isAudioMuted ? <MicOff className="h-6 w-6" /> : <Mic className="h-6 w-6" />}
+            </button>
+
+            <button
+              onClick={handleEndCall}
+              className="h-16 w-16 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center shadow-2xl shadow-rose-950/80 active:scale-95 transition-transform cursor-pointer"
+              title="End Voice Call"
+            >
+              <PhoneOff className="h-7 w-7" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 3. Connected Live Video Room */}
+      {callStatus === "connected" && !isAudioCall && (
         <div className="relative h-full w-full overflow-hidden bg-slate-950 flex items-center justify-center">
           <BillingHUD />
           <LowBalanceAlert />
