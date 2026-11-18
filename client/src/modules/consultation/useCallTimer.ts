@@ -1,5 +1,8 @@
+"use client";
+
 import { useEffect, useRef } from "react";
 import { useCallStore } from "@/stores/call.store";
+import { useWalletStore } from "@/stores/wallet.store";
 import { apiClient } from "@/api/client";
 import { getSocket } from "@/lib/socket";
 
@@ -26,18 +29,28 @@ export function useCallTimer(consultationId: string | null, ratePerMinute: numbe
       const billedMinutes = Math.max(1, Math.ceil(localSeconds / 60));
       const liveCost = billedMinutes * ratePerMinute;
 
-      if (localSeconds % 5 === 0 || localSeconds === 1) {
+      // Tick immediately at second 1, at every new minute boundary (e.g. 61, 121), or every 5 seconds
+      const isMinuteBoundary = localSeconds % 60 === 1;
+      const isPeriodicCheck = localSeconds % 5 === 0;
+
+      if (localSeconds === 1 || isMinuteBoundary || isPeriodicCheck) {
         try {
           const tickRes = await apiClient.post<any>(`/consultations/${consultationId}/tick`, {
             durationSeconds: localSeconds,
           });
 
+          // Update call HUD state
           updateTick({
             durationSeconds: localSeconds,
             liveCost: tickRes.liveCost,
             remainingSeconds: tickRes.remainingSeconds,
             isLowBalance: tickRes.isLowBalance,
           });
+
+          // Sync real-time wallet balance in client store
+          if (typeof tickRes.remainingBalance === "number") {
+            useWalletStore.getState().setCachedBalance(tickRes.remainingBalance);
+          }
 
           if (tickRes.isExhausted) {
             console.warn("Wallet balance exhausted! Initiating auto-cutoff.");
@@ -50,7 +63,7 @@ export function useCallTimer(consultationId: string | null, ratePerMinute: numbe
 
             endCall({
               consultationId,
-              doctorName: activeConsultation?.doctorName || "Doctor",
+              doctorName: activeConsultation?.doctorName || "Dr. Raees Akhtar",
               durationSeconds: localSeconds,
               billedMinutes: tickRes.billedMinutes,
               totalCost: tickRes.liveCost,
@@ -73,6 +86,5 @@ export function useCallTimer(consultationId: string | null, ratePerMinute: numbe
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [callStatus, consultationId, ratePerMinute]);
+  }, [callStatus, consultationId, ratePerMinute, activeConsultation, endCall, updateTick]);
 }
-

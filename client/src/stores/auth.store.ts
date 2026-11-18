@@ -45,6 +45,16 @@ export const DEMO_DOCTOR: AuthUser = {
   subtitle: "MBBS, MD - General Physician (₹15/min)",
 };
 
+export const DEMO_ADMIN: AuthUser = {
+  id: "c1000000-0000-0000-0000-000000000001",
+  name: "Clinic Administrator",
+  phone: "+91 98370 99999",
+  email: "admin@rehmatcare.com",
+  role: "admin",
+  avatarUrl: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&auto=format&fit=crop&q=80",
+  subtitle: "Rehmat Health Care • Operations & Queue Desk",
+};
+
 export interface RegisterPayload {
   name: string;
   phone: string;
@@ -191,6 +201,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       // Fallback locally if network/server is down
       let fallback = DEMO_PATIENT_1;
       if (userId === DEMO_DOCTOR.id) fallback = DEMO_DOCTOR;
+      else if (userId === DEMO_ADMIN.id) fallback = DEMO_ADMIN;
       else if (userId === DEMO_PATIENT_2.id) fallback = DEMO_PATIENT_2;
 
       set({

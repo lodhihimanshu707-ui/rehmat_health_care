@@ -11,8 +11,8 @@ import { ArrowLeft, MessageSquare, ShieldCheck } from "lucide-react";
 
 function ChatContent() {
   const searchParams = useSearchParams();
-  const doctorId = searchParams.get("doctorId") || undefined;
-  const doctorName = searchParams.get("doctorName") || undefined;
+  const recipientId = searchParams.get("recipientId") || searchParams.get("doctorId") || undefined;
+  const recipientName = searchParams.get("recipientName") || searchParams.get("doctorName") || undefined;
 
   return (
     <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 py-8">
@@ -21,7 +21,7 @@ function ChatContent() {
           <div className="flex items-center gap-2 mb-1.5">
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-0.5 text-xs font-black text-emerald-800 uppercase tracking-wider">
               <MessageSquare className="h-3 w-3" />
-              Doctor Chat
+              Direct Clinic Chat
             </span>
             <span className="text-slate-400">•</span>
             <span className="text-xs font-semibold text-emerald-700 flex items-center gap-1">
@@ -33,7 +33,7 @@ function ChatContent() {
             Consultation Chat Desk
           </h1>
           <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl">
-            Communicate securely with Dr. Raees Akhtar. Send symptom updates, previous reports, and follow-up queries.
+            Communicate securely with your doctor or patient. Send symptom updates, previous reports, and follow-up queries.
           </p>
         </div>
 
@@ -47,8 +47,8 @@ function ChatContent() {
       </div>
 
       <ChatView
-        initialRecipientId={doctorId}
-        initialRecipientName={doctorName}
+        initialRecipientId={recipientId}
+        initialRecipientName={recipientName}
       />
     </div>
   );

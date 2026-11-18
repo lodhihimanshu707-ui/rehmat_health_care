@@ -4,6 +4,7 @@ import { Wallet } from "./Wallet.js";
 import { Transaction } from "./Transaction.js";
 import { Consultation } from "./Consultation.js";
 import { Message } from "./Message.js";
+import { QueueItem } from "./QueueItem.js";
 
 // User <-> Doctor (1:1)
 User.hasOne(Doctor, { foreignKey: "userId", as: "doctorProfile" });
@@ -29,5 +30,8 @@ User.hasMany(Message, { foreignKey: "receiverId", as: "receivedMessages" });
 Message.belongsTo(User, { foreignKey: "senderId", as: "sender" });
 Message.belongsTo(User, { foreignKey: "receiverId", as: "receiver" });
 
-export { User, Doctor, Wallet, Transaction, Consultation, Message };
+// User & Doctor <-> QueueItem (1:M)
+User.hasMany(QueueItem, { foreignKey: "patientId", as: "queueItems" });
+QueueItem.belongsTo(User, { foreignKey: "patientId", as: "patient" });
 
+export { User, Doctor, Wallet, Transaction, Consultation, Message, QueueItem };

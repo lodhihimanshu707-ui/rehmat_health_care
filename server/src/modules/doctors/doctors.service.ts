@@ -1,8 +1,29 @@
 import { BaseService } from "../../core/base/base.service.js";
-import { Doctor, User } from "../../models/index.js";
+import { Doctor, User, Wallet } from "../../models/index.js";
 import { NotFoundError } from "../../core/errors/domain-errors.js";
+import { queueService } from "../queue/queue.service.js";
 
 export class DoctorsService extends BaseService {
+  async getPatientsQueue() {
+    const queueItems = await queueService.getDoctorQueue();
+    return queueItems.map((item) => ({
+      id: item.patientId,
+      queueItemId: item.id,
+      tokenNumber: item.tokenNumber,
+      queueNumber: item.queueNumber,
+      name: item.patientName,
+      phone: item.patientPhone,
+      balance: item.patientBalance ? Number(item.patientBalance) : 0,
+      avatarUrl: item.patientAvatar,
+      type: item.type,
+      status: item.status,
+      lastSeen: `Token #${item.tokenNumber} • ${item.status === "calling" ? "Calling Now" : item.status === "in_consultation" ? "In Consult" : "Waiting"}`,
+      symptom: item.symptom || "Consultation requested",
+      estimatedWaitMinutes: item.estimatedWaitMinutes,
+      joinedAt: item.joinedAt,
+    }));
+  }
+
   async getAllDoctors() {
     return Doctor.findAll({
       include: [
@@ -17,7 +38,7 @@ export class DoctorsService extends BaseService {
   }
 
   async getDoctorById(id: string) {
-    const doctor = await Doctor.findByPk(id, {
+    let doctor = await Doctor.findByPk(id, {
       include: [
         {
           model: User,
@@ -26,6 +47,18 @@ export class DoctorsService extends BaseService {
         },
       ],
     });
+    if (!doctor) {
+      doctor = await Doctor.findOne({
+        where: { userId: id },
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["id", "name", "phone", "email", "avatarUrl"],
+          },
+        ],
+      });
+    }
     if (!doctor) {
       throw new NotFoundError("Doctor not found");
     }

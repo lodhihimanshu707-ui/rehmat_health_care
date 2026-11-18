@@ -28,7 +28,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       )}
 
       <div
-        className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-xs sm:text-sm shadow-xs ${
+        className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm shadow-xs ${
           isMe
             ? "bg-emerald-600 text-white rounded-br-xs"
             : "bg-white text-slate-800 border border-slate-200/80 rounded-bl-xs"

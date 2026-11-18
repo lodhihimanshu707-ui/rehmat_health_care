@@ -41,7 +41,7 @@ export function TransactionList({ transactions, isLoading }: TransactionListProp
         return (
           <div
             key={txn.id}
-            className="flex items-center justify-between p-4 rounded-2xl border border-slate-100 bg-white shadow-xs hover:border-slate-200 transition-all"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl border border-slate-100 bg-white shadow-xs hover:border-slate-200 transition-all"
           >
             <div className="flex items-center gap-3">
               <div
@@ -54,7 +54,7 @@ export function TransactionList({ transactions, isLoading }: TransactionListProp
 
               <div>
                 <h4 className="text-xs font-bold text-slate-900">{txn.description}</h4>
-                <div className="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] text-slate-500 mt-0.5">
                   <span className="flex items-center gap-1">
                     <Clock className="h-3 w-3 text-slate-400" />
                     {dateFormatted}
@@ -65,7 +65,7 @@ export function TransactionList({ transactions, isLoading }: TransactionListProp
               </div>
             </div>
 
-            <div className="text-right">
+            <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-2 sm:pt-0 border-slate-100/60">
               <span
                 className={`text-sm font-extrabold ${
                   isCredit ? "text-emerald-600" : "text-rose-600"

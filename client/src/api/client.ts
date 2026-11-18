@@ -15,6 +15,7 @@ const instance: AxiosInstance = axios.create({
 // Request Interceptor: attach JWT Bearer token & active user ID header
 instance.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
+    config.baseURL = env.apiUrl;
     try {
       const token = localStorage.getItem("rehmat_auth_token");
       if (token) {

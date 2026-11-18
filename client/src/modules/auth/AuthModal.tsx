@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/auth.store";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
@@ -32,6 +33,8 @@ export function AuthModal() {
     error,
   } = useAuthStore();
 
+  const router = useRouter();
+
   // Login form state
   const [loginIdentifier, setLoginIdentifier] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -47,6 +50,15 @@ export function AuthModal() {
     e.preventDefault();
     try {
       await login(loginIdentifier, loginPassword);
+      closeAuthModal();
+      const user = useAuthStore.getState().currentUser;
+      if (user.role === "doctor") {
+        router.push("/doctor");
+      } else if (user.role === "admin") {
+        router.push("/staff");
+      } else {
+        router.push("/patient");
+      }
     } catch {
       // Error handled by store
     }
@@ -62,6 +74,8 @@ export function AuthModal() {
         password: regPassword,
         role: regRole,
       });
+      closeAuthModal();
+      router.push("/patient");
     } catch {
       // Error handled by store
     }
@@ -69,9 +83,9 @@ export function AuthModal() {
 
   return (
     <Dialog open={isAuthModalOpen} onOpenChange={closeAuthModal}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-200">
+      <DialogContent className="w-[95vw] sm:max-w-md max-h-[92vh] overflow-y-auto p-0 rounded-2xl sm:rounded-3xl border-slate-200">
         {/* Header */}
-        <DialogHeader className="bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 p-6 text-white text-left">
+        <DialogHeader className="bg-gradient-to-r from-emerald-700 via-teal-700 to-emerald-800 p-5 sm:p-6 text-white text-left">
           <div className="flex items-center gap-2 mb-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 text-white backdrop-blur-sm">
               <HeartPulse className="h-5 w-5" />
@@ -80,7 +94,7 @@ export function AuthModal() {
               {siteConfig.name}
             </span>
           </div>
-          <DialogTitle className="text-xl font-extrabold text-white">
+          <DialogTitle className="text-lg sm:text-xl font-extrabold text-white">
             {authModalTab === "login" ? "Welcome Back" : "Join Rehmat Health Care"}
           </DialogTitle>
           <DialogDescription className="text-emerald-100 text-xs mt-1">
@@ -91,7 +105,7 @@ export function AuthModal() {
         </DialogHeader>
 
         {/* Tab Toggle */}
-        <div className="flex border-b border-slate-200 bg-slate-50 px-6 pt-3">
+        <div className="flex border-b border-slate-200 bg-slate-50 px-4 sm:px-6 pt-3">
           <button
             onClick={() => openAuthModal("login")}
             className={`pb-2.5 px-4 text-xs font-bold transition-all border-b-2 ${
@@ -116,7 +130,7 @@ export function AuthModal() {
 
         {/* Error Alert */}
         {error && (
-          <div className="mx-6 mt-4 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
+          <div className="mx-4 sm:mx-6 mt-4 flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-800">
             <AlertCircle className="h-4 w-4 shrink-0 text-rose-600" />
             <span>{error}</span>
           </div>
@@ -124,7 +138,7 @@ export function AuthModal() {
 
         {/* Tab 1: Login */}
         {authModalTab === "login" && (
-          <div className="p-6 space-y-4">
+          <div className="p-4 sm:p-6 space-y-4">
             <form onSubmit={handleLoginSubmit} className="space-y-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -187,7 +201,7 @@ export function AuthModal() {
                   <User className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <Input
                     required
-                    placeholder="e.g. Danish Rizvi"
+                    placeholder="e.g. Rahul Sharma"
                     value={regName}
                     onChange={(e) => setRegName(e.target.value)}
                     className="pl-9 text-xs"

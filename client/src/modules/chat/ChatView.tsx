@@ -30,12 +30,12 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-md flex flex-col h-[650px]">
+    <div className="mx-auto max-w-4xl px-2 sm:px-6 py-4 sm:py-6">
+      <div className="overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-200 bg-white shadow-md flex flex-col h-[calc(100dvh-175px)] min-h-[460px] max-h-[750px]">
         {/* Chat Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 p-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 border border-emerald-200">
+        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 p-3 sm:p-4">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Avatar className="h-9 w-9 sm:h-10 sm:w-10 border border-emerald-200">
               <AvatarImage
                 src={
                   activeRecipientId === DEMO_DOCTOR.id
@@ -49,19 +49,19 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
             </Avatar>
 
             <div>
-              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+              <h3 className="font-bold text-slate-900 text-xs sm:text-sm flex items-center gap-1.5">
                 {activeRecipientName}
-                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
               </h3>
-              <p className="text-[11px] text-emerald-700 flex items-center gap-1">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block" />
+              <p className="text-[10px] sm:text-[11px] text-emerald-700 flex items-center gap-1">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 inline-block shrink-0" />
                 <span>Online for Teleconsultation</span>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-500">
-            <ShieldCheck className="h-4 w-4 text-emerald-600" />
+            <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
             <span className="hidden sm:inline">Encrypted Clinic Messaging</span>
           </div>
         </div>

@@ -12,6 +12,7 @@ export interface ActiveConsultation {
   doctorAvatar?: string;
   doctorSpecialization?: string;
   ratePerMinute: number;
+  callerRole?: "doctor" | "patient";
 }
 
 export interface CallSummary {

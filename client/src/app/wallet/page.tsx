@@ -15,7 +15,7 @@ export default function WalletPage() {
 
       <main className="flex-1 w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 py-8">
         <AuthGuard
-          requiredRole="patient"
+          allowedRoles={["patient", "admin"]}
           title="Patient Wallet Authentication"
           description="Your prepaid Health Wallet holds consultation credits and detailed transaction history. Please log in with your registered phone number or password."
         >

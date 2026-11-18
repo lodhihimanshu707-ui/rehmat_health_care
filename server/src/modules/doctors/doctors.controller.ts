@@ -4,6 +4,11 @@ import { asyncHandler } from "../../core/async-handler.js";
 import { doctorsService } from "./doctors.service.js";
 
 export class DoctorsController extends BaseController {
+  getPatientsQueue = asyncHandler(async (_req: Request, res: Response) => {
+    const queue = await doctorsService.getPatientsQueue();
+    return this.ok(res, queue, "Patient OPD queue retrieved successfully");
+  });
+
   getAll = asyncHandler(async (_req: Request, res: Response) => {
     const doctors = await doctorsService.getAllDoctors();
     return this.ok(res, doctors, "Doctors retrieved successfully");

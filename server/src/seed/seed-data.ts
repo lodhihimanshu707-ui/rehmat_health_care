@@ -1,5 +1,5 @@
 import { sequelize } from "../config/database.js";
-import { User, Doctor, Wallet, Transaction, Message, Consultation } from "../models/index.js";
+import { User, Doctor, Wallet, Transaction, Message, Consultation, QueueItem } from "../models/index.js";
 import { hashPassword } from "../core/auth/jwt.util.js";
 
 export async function seedDatabase() {
@@ -109,12 +109,24 @@ export async function seedDatabase() {
     isRead: false,
   });
 
+  // 4. Clinic Staff / Reception Desk Coordinator: Amit Verma (staff@rehmathealthcare.com)
+  const staffUser = await User.create({
+    id: "c1000000-0000-0000-0000-000000000001",
+    name: "Amit Verma",
+    phone: "+91 94120 54320",
+    email: "staff@rehmathealthcare.com",
+    passwordHash: defaultPasswordHash,
+    role: "admin",
+    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80",
+  });
+
   console.log("🎉 Clean database reset and seed completed successfully!");
   console.log({
     tablesCreated: ["users", "doctors", "wallets", "transactions", "consultations", "messages"],
     doctorSeeded: { name: drRaeesUser.name, email: drRaeesUser.email, rate: `₹${drRaees.ratePerMinute}/min` },
     patient1Seeded: { name: patient1User.name, email: patient1User.email, wallet: `₹${patient1Wallet.balance}` },
     patient2Seeded: { name: patient2User.name, email: patient2User.email, wallet: `₹${patient2Wallet.balance}` },
+    staffSeeded: { name: staffUser.name, email: staffUser.email, role: staffUser.role },
   });
 }
 

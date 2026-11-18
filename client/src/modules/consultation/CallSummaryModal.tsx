@@ -32,7 +32,7 @@ export function CallSummaryModal() {
 
   return (
     <Dialog open={isOpen} onOpenChange={handleDone}>
-      <DialogContent className="sm:max-w-md bg-white rounded-3xl p-6 text-center">
+      <DialogContent className="w-[95vw] sm:max-w-md max-h-[92vh] overflow-y-auto bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-center">
         <DialogHeader>
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full mb-2 bg-emerald-50 text-emerald-600">
             {isZeroBalance ? (

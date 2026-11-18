@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useAuthStore } from "@/stores/auth.store";
+import { useAuthStore, DEMO_PATIENT_1, DEMO_DOCTOR, DEMO_ADMIN } from "@/stores/auth.store";
 import { Button } from "@/shared/ui/button";
 import {
   ShieldAlert,
@@ -9,12 +9,14 @@ import {
   LogIn,
   ArrowRight,
   ShieldCheck,
+  UserCheck,
 } from "lucide-react";
 import Link from "next/link";
 
 interface AuthGuardProps {
   children: React.ReactNode;
-  requiredRole?: "patient" | "doctor";
+  requiredRole?: "patient" | "doctor" | "admin";
+  allowedRoles?: Array<"patient" | "doctor" | "admin">;
   title?: string;
   description?: string;
 }
@@ -22,10 +24,11 @@ interface AuthGuardProps {
 export function AuthGuard({
   children,
   requiredRole,
+  allowedRoles,
   title = "Authentication Required",
   description = "To protect patient medical confidentiality and comply with National Telemedicine Guidelines, you must sign in to access consultations, digital prescriptions, and the health wallet.",
 }: AuthGuardProps) {
-  const { isAuthenticated, isInitialized, currentUser, openAuthModal } =
+  const { isAuthenticated, isInitialized, currentUser, openAuthModal, quickLogin } =
     useAuthStore();
 
   // If checking token from localStorage, show brief clean skeleton
@@ -43,10 +46,10 @@ export function AuthGuard({
   }
 
   // If unauthenticated: Block access and show modern gate
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !currentUser) {
     return (
-      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 py-12 lg:py-16">
-        <div className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white p-8 sm:p-10 shadow-xl text-center space-y-6">
+      <div className="w-full px-3 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 py-8 sm:py-12 lg:py-16">
+        <div className="mx-auto max-w-xl rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-5 sm:p-10 shadow-xl text-center space-y-5 sm:space-y-6">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700 shadow-inner">
             <Lock className="h-8 w-8" />
           </div>
@@ -87,20 +90,73 @@ export function AuthGuard({
     );
   }
 
-  // If role mismatch (e.g. Doctor trying to access Patient Wallet)
-  if (requiredRole && currentUser.role !== requiredRole) {
+  // Determine authorized roles list
+  const rolesToCheck: Array<"patient" | "doctor" | "admin"> = allowedRoles
+    ? allowedRoles
+    : requiredRole
+    ? [requiredRole]
+    : [];
+
+  // Superuser admin bypass: Admin has full access to every module
+  const isSuperUser = currentUser.role === "admin";
+  const isRoleAuthorized =
+    rolesToCheck.length === 0 || isSuperUser || rolesToCheck.includes(currentUser.role);
+
+  // If role mismatch
+  if (!isRoleAuthorized) {
+    const requiredRoleDisplay = rolesToCheck.join(" or ");
+    const isTargetDoctor = rolesToCheck.includes("doctor");
+
     return (
       <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24 py-12">
-        <div className="mx-auto max-w-lg rounded-3xl border border-amber-200 bg-amber-50/70 p-8 text-center space-y-4">
-          <ShieldAlert className="h-10 w-10 text-amber-600 mx-auto" />
-          <h3 className="text-lg font-bold text-amber-900">Role Restriction</h3>
-          <p className="text-xs text-amber-800 leading-relaxed">
-            This module is reserved for <strong>{requiredRole}s</strong>. You are currently logged in
-            as <strong>{currentUser.name}</strong> ({currentUser.role} mode).
-          </p>
-          <p className="text-xs text-amber-700">
-            Please switch to {requiredRole} mode using the top-right header switcher to test this screen.
-          </p>
+        <div className="mx-auto max-w-lg rounded-3xl border border-amber-200 bg-amber-50/80 p-8 text-center space-y-4 shadow-sm">
+          <div className="h-12 w-12 rounded-2xl bg-amber-100 border border-amber-200 text-amber-700 flex items-center justify-center mx-auto">
+            <ShieldAlert className="h-6 w-6" />
+          </div>
+
+          <div>
+            <h3 className="text-lg font-black text-amber-950">Role-Based Access Control (RBAC)</h3>
+            <p className="text-xs text-amber-800 leading-relaxed mt-1">
+              This area is restricted to <strong>{requiredRoleDisplay}s</strong>. You are currently logged in as{" "}
+              <strong>{currentUser.name}</strong> (<span className="capitalize">{currentUser.role}</span> mode).
+            </p>
+          </div>
+
+          <div className="p-3 bg-white/80 rounded-2xl border border-amber-200 text-xs text-amber-900 space-y-2">
+            <p className="font-semibold text-slate-700">Quick Switch Demo Profile:</p>
+            <div className="flex items-center justify-center gap-2 flex-wrap">
+              {rolesToCheck.includes("doctor") && (
+                <Button
+                  size="sm"
+                  onClick={() => quickLogin(DEMO_DOCTOR.id)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 gap-1.5"
+                >
+                  <UserCheck className="h-3.5 w-3.5" />
+                  <span>Switch to Doctor (Dr. Raees)</span>
+                </Button>
+              )}
+              {rolesToCheck.includes("admin") && (
+                <Button
+                  size="sm"
+                  onClick={() => quickLogin(DEMO_ADMIN.id)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl h-9 gap-1.5"
+                >
+                  <UserCheck className="h-3.5 w-3.5" />
+                  <span>Switch to Admin</span>
+                </Button>
+              )}
+              {rolesToCheck.includes("patient") && (
+                <Button
+                  size="sm"
+                  onClick={() => quickLogin(DEMO_PATIENT_1.id)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 gap-1.5"
+                >
+                  <UserCheck className="h-3.5 w-3.5" />
+                  <span>Switch to Patient (Rahul)</span>
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -108,4 +164,3 @@ export function AuthGuard({
 
   return <>{children}</>;
 }
-

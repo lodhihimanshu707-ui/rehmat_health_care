@@ -62,7 +62,7 @@ export function RechargeModal() {
 
   return (
     <Dialog open={isRechargeModalOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md bg-white rounded-3xl p-6">
+      <DialogContent className="w-[95vw] sm:max-w-md max-h-[92vh] overflow-y-auto bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6">
         {!successReceipt ? (
           <>
             <DialogHeader>

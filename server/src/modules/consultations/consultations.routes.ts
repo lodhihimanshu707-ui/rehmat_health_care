@@ -6,15 +6,16 @@ import {
   tickConsultationSchema,
   endConsultationSchema,
 } from "./consultations.schema.js";
+import { requireAuth } from "../../core/auth/auth.middleware.js";
 
 const router = Router();
 
-router.post("/initiate", validate(initiateConsultationSchema), consultationsController.initiate);
-router.post("/:id/accept", consultationsController.accept);
-router.post("/:id/tick", validate(tickConsultationSchema), consultationsController.tick);
-router.post("/:id/end", validate(endConsultationSchema), consultationsController.end);
-router.get("/history/:userId?", consultationsController.getHistory);
-router.get("/:id", consultationsController.getById);
+// Consultations require active authentication
+router.post("/initiate", requireAuth, validate(initiateConsultationSchema), consultationsController.initiate);
+router.post("/:id/accept", requireAuth, consultationsController.accept);
+router.post("/:id/tick", requireAuth, validate(tickConsultationSchema), consultationsController.tick);
+router.post("/:id/end", requireAuth, validate(endConsultationSchema), consultationsController.end);
+router.get("/history/:userId?", requireAuth, consultationsController.getHistory);
+router.get("/:id", requireAuth, consultationsController.getById);
 
 export default router;
-

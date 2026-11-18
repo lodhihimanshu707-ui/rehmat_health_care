@@ -9,6 +9,7 @@ import doctorsRoutes from "./modules/doctors/doctors.routes.js";
 import walletRoutes from "./modules/wallet/wallet.routes.js";
 import consultationsRoutes from "./modules/consultations/consultations.routes.js";
 import messagesRoutes from "./modules/messages/messages.routes.js";
+import queueRoutes from "./modules/queue/queue.routes.js";
 import { authRoutes } from "./modules/auth/auth.routes.js";
 
 export const app = express();
@@ -42,6 +43,7 @@ app.use("/api/doctors", doctorsRoutes);
 app.use("/api/wallet", walletRoutes);
 app.use("/api/consultations", consultationsRoutes);
 app.use("/api/messages", messagesRoutes);
+app.use("/api/queue", queueRoutes);
 
 // Servercn Global Error Handler
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {

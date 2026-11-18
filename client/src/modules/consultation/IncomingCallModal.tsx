@@ -18,6 +18,16 @@ export function IncomingCallModal() {
   const { callStatus, activeConsultation, setConnected, resetCall } = useCallStore();
 
   const isIncoming = callStatus === "incoming" && activeConsultation !== null;
+  const isDoctorCaller = activeConsultation?.callerRole === "doctor";
+  const callerName = isDoctorCaller
+    ? activeConsultation?.doctorName || "Dr. Raees Akhtar"
+    : activeConsultation?.patientName || "Patient";
+  const callerAvatar = isDoctorCaller
+    ? activeConsultation?.doctorAvatar
+    : activeConsultation?.patientAvatar;
+  const callerSubtitle = isDoctorCaller
+    ? "Chief Physician • Rehmat Health Care, Moradabad"
+    : "Rehmat Health Care Patient";
 
   const handleAccept = () => {
     if (!activeConsultation) return;
@@ -47,7 +57,7 @@ export function IncomingCallModal() {
 
   return (
     <Dialog open={isIncoming} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md bg-slate-900 text-white rounded-3xl p-6 border-slate-800 text-center">
+      <DialogContent className="w-[95vw] sm:max-w-md max-h-[92vh] overflow-y-auto bg-slate-900 text-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 border-slate-800 text-center">
         <DialogHeader>
           <DialogTitle className="text-center text-sm font-semibold tracking-wider text-emerald-400 uppercase">
             Incoming Video Consultation
@@ -58,18 +68,18 @@ export function IncomingCallModal() {
           <div className="relative">
             <div className="ring-pulse-animation absolute inset-0 rounded-full bg-emerald-500/30" />
             <Avatar className="h-24 w-24 border-4 border-emerald-500 shadow-xl relative z-10">
-              <AvatarImage src={activeConsultation?.patientAvatar} />
+              <AvatarImage src={callerAvatar} />
               <AvatarFallback className="bg-emerald-800 text-white font-bold text-2xl">
-                {activeConsultation?.patientName?.slice(0, 2).toUpperCase() || "PT"}
+                {callerName.slice(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </div>
 
           <div>
             <h3 className="text-xl font-extrabold text-white">
-              {activeConsultation?.patientName || "Patient"}
+              {callerName}
             </h3>
-            <p className="text-xs text-slate-400 mt-1">Rehmat Health Care Patient</p>
+            <p className="text-xs text-slate-400 mt-1">{callerSubtitle}</p>
           </div>
 
           <div className="rounded-2xl bg-white/5 border border-white/10 px-4 py-2 text-xs text-slate-300">

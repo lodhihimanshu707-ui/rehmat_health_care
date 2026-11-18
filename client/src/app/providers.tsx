@@ -10,6 +10,7 @@ import { RechargeModal } from "@/modules/wallet/RechargeModal";
 import { AuthModal } from "@/modules/auth/AuthModal";
 import { useAuthStore } from "@/stores/auth.store";
 import { useCallStore } from "@/stores/call.store";
+import { useWalletStore } from "@/stores/wallet.store";
 import { getSocket, syncSocketUser } from "@/lib/socket";
 
 function SocketBootstrap() {
@@ -47,10 +48,43 @@ function SocketBootstrap() {
       });
     };
 
+    const handleWalletUpdated = (data: { balance: number }) => {
+      if (typeof data?.balance === "number") {
+        useWalletStore.getState().setCachedBalance(data.balance);
+      }
+    };
+
+    const handleGlobalCallEnded = (data: {
+      consultationId: string;
+      durationSeconds?: number;
+      reason?: "user_ended" | "ended_zero_balance" | "error";
+    }) => {
+      const state = useCallStore.getState();
+      if (state.callStatus !== "idle" && state.callStatus !== "ended") {
+        const active = state.activeConsultation;
+        const actualDuration = data.durationSeconds ?? state.durationSeconds;
+        const rate = active?.ratePerMinute || 15;
+        const billedMins = Math.max(1, Math.ceil(actualDuration / 60));
+        state.endCall({
+          consultationId: active?.id || data.consultationId,
+          doctorName: active?.doctorName || "Dr. Raees Akhtar",
+          durationSeconds: actualDuration,
+          billedMinutes: billedMins,
+          totalCost: billedMins * rate,
+          ratePerMinute: rate,
+          endedReason: data.reason || "user_ended",
+        });
+      }
+    };
+
     socket.on("incoming-call", handleIncomingCall);
+    socket.on("wallet-updated", handleWalletUpdated);
+    socket.on("call-ended", handleGlobalCallEnded);
 
     return () => {
       socket.off("incoming-call", handleIncomingCall);
+      socket.off("wallet-updated", handleWalletUpdated);
+      socket.off("call-ended", handleGlobalCallEnded);
     };
   }, [currentUserId, receiveIncomingCall]);
 

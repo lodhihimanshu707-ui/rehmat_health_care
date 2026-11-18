@@ -18,6 +18,18 @@ export class ValidationError extends BaseError {
   }
 }
 
+export class BadRequestError extends BaseError {
+  readonly statusCode = 400;
+
+  constructor(message = "Bad Request") {
+    super(message);
+  }
+
+  serializeErrors() {
+    return [{ message: this.message }];
+  }
+}
+
 export class NotFoundError extends BaseError {
   readonly statusCode = 404;
 

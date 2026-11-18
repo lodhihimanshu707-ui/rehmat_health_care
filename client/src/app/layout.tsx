@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 import { Providers } from "./providers";
+import { MobileBottomNav } from "@/shared/components/MobileBottomNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-slate-50 font-sans selection:bg-emerald-100 selection:text-emerald-900">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <MobileBottomNav />
+        </Providers>
       </body>
     </html>
   );

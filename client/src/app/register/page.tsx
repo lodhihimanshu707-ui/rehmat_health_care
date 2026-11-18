@@ -41,7 +41,7 @@ export default function RegisterPage() {
         password,
         role,
       });
-      router.push("/");
+      router.push("/patient");
     } catch {
       // Error handled by store
     }
@@ -51,8 +51,8 @@ export default function RegisterPage() {
     <div className="flex min-h-screen flex-col bg-slate-50">
       <Navbar />
 
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-8">
-        <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 sm:p-10 shadow-xl space-y-6">
+      <main className="flex-1 flex items-center justify-center p-3 sm:p-8">
+        <div className="w-full max-w-md rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-5 sm:p-10 shadow-xl space-y-5 sm:space-y-6">
           {/* Header */}
           <div className="text-center space-y-2">
             <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 via-emerald-500 to-teal-500 text-white shadow-md shadow-emerald-500/25">
