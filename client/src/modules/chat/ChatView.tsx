@@ -230,7 +230,7 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   if (!isAuthenticated) return null;
 
   return (
-    <div className="h-[100dvh] w-full flex bg-[#efeae2] overflow-hidden select-none">
+    <div className="h-[calc(100dvh-56px)] md:h-[100dvh] w-full flex bg-[#efeae2] overflow-hidden select-none">
       
       {/* ========================================================================= */}
       {/* 1. WHATSAPP CHATS LIST / CALLS TAB (Mobile List View & Desktop Left Side) */}

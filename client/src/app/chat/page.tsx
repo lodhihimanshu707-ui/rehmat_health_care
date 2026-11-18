@@ -11,7 +11,7 @@ function ChatContent() {
   const recipientName = searchParams.get("recipientName") || searchParams.get("doctorName") || undefined;
 
   return (
-    <div className="h-[100dvh] w-full bg-[#efeae2] overflow-hidden select-none">
+    <div className="h-[calc(100dvh-56px)] md:h-[100dvh] w-full bg-[#efeae2] overflow-hidden select-none">
       <ChatView
         initialRecipientId={recipientId}
         initialRecipientName={recipientName}
