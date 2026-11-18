@@ -24,12 +24,16 @@ export function MobileBottomNav() {
 
   const isPatient = currentUser?.role === "patient";
 
-  // DO NOT show tabs in website! ONLY show tabs in App (/patient, /doctor, /staff, /chat, /wallet)
+  // In WhatsApp chat flow, hide bottom nav to provide native full-screen app experience
+  if (pathname === "/chat" || pathname === "/patient/chat") {
+    return null;
+  }
+
+  // DO NOT show tabs in website! ONLY show tabs in App (/patient, /doctor, /staff, /wallet)
   const isAppRoute =
     pathname.startsWith("/patient") ||
     pathname.startsWith("/doctor") ||
     pathname.startsWith("/staff") ||
-    pathname.startsWith("/chat") ||
     pathname.startsWith("/wallet");
 
   if (!isAppRoute) {

@@ -4,11 +4,18 @@ import React, { useState, useEffect, useRef } from "react";
 import { useChat } from "./useChat";
 import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
-import { useAuthStore, DEMO_PATIENT_1, DEMO_PATIENT_2, DEMO_DOCTOR, DEMO_ADMIN } from "@/stores/auth.store";
+import {
+  useAuthStore,
+  DEMO_PATIENT_1,
+  DEMO_PATIENT_2,
+  DEMO_DOCTOR,
+  DEMO_ADMIN,
+} from "@/stores/auth.store";
 import { useCallStore } from "@/stores/call.store";
 import { getSocket } from "@/lib/socket";
 import { soundManager } from "@/lib/sound";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/ui/avatar";
+import Link from "next/link";
 import {
   Video,
   Phone,
@@ -20,6 +27,12 @@ import {
   Sparkles,
   ArrowLeft,
   CheckCheck,
+  Camera,
+  MessageSquare,
+  PhoneIncoming,
+  PhoneOutgoing,
+  X,
+  Home,
 } from "lucide-react";
 
 interface Contact {
@@ -46,14 +59,14 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   const isPatient = currentUser?.role === "patient";
   const isDoctor = currentUser?.role === "doctor";
 
-  // Build authentic WhatsApp contacts list based on role
+  // Build authentic WhatsApp contacts list
   const contacts: Contact[] = isDoctor
     ? [
         {
           id: DEMO_PATIENT_1.id,
           name: DEMO_PATIENT_1.name,
           role: "Patient #RH-101",
-          subtitle: "Viral Fever & Sore Throat • In-Clinic OPD",
+          subtitle: "Viral Fever & Sore Throat • OPD Queue",
           lastMessage: "Doctor, Paracetamol lene ke baad fever utar gaya.",
           lastTime: "11:42 AM",
           unreadCount: 1,
@@ -85,8 +98,8 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
         {
           id: DEMO_ADMIN.id,
           name: "Amit Verma (Reception)",
-          role: "Clinic Desk",
-          subtitle: "Front Desk & Mohan X-Ray Desk",
+          role: "Clinic Coordinator",
+          subtitle: "Front Desk & Mohan X-Ray Synergy",
           lastMessage: "Today total 14 OPD walk-in tokens issued.",
           lastTime: "Yesterday",
           avatarUrl: DEMO_ADMIN.avatarUrl,
@@ -124,11 +137,15 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     contacts[0];
 
   const [activeRecipient, setActiveRecipient] = useState<Contact>(defaultRecipient);
+  const [mobileScreen, setMobileScreen] = useState<"list" | "chat">(
+    initialRecipientId || initialRecipientName ? "chat" : "chat"
+  );
+  const [activeTab, setActiveTab] = useState<"chats" | "calls">("chats");
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterTab, setFilterTab] = useState<"all" | "unread" | "clinic">("all");
+  const [showSearchInput, setShowSearchInput] = useState(false);
   const [presetText, setPresetText] = useState("");
   const [isMuted, setIsMuted] = useState(soundManager.isMuted());
-  const [mobileShowChat, setMobileShowChat] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
 
   const { messages, isLoading, sendMessage } = useChat(activeRecipient.id);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -146,7 +163,6 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     }
   };
 
-  // Direct Video Call from WhatsApp header
   const handleStartCall = () => {
     if (!currentUser) return;
     const isDoctorCalling = currentUser.role === "doctor";
@@ -176,13 +192,10 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
     });
   };
 
-  const filteredContacts = contacts.filter((c) => {
-    const match = c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.subtitle.toLowerCase().includes(searchQuery.toLowerCase());
-    if (!match) return false;
-    if (filterTab === "unread") return !!c.unreadCount;
-    return true;
-  });
+  const filteredContacts = contacts.filter((c) =>
+    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const quickChips = isDoctor
     ? [
@@ -201,81 +214,128 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
   if (!isAuthenticated) return null;
 
   return (
-    <div className="mx-auto max-w-7xl px-2 sm:px-4 py-2 sm:py-4">
-      {/* WhatsApp Web Style Container */}
-      <div className="overflow-hidden rounded-2xl sm:rounded-3xl border border-[#d1d7db] bg-white shadow-xl flex h-[calc(100dvh-140px)] min-h-[580px] max-h-[850px]">
-        
-        {/* ========================================================================= */}
-        {/* LEFT PANEL: WhatsApp Contacts / Chats List Sidebar                        */}
-        {/* ========================================================================= */}
-        <div
-          className={`w-full md:w-[380px] lg:w-[410px] border-r border-[#e9edef] bg-white flex flex-col shrink-0 ${
-            mobileShowChat ? "hidden md:flex" : "flex"
-          }`}
-        >
-          {/* 1. Sidebar Top Header */}
-          <div className="h-16 px-4 bg-[#f0f2f5] border-b border-[#e9edef] flex items-center justify-between shrink-0 select-none">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-10 w-10 border border-slate-200">
-                <AvatarImage src={currentUser?.avatarUrl} />
-                <AvatarFallback className="bg-[#00a884] text-white font-bold text-xs">
-                  {currentUser?.name?.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <h2 className="text-sm font-bold text-[#111b21] leading-tight">
-                  {currentUser?.name}
-                </h2>
-                <span className="text-[10px] text-[#00a884] font-semibold uppercase tracking-wider">
-                  {currentUser?.role === "doctor" ? "Doctor Cockpit" : "Patient Portal"}
-                </span>
-              </div>
+    <div className="h-[100dvh] w-full flex bg-[#efeae2] overflow-hidden select-none">
+      
+      {/* ========================================================================= */}
+      {/* 1. WHATSAPP CHATS LIST / CALLS TAB (Mobile List view & Desktop Left Side) */}
+      {/* ========================================================================= */}
+      <div
+        className={`w-full md:w-[380px] lg:w-[420px] bg-white border-r border-[#d1d7db] flex flex-col shrink-0 h-full ${
+          mobileScreen === "chat" ? "hidden md:flex" : "flex"
+        }`}
+      >
+        {/* WhatsApp App Green Top Bar */}
+        <div className="bg-[#008069] text-white px-4 pt-3.5 pb-2 shadow-md shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold tracking-tight">WhatsApp</h1>
+              <span className="text-[10px] bg-white/20 text-white font-bold px-2 py-0.5 rounded-full">
+                Rehmat Care
+              </span>
             </div>
 
-            <div className="flex items-center gap-1 text-[#54656f]">
+            <div className="flex items-center gap-3 text-white/90">
+              <button
+                onClick={() => setShowSearchInput(!showSearchInput)}
+                className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                title="Search"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+
               <button
                 onClick={toggleSound}
-                className="p-2 hover:bg-slate-200/60 rounded-full transition-colors"
+                className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
                 title={isMuted ? "Unmute WhatsApp sounds" : "Mute WhatsApp sounds"}
               >
-                {isMuted ? <VolumeX className="h-5 w-5 text-rose-500" /> : <Volume2 className="h-5 w-5 text-[#00a884]" />}
+                {isMuted ? <VolumeX className="h-5 w-5 text-rose-300" /> : <Volume2 className="h-5 w-5 text-white" />}
               </button>
+
+              <div className="relative">
+                <button
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="p-1.5 hover:bg-white/10 rounded-full transition-colors"
+                  title="Menu"
+                >
+                  <MoreVertical className="h-5 w-5" />
+                </button>
+
+                {showMenu && (
+                  <div className="absolute right-0 top-8 w-44 bg-white text-slate-800 rounded-xl shadow-xl border border-slate-100 py-1.5 z-50 text-xs">
+                    <Link
+                      href={isDoctor ? "/doctor" : "/patient"}
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 font-bold text-slate-700"
+                    >
+                      <Home className="h-4 w-4 text-[#008069]" />
+                      <span>Back to Dashboard</span>
+                    </Link>
+                    <button
+                      onClick={toggleSound}
+                      className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-slate-50 font-semibold"
+                    >
+                      <Volume2 className="h-4 w-4 text-slate-500" />
+                      <span>{isMuted ? "Unmute Sounds" : "Mute Sounds"}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* 2. WhatsApp Search Bar */}
-          <div className="p-2.5 bg-white border-b border-[#e9edef]">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#f0f2f5] border border-[#f0f2f5] focus-within:border-[#00a884]/40 focus-within:bg-white transition-all">
-              <Search className="h-4 w-4 text-[#54656f] shrink-0" />
+          {/* Search Input Bar (when toggled or always on desktop) */}
+          {showSearchInput && (
+            <div className="mt-2.5 flex items-center gap-2 bg-white rounded-lg px-3 py-1.5 shadow-inner">
+              <Search className="h-4 w-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Search or start new consultation"
+                placeholder="Search consultation or patient..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent text-xs text-[#111b21] placeholder-[#667781] focus:outline-none"
+                autoFocus
+                className="w-full text-xs text-slate-800 placeholder-slate-400 focus:outline-none bg-transparent"
               />
+              <button onClick={() => { setSearchQuery(""); setShowSearchInput(false); }}>
+                <X className="h-4 w-4 text-slate-400" />
+              </button>
             </div>
+          )}
 
-            {/* Filter Pills */}
-            <div className="flex items-center gap-1.5 mt-2 overflow-x-auto scrollbar-none">
-              {(["all", "unread", "clinic"] as const).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setFilterTab(tab)}
-                  className={`text-[11px] font-semibold px-3 py-1 rounded-full transition-all capitalize ${
-                    filterTab === tab
-                      ? "bg-[#00a884]/15 text-[#00a884] font-bold"
-                      : "bg-[#f0f2f5] text-[#54656f] hover:bg-[#e9edef]"
-                  }`}
-                >
-                  {tab === "all" ? "All Chats" : tab}
-                </button>
-              ))}
-            </div>
+          {/* WhatsApp Tabs Strip (CHATS / CALLS) */}
+          <div className="flex items-center justify-around mt-3 text-sm font-bold uppercase tracking-wider">
+            <button
+              onClick={() => setActiveTab("chats")}
+              className={`flex-1 pb-2.5 text-center relative transition-colors ${
+                activeTab === "chats" ? "text-white" : "text-white/70 hover:text-white"
+              }`}
+            >
+              <div className="inline-flex items-center gap-1.5">
+                <span>Chats</span>
+                <span className="h-4 min-w-[16px] px-1 rounded-full bg-white text-[#008069] text-[10px] font-black flex items-center justify-center">
+                  {contacts.length}
+                </span>
+              </div>
+              {activeTab === "chats" && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white rounded-t-sm" />
+              )}
+            </button>
+
+            <button
+              onClick={() => setActiveTab("calls")}
+              className={`flex-1 pb-2.5 text-center relative transition-colors ${
+                activeTab === "calls" ? "text-white" : "text-white/70 hover:text-white"
+              }`}
+            >
+              <span>Calls</span>
+              {activeTab === "calls" && (
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white rounded-t-sm" />
+              )}
+            </button>
           </div>
+        </div>
 
-          {/* 3. WhatsApp Contact List Items */}
-          <div className="flex-1 overflow-y-auto divide-y divide-[#e9edef]/60">
+        {/* Tab 1: CHATS LIST */}
+        {activeTab === "chats" && (
+          <div className="flex-1 overflow-y-auto divide-y divide-[#f2f2f2] bg-white">
             {filteredContacts.map((contact) => {
               const isSelected = contact.id === activeRecipient.id;
               return (
@@ -283,16 +343,16 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
                   key={contact.id}
                   onClick={() => {
                     setActiveRecipient(contact);
-                    setMobileShowChat(true);
+                    setMobileScreen("chat");
                   }}
-                  className={`flex items-center gap-3 px-3.5 py-3 cursor-pointer transition-colors select-none ${
+                  className={`flex items-center gap-3.5 px-4 py-3 cursor-pointer transition-colors ${
                     isSelected ? "bg-[#f0f2f5]" : "hover:bg-[#f5f6f6]"
                   }`}
                 >
                   <div className="relative shrink-0">
                     <Avatar className="h-12 w-12 border border-slate-200">
                       <AvatarImage src={contact.avatarUrl} />
-                      <AvatarFallback className="bg-emerald-100 text-emerald-800 font-bold text-sm">
+                      <AvatarFallback className="bg-[#008069] text-white font-bold text-sm">
                         {contact.name.slice(0, 2).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -303,11 +363,11 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h4 className="font-semibold text-sm text-[#111b21] truncate">
+                      <h3 className="font-bold text-[14px] text-[#111b21] truncate">
                         {contact.name}
-                      </h4>
+                      </h3>
                       <span
-                        className={`text-[10px] shrink-0 ${
+                        className={`text-[11px] shrink-0 ${
                           contact.unreadCount ? "text-[#00a884] font-bold" : "text-[#667781]"
                         }`}
                       >
@@ -320,7 +380,6 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
                         <CheckCheck className="h-3.5 w-3.5 text-[#53bdeb] shrink-0" />
                         <span className="truncate">{contact.lastMessage}</span>
                       </p>
-
                       {contact.unreadCount ? (
                         <span className="h-5 min-w-[20px] px-1 rounded-full bg-[#00a884] text-white font-bold text-[10px] flex items-center justify-center shrink-0 ml-1.5 shadow-2xs">
                           {contact.unreadCount}
@@ -332,157 +391,238 @@ export function ChatView({ initialRecipientId, initialRecipientName }: ChatViewP
               );
             })}
           </div>
-        </div>
+        )}
 
-        {/* ========================================================================= */}
-        {/* RIGHT PANEL: WhatsApp Conversation Area                                   */}
-        {/* ========================================================================= */}
-        <div
-          className={`flex-1 flex flex-col bg-[#efeae2] relative min-w-0 ${
-            !mobileShowChat ? "hidden md:flex" : "flex"
-          }`}
-          style={{
-            backgroundImage: `radial-gradient(#d1d7db 0.75px, transparent 0.75px)`,
-            backgroundSize: "20px 20px",
-          }}
-        >
-          {/* 1. WhatsApp Active Chat Header */}
-          <div className="h-16 px-4 bg-[#f0f2f5] border-b border-[#e9edef] flex items-center justify-between shrink-0 select-none z-10">
-            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
-              <button
-                onClick={() => setMobileShowChat(false)}
-                className="md:hidden p-1.5 -ml-1 text-[#54656f] hover:text-[#111b21] rounded-full"
-                title="Back to chats"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </button>
-
-              <div className="relative shrink-0">
-                <Avatar className="h-10 w-10 border border-slate-200">
-                  <AvatarImage src={activeRecipient.avatarUrl} />
-                  <AvatarFallback className="bg-[#00a884] text-white font-bold text-xs">
-                    {activeRecipient.name.slice(0, 2).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                {activeRecipient.isOnline && (
-                  <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-[#00a884] border-2 border-white" />
-                )}
-              </div>
-
-              <div className="min-w-0">
-                <h3 className="font-bold text-sm text-[#111b21] truncate flex items-center gap-1.5">
-                  {activeRecipient.name}
-                </h3>
-                <p className="text-[11px] text-[#00a884] font-medium truncate flex items-center gap-1">
-                  <span>online for teleconsultation</span>
-                  <span className="text-[#667781]">• Beside Mohan X-Ray</span>
-                </p>
-              </div>
+        {/* Tab 2: CALLS LOG */}
+        {activeTab === "calls" && (
+          <div className="flex-1 overflow-y-auto divide-y divide-[#f2f2f2] bg-white p-2">
+            <div className="px-3 py-2 text-xs font-bold text-[#667781] uppercase tracking-wider">
+              Recent Consultations
             </div>
 
-            {/* WhatsApp Call & Action Buttons */}
-            <div className="flex items-center gap-1 text-[#54656f]">
+            <div className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-11 w-11">
+                  <AvatarImage src={DEMO_DOCTOR.avatarUrl} />
+                  <AvatarFallback className="bg-[#008069] text-white font-bold text-xs">RA</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h4 className="font-bold text-sm text-[#111b21]">Dr. Raees Akhtar</h4>
+                  <p className="text-xs text-[#667781] flex items-center gap-1 mt-0.5">
+                    <PhoneIncoming className="h-3.5 w-3.5 text-[#00a884]" />
+                    <span>Today, 11:42 AM (8 mins)</span>
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={handleStartCall}
-                className="p-2 hover:bg-slate-200/60 rounded-full transition-colors text-[#54656f] hover:text-[#00a884]"
-                title="WhatsApp Video Consultation Call"
+                className="p-2.5 rounded-full hover:bg-emerald-50 text-[#008069]"
+                title="Call Again"
               >
                 <Video className="h-5 w-5" />
               </button>
+            </div>
 
+            <div className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-xl transition-colors">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-11 w-11">
+                  <AvatarImage src={DEMO_PATIENT_1.avatarUrl} />
+                  <AvatarFallback className="bg-[#008069] text-white font-bold text-xs">RS</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h4 className="font-bold text-sm text-[#111b21]">Rahul Sharma</h4>
+                  <p className="text-xs text-[#667781] flex items-center gap-1 mt-0.5">
+                    <PhoneOutgoing className="h-3.5 w-3.5 text-[#00a884]" />
+                    <span>Yesterday, 04:15 PM (12 mins)</span>
+                  </p>
+                </div>
+              </div>
               <button
                 onClick={handleStartCall}
-                className="p-2 hover:bg-slate-200/60 rounded-full transition-colors text-[#54656f] hover:text-[#00a884]"
-                title="Voice Consultation Call"
+                className="p-2.5 rounded-full hover:bg-emerald-50 text-[#008069]"
+                title="Call Again"
               >
-                <Phone className="h-4 w-4" />
+                <Video className="h-5 w-5" />
               </button>
+            </div>
+          </div>
+        )}
 
-              <div className="h-5 w-px bg-[#d1d7db] mx-1 hidden sm:block" />
+        {/* WhatsApp Mobile Floating Action Button (New Chat) */}
+        <div className="p-4 bg-white flex justify-end">
+          <button
+            onClick={() => setActiveTab("chats")}
+            className="h-14 w-14 rounded-full bg-[#00a884] hover:bg-[#008f6f] text-white shadow-xl flex items-center justify-center transition-all active:scale-90"
+            title="New Chat"
+          >
+            <MessageSquare className="h-6 w-6" />
+          </button>
+        </div>
+      </div>
 
+      {/* ========================================================================= */}
+      {/* 2. WHATSAPP CHAT ROOM (Mobile Full Screen & Desktop Right Side)            */}
+      {/* ========================================================================= */}
+      <div
+        className={`flex-1 flex flex-col h-full bg-[#efeae2] relative min-w-0 ${
+          mobileScreen === "list" ? "hidden md:flex" : "flex"
+        }`}
+        style={{
+          backgroundImage: `radial-gradient(#d1d7db 0.8px, transparent 0.8px)`,
+          backgroundSize: "22px 22px",
+        }}
+      >
+        {/* WhatsApp Conversation Top App Bar (Classic WhatsApp Green Header) */}
+        <div className="h-14 sm:h-16 px-3 sm:px-4 bg-[#008069] text-white flex items-center justify-between shrink-0 shadow-md z-20">
+          <div className="flex items-center gap-2 min-w-0">
+            {/* Back button returns to WhatsApp chats list on mobile */}
+            <button
+              onClick={() => setMobileScreen("list")}
+              className="p-1 -ml-1 text-white hover:bg-white/10 rounded-full transition-colors flex items-center"
+              title="Back to WhatsApp Chats"
+            >
+              <ArrowLeft className="h-6 w-6" />
+            </button>
+
+            <div className="relative shrink-0">
+              <Avatar className="h-9 w-9 sm:h-10 sm:w-10 border border-white/40">
+                <AvatarImage src={activeRecipient.avatarUrl} />
+                <AvatarFallback className="bg-white/20 text-white font-bold text-xs">
+                  {activeRecipient.name.slice(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              {activeRecipient.isOnline && (
+                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-[#25d366] border-2 border-[#008069]" />
+              )}
+            </div>
+
+            <div className="min-w-0">
+              <h2 className="font-bold text-sm sm:text-base text-white truncate leading-tight">
+                {activeRecipient.name}
+              </h2>
+              <p className="text-[11px] text-emerald-100 truncate flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#25d366] animate-pulse" />
+                <span>online</span>
+                <span className="text-white/60 hidden sm:inline">• Beside Mohan X-Ray</span>
+              </p>
+            </div>
+          </div>
+
+          {/* WhatsApp Header Icons (Video, Phone, Menu) */}
+          <div className="flex items-center gap-1 sm:gap-2 text-white">
+            <button
+              onClick={handleStartCall}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              title="WhatsApp Video Consultation Call"
+            >
+              <Video className="h-5 w-5" />
+            </button>
+
+            <button
+              onClick={handleStartCall}
+              className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              title="Voice Call"
+            >
+              <Phone className="h-4 w-4" />
+            </button>
+
+            <div className="relative">
               <button
-                className="p-2 hover:bg-slate-200/60 rounded-full transition-colors hidden sm:block"
-                title="Search conversation"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-
-              <button
-                className="p-2 hover:bg-slate-200/60 rounded-full transition-colors"
-                title="More options"
+                onClick={() => setShowMenu(!showMenu)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                title="Options"
               >
                 <MoreVertical className="h-5 w-5" />
               </button>
-            </div>
-          </div>
 
-          {/* 2. Message Thread Body */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2">
-            {/* WhatsApp End-to-End Encryption Banner */}
-            <div className="mx-auto max-w-md rounded-lg bg-[#ffeecd] px-3.5 py-2 text-[11px] text-[#54656f] text-center shadow-2xs border border-[#ffdb99]/60 select-none">
-              <span className="font-bold flex items-center justify-center gap-1 text-[#111b21] mb-0.5">
-                <Lock className="h-3 w-3 text-[#54656f]" />
-                End-to-End Encrypted Consultation
-              </span>
-              Messages and calls are encrypted. No one outside of this chat, not even Rehmat Care, can read or listen to them.
-            </div>
-
-            {/* Date Pill: TODAY */}
-            <div className="flex justify-center my-3 select-none">
-              <span className="rounded-lg bg-white/90 backdrop-blur-xs px-3 py-1 text-[11px] font-semibold text-[#54656f] shadow-2xs border border-[#e9edef]">
-                TODAY
-              </span>
-            </div>
-
-            {isLoading ? (
-              <div className="flex items-center justify-center h-48 text-xs text-[#667781]">
-                Loading WhatsApp messages...
-              </div>
-            ) : messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-48 text-center space-y-2 select-none">
-                <div className="h-12 w-12 rounded-full bg-[#00a884]/10 text-[#00a884] flex items-center justify-center shadow-xs">
-                  <Lock className="h-6 w-6" />
+              {showMenu && (
+                <div className="absolute right-0 top-10 w-44 bg-white text-slate-800 rounded-xl shadow-xl border border-slate-100 py-1.5 z-50 text-xs">
+                  <Link
+                    href={isDoctor ? "/doctor" : "/patient"}
+                    className="flex items-center gap-2 px-3 py-2 hover:bg-slate-50 font-bold text-slate-700"
+                  >
+                    <Home className="h-4 w-4 text-[#008069]" />
+                    <span>Exit to Dashboard</span>
+                  </Link>
+                  <button
+                    onClick={toggleSound}
+                    className="w-full text-left flex items-center gap-2 px-3 py-2 hover:bg-slate-50 font-semibold"
+                  >
+                    <Volume2 className="h-4 w-4 text-slate-500" />
+                    <span>{isMuted ? "Unmute Sounds" : "Mute Sounds"}</span>
+                  </button>
                 </div>
-                <h4 className="font-bold text-sm text-[#111b21]">
-                  Direct Consultation with {activeRecipient.name}
-                </h4>
-                <p className="text-xs text-[#667781] max-w-sm">
-                  Send symptom updates, attach Mohan X-Ray scan reports, or ask prescription questions with instant WhatsApp audio chimes.
-                </p>
-              </div>
-            ) : (
-              messages.map((msg, idx) => <MessageBubble key={msg.id || idx} message={msg} />)
-            )}
-            <div ref={messagesEndRef} />
+              )}
+            </div>
           </div>
-
-          {/* 3. Quick Consultation Template Chips */}
-          <div className="px-3 py-2 bg-[#f0f2f5]/90 border-t border-[#e9edef] flex items-center gap-1.5 overflow-x-auto scrollbar-none select-none">
-            <span className="text-[10px] font-bold text-[#54656f] uppercase tracking-wider flex items-center gap-1 shrink-0">
-              <Sparkles className="h-3 w-3 text-[#00a884]" />
-              Quick:
-            </span>
-            {quickChips.map((chip, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setPresetText(chip)}
-                className="text-[11px] whitespace-nowrap bg-white hover:bg-[#00a884]/10 text-[#111b21] hover:text-[#00a884] border border-[#d1d7db] hover:border-[#00a884] px-2.5 py-1 rounded-full transition-all shadow-2xs cursor-pointer"
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-
-          {/* 4. WhatsApp Message Input Bar */}
-          <MessageInput
-            onSend={sendMessage}
-            presetText={presetText}
-            onClearPreset={() => setPresetText("")}
-          />
         </div>
 
+        {/* WhatsApp Chat Messages Canvas */}
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2">
+          {/* End-to-End Encryption Banner */}
+          <div className="mx-auto max-w-sm rounded-lg bg-[#ffeecd] px-3 py-1.5 text-[11px] text-[#54656f] text-center shadow-2xs border border-[#ffdb99]/70 select-none">
+            <span className="font-bold flex items-center justify-center gap-1 text-[#111b21] mb-0.5">
+              <Lock className="h-3 w-3 text-[#54656f]" />
+              End-to-End Encrypted Consultation
+            </span>
+            Messages and calls are encrypted. No one outside of this chat, not even Rehmat Health Care, can read or listen to them.
+          </div>
+
+          {/* Date Bubble: TODAY */}
+          <div className="flex justify-center my-2 select-none">
+            <span className="rounded-lg bg-white/95 px-3 py-0.5 text-[10px] font-bold text-[#54656f] shadow-2xs border border-[#e9edef]">
+              TODAY
+            </span>
+          </div>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center h-48 text-xs text-[#667781]">
+              Loading WhatsApp messages...
+            </div>
+          ) : messages.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-48 text-center space-y-2 select-none">
+              <div className="h-12 w-12 rounded-full bg-[#008069]/10 text-[#008069] flex items-center justify-center">
+                <Lock className="h-6 w-6" />
+              </div>
+              <h4 className="font-bold text-sm text-[#111b21]">
+                Direct Consultation with {activeRecipient.name}
+              </h4>
+              <p className="text-xs text-[#667781] max-w-sm">
+                Discuss medical symptoms, medication dosage, lab results, and follow-up advice in real-time with instant WhatsApp sound chimes.
+              </p>
+            </div>
+          ) : (
+            messages.map((msg, idx) => <MessageBubble key={msg.id || idx} message={msg} />)
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Quick Consultation Template Chips */}
+        <div className="px-3 py-1.5 bg-[#f0f2f5]/95 border-t border-[#e9edef] flex items-center gap-1.5 overflow-x-auto scrollbar-none select-none">
+          <span className="text-[10px] font-bold text-[#54656f] uppercase tracking-wider flex items-center gap-1 shrink-0">
+            <Sparkles className="h-3 w-3 text-[#008069]" />
+            Quick:
+          </span>
+          {quickChips.map((chip, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => setPresetText(chip)}
+              className="text-[11px] whitespace-nowrap bg-white hover:bg-[#008069]/10 text-[#111b21] hover:text-[#008069] border border-[#d1d7db] hover:border-[#008069] px-2.5 py-1 rounded-full transition-all shadow-2xs cursor-pointer"
+            >
+              {chip}
+            </button>
+          ))}
+        </div>
+
+        {/* WhatsApp Mobile Input Bar */}
+        <MessageInput
+          onSend={sendMessage}
+          presetText={presetText}
+          onClearPreset={() => setPresetText("")}
+        />
       </div>
+
     </div>
   );
 }

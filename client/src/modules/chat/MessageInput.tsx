@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Send, Paperclip, Smile, Mic } from "lucide-react";
+import { Send, Paperclip, Smile, Camera, Mic } from "lucide-react";
 
 interface MessageInputProps {
   onSend: (text: string) => void;
@@ -36,57 +36,74 @@ export function MessageInput({ onSend, disabled, presetText, onClearPreset }: Me
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex items-center gap-2 px-3 py-2.5 bg-[#f0f2f5] border-t border-[#e9edef] select-none"
+      className="p-2 sm:p-2.5 bg-transparent flex items-center gap-2 select-none"
     >
-      {/* 1. Emoji / Smile Icon */}
-      <button
-        type="button"
-        className="p-1.5 text-[#54656f] hover:text-[#111b21] hover:bg-slate-200/60 rounded-full transition-colors shrink-0"
-        title="Emojis"
-      >
-        <Smile className="h-5 w-5" />
-      </button>
+      {/* 1. WhatsApp White Input Capsule */}
+      <div className="flex-1 flex items-center gap-2 bg-white rounded-full px-3.5 py-1.5 sm:py-2 shadow-sm border border-[#e9edef] focus-within:border-[#00a884]/40 transition-all">
+        {/* Smile Emoji */}
+        <button
+          type="button"
+          className="text-[#8696a0] hover:text-[#111b21] p-0.5 rounded-full transition-colors shrink-0"
+          title="Emojis"
+        >
+          <Smile className="h-5 w-5 sm:h-6 sm:w-6" />
+        </button>
 
-      {/* 2. Paperclip Attachment Icon (Mohan X-Ray / Docs) */}
-      <button
-        type="button"
-        onClick={handleAttach}
-        className="p-1.5 text-[#54656f] hover:text-[#00a884] hover:bg-slate-200/60 rounded-full transition-colors shrink-0"
-        title="Attach Mohan X-Ray / Lab Report"
-      >
-        <Paperclip className="h-5 w-5 rotate-45" />
-      </button>
-
-      {/* 3. WhatsApp Message Input Field */}
-      <div className="flex-1 relative">
+        {/* Text Input */}
         <input
           type="text"
-          placeholder="Type a message"
+          placeholder="Message"
           value={text}
           onChange={(e) => setText(e.target.value)}
           disabled={disabled}
-          className="w-full rounded-lg bg-white px-4 py-2 text-[13px] sm:text-sm text-[#111b21] placeholder-[#667781] focus:outline-none shadow-2xs border border-[#ffffff] focus:border-[#00a884]/40 transition-all disabled:opacity-50"
+          className="flex-1 bg-transparent text-[14px] sm:text-base text-[#111b21] placeholder-[#8696a0] focus:outline-none min-w-0"
         />
+
+        {/* Paperclip (Mohan X-Ray Attachment) */}
+        <button
+          type="button"
+          onClick={handleAttach}
+          className="text-[#8696a0] hover:text-[#00a884] p-0.5 rounded-full transition-colors shrink-0"
+          title="Attach Mohan X-Ray / Lab Report"
+        >
+          <Paperclip className="h-5 w-5 rotate-45" />
+        </button>
+
+        {/* Camera Icon */}
+        <button
+          type="button"
+          onClick={() => {
+            setText((prev) =>
+              prev
+                ? `${prev}\n[Attached: Prescription_Photo.jpg]`
+                : "[Attached: Prescription_Photo.jpg]"
+            );
+          }}
+          className="text-[#8696a0] hover:text-[#00a884] p-0.5 rounded-full transition-colors shrink-0"
+          title="Take / Send Photo"
+        >
+          <Camera className="h-5 w-5" />
+        </button>
       </div>
 
-      {/* 4. Action Button: WhatsApp Green Send Button OR Voice Note Mic */}
+      {/* 2. Floating Circular WhatsApp Green Send Button OR Voice Note Button */}
       {text.trim() ? (
         <button
           type="submit"
           disabled={disabled}
-          className="h-10 w-10 rounded-full bg-[#00a884] hover:bg-[#008f6f] active:scale-95 text-white flex items-center justify-center shadow-md transition-all shrink-0 cursor-pointer"
-          title="Send message"
+          className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-[#00a884] hover:bg-[#008f6f] text-white flex items-center justify-center shadow-lg shadow-[#00a884]/30 active:scale-90 transition-transform shrink-0 cursor-pointer"
+          title="Send"
         >
-          <Send className="h-4 w-4 ml-0.5" />
+          <Send className="h-5 w-5 ml-0.5" />
         </button>
       ) : (
         <button
           type="button"
           onClick={() => {
-            setText("Doctor, here is my voice note update regarding symptoms.");
+            setText("Doctor, sharing my voice message regarding symptoms.");
           }}
-          className="p-2 text-[#54656f] hover:text-[#00a884] hover:bg-slate-200/60 rounded-full transition-colors shrink-0"
-          title="Hold to record voice note"
+          className="h-11 w-11 sm:h-12 sm:w-12 rounded-full bg-[#00a884] hover:bg-[#008f6f] text-white flex items-center justify-center shadow-lg shadow-[#00a884]/30 active:scale-90 transition-transform shrink-0 cursor-pointer"
+          title="Record Voice Note"
         >
           <Mic className="h-5 w-5" />
         </button>
