@@ -4,6 +4,7 @@ import { Mic, MicOff, Video, VideoOff, PhoneOff } from "lucide-react";
 interface CallControlsProps {
   isAudioMuted: boolean;
   isVideoDisabled: boolean;
+  isAudioCall?: boolean;
   onToggleAudio: () => void;
   onToggleVideo: () => void;
   onEndCall: () => void;
@@ -12,6 +13,7 @@ interface CallControlsProps {
 export function CallControls({
   isAudioMuted,
   isVideoDisabled,
+  isAudioCall = false,
   onToggleAudio,
   onToggleVideo,
   onEndCall,
@@ -36,23 +38,25 @@ export function CallControls({
         )}
       </button>
 
-      {/* Video Toggle */}
-      <button
-        type="button"
-        onClick={onToggleVideo}
-        className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full transition-all shrink-0 flex items-center justify-center outline-none ring-0 focus:outline-none focus:ring-0 active:scale-90 select-none cursor-pointer ${
-          isVideoDisabled
-            ? "bg-rose-600 text-white shadow-lg shadow-rose-600/40 hover:bg-rose-700"
-            : "bg-white/15 text-white border border-white/20 hover:bg-white/25"
-        }`}
-        title={isVideoDisabled ? "Turn Video On" : "Turn Video Off"}
-      >
-        {isVideoDisabled ? (
-          <VideoOff className="h-5 w-5 text-white" />
-        ) : (
-          <Video className="h-5 w-5 text-white" />
-        )}
-      </button>
+      {/* Video Toggle (Hidden on Audio-Only Calls) */}
+      {!isAudioCall && (
+        <button
+          type="button"
+          onClick={onToggleVideo}
+          className={`h-11 w-11 sm:h-12 sm:w-12 rounded-full transition-all shrink-0 flex items-center justify-center outline-none ring-0 focus:outline-none focus:ring-0 active:scale-90 select-none cursor-pointer ${
+            isVideoDisabled
+              ? "bg-rose-600 text-white shadow-lg shadow-rose-600/40 hover:bg-rose-700"
+              : "bg-white/15 text-white border border-white/20 hover:bg-white/25"
+          }`}
+          title={isVideoDisabled ? "Turn Video On" : "Turn Video Off"}
+        >
+          {isVideoDisabled ? (
+            <VideoOff className="h-5 w-5 text-white" />
+          ) : (
+            <Video className="h-5 w-5 text-white" />
+          )}
+        </button>
+      )}
 
       {/* End Call Button */}
       <button

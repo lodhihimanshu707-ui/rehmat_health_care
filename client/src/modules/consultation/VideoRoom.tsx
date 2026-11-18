@@ -433,6 +433,7 @@ export function VideoRoom() {
           <CallControls
             isAudioMuted={isAudioMuted}
             isVideoDisabled={isVideoDisabled}
+            isAudioCall={isAudioCall}
             onToggleAudio={toggleAudio}
             onToggleVideo={toggleVideo}
             onEndCall={handleEndCall}

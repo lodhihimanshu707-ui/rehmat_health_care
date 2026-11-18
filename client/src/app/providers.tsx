@@ -36,16 +36,36 @@ function SocketBootstrap() {
       patientName: string;
       patientAvatar?: string;
       doctorId: string;
-      doctorUserId: string;
+      doctorUserId?: string;
+      doctorName?: string;
+      doctorAvatar?: string;
+      doctorSpecialization?: string;
       ratePerMinute: number;
+      callerRole?: "doctor" | "patient";
+      callType?: "video" | "audio";
     }) => {
+      // Ignore incoming call reflection if this client initiated the call (outgoing ringing or connected)
+      const currentCallState = useCallStore.getState();
+      if (
+        (currentCallState.callStatus === "ringing_outgoing" ||
+          currentCallState.callStatus === "connected") &&
+        currentCallState.activeConsultation?.id === data.consultationId
+      ) {
+        return;
+      }
+
       receiveIncomingCall({
         id: data.consultationId,
         patientId: data.patientId,
         patientName: data.patientName,
         patientAvatar: data.patientAvatar,
         doctorId: data.doctorId,
+        doctorName: data.doctorName,
+        doctorAvatar: data.doctorAvatar,
+        doctorSpecialization: data.doctorSpecialization,
         ratePerMinute: data.ratePerMinute,
+        callerRole: data.callerRole || "doctor",
+        callType: data.callType || "video",
       });
     };
 
