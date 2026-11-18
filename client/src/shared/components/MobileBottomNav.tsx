@@ -191,23 +191,26 @@ export function MobileBottomNav() {
                 <span className="text-[10px] leading-tight mt-0.5 font-medium">Video OPD</span>
               </Link>
 
-              {/* 3. Chat */}
+              {/* 3. WhatsApp Chat */}
               <Link
-                href="/patient/chat"
+                href="/chat"
                 className={`flex flex-col items-center justify-center flex-1 py-1 rounded-xl transition-all ${
-                  isActive("/patient/chat") || isActive("/chat")
-                    ? "text-emerald-700 font-bold"
+                  isActive("/chat") || isActive("/patient/chat")
+                    ? "text-[#008069] font-bold"
                     : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 <div
-                  className={`p-1 rounded-xl ${
-                    isActive("/patient/chat") || isActive("/chat") ? "bg-emerald-50 text-emerald-700" : ""
+                  className={`p-1 rounded-xl relative ${
+                    isActive("/chat") || isActive("/patient/chat") ? "bg-[#008069]/15 text-[#008069]" : ""
                   }`}
                 >
                   <MessageSquare className="h-5 w-5" />
+                  <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-[#00a884] text-white text-[9px] font-bold flex items-center justify-center">
+                    1
+                  </span>
                 </div>
-                <span className="text-[10px] leading-tight mt-0.5 font-medium">Chat</span>
+                <span className="text-[10px] leading-tight mt-0.5 font-medium">WhatsApp</span>
               </Link>
 
               {/* 4. Wallet */}

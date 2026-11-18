@@ -1,60 +1,94 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Navbar } from "@/shared/components/Navbar";
 import { Footer } from "@/shared/components/Footer";
 import { AuthGuard } from "@/shared/components/AuthGuard";
 import { DoctorsView } from "@/modules/doctors/DoctorsView";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Video, ArrowLeft } from "lucide-react";
+import {
+  Video,
+  ArrowLeft,
+  MessageSquare,
+  ShieldCheck,
+  Lock,
+  CheckCircle2,
+  Clock,
+  Sparkles,
+} from "lucide-react";
 
 export default function PatientTeleconsultPage() {
   const router = useRouter();
 
   const handleOpenChat = (doctorId: string, doctorName: string) => {
-    router.push(`/patient/chat?doctorId=${doctorId}&doctorName=${encodeURIComponent(doctorName)}`);
+    router.push(`/chat?recipientId=${doctorId}&recipientName=${encodeURIComponent(doctorName)}`);
   };
 
   return (
     <AuthGuard requiredRole="patient">
-      <div className="flex min-h-screen flex-col bg-slate-50">
+      <div className="flex min-h-screen flex-col bg-[#f0f2f5] select-none">
         <Navbar />
 
-        <main className="flex-1 w-full px-3 sm:px-6 md:px-10 lg:px-14 xl:px-16 py-6 sm:py-8 max-w-6xl mx-auto space-y-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-            <div>
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-0.5 text-xs font-black text-emerald-800 uppercase tracking-wider">
-                  <Video className="h-3 w-3" />
-                  Patient Virtual OPD
-                </span>
-                <span className="text-slate-400">•</span>
-                <span className="text-xs font-semibold text-slate-500">
-                  Malviya Nagar, Moradabad
-                </span>
+        <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-20 md:pb-8 space-y-4 sm:space-y-5">
+          
+          {/* WhatsApp Green App Bar Header */}
+          <div className="rounded-3xl bg-gradient-to-r from-[#008069] via-[#075e54] to-slate-900 text-white p-5 sm:p-7 shadow-lg">
+            <div className="flex items-center justify-between mb-3">
+              <Link
+                href="/patient"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-white/90 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-all"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+
+              <div className="inline-flex items-center gap-1.5 text-xs text-emerald-200 font-semibold">
+                <Lock className="h-3.5 w-3.5 text-[#25d366]" />
+                <span>Encrypted Telemedicine</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-                Live Video Teleconsultation
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed">
-                Connect directly with Dr. Raees Akhtar via encrypted WebRTC HD video. Pay strictly for the consultation minutes you talk with transparent per-minute Health Wallet deduction.
-              </p>
             </div>
 
-            <Link
-              href="/patient"
-              className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-emerald-700 bg-white border border-slate-200 hover:border-emerald-300 px-4 py-2.5 rounded-xl shadow-xs transition-all shrink-0"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Back to Patient Dashboard</span>
-            </Link>
+            <div className="space-y-1">
+              <h1 className="text-xl sm:text-2xl font-black text-white">
+                Live Video Teleconsultation
+              </h1>
+              <p className="text-xs sm:text-sm text-white/80 max-w-2xl leading-relaxed">
+                Connect directly with Dr. Raees Akhtar via encrypted WebRTC HD video. Pay strictly for the consultation minutes you talk with transparent Health Wallet deduction.
+              </p>
+            </div>
           </div>
 
-          <DoctorsView
-            onOpenChat={handleOpenChat}
-            onCallInitiated={() => {}}
-          />
+          {/* Doctor Consultation Deck with WhatsApp Styling */}
+          <div className="rounded-3xl bg-white border border-[#d1d7db] p-4 sm:p-6 shadow-sm">
+            <DoctorsView
+              onOpenChat={handleOpenChat}
+              onCallInitiated={() => {}}
+            />
+          </div>
+
+          {/* Quick Preparation Guidelines */}
+          <div className="rounded-3xl bg-white border border-[#d1d7db] p-5 shadow-sm space-y-3">
+            <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-[#008069]" />
+              <span>Tele-OPD Consultation Checklist:</span>
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-600">
+              <div className="p-3 rounded-2xl bg-[#f0f2f5] border border-[#e9edef] space-y-1">
+                <span className="font-bold text-slate-900 block">1. Medical Reports</span>
+                <p>Keep your previous Mohan X-Ray scan or prescription slips ready to show on camera or send in chat.</p>
+              </div>
+              <div className="p-3 rounded-2xl bg-[#f0f2f5] border border-[#e9edef] space-y-1">
+                <span className="font-bold text-slate-900 block">2. Well-Lit Room</span>
+                <p>Sit in a quiet, well-illuminated room so the doctor can clearly evaluate throat and face vitals.</p>
+              </div>
+              <div className="p-3 rounded-2xl bg-[#f0f2f5] border border-[#e9edef] space-y-1">
+                <span className="font-bold text-slate-900 block">3. Health Wallet Balance</span>
+                <p>Ensure your wallet has minimum ₹15 balance for seamless per-minute consultation without drops.</p>
+              </div>
+            </div>
+          </div>
+
         </main>
 
         <Footer />

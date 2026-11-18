@@ -17,15 +17,19 @@ import {
   Calendar,
   ShieldCheck,
   Sparkles,
-  Clock,
   ArrowRight,
   FileText,
   Activity,
   Plus,
-  Stethoscope,
   HeartPulse,
+  Ticket,
+  Clock,
+  CheckCircle2,
+  Phone,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/shared/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/shared/ui/avatar";
 
 export default function PatientDashboardPage() {
   const { currentUser } = useAuthStore();
@@ -34,255 +38,252 @@ export default function PatientDashboardPage() {
 
   return (
     <AuthGuard allowedRoles={["patient", "admin"]}>
-      <div className="flex min-h-screen flex-col bg-slate-50">
+      <div className="flex min-h-screen flex-col bg-[#f0f2f5] select-none">
         <Navbar />
 
-        <main className="flex-1 w-full px-3 sm:px-6 md:px-10 lg:px-14 xl:px-16 py-6 sm:py-8 pb-20 md:pb-8 max-w-6xl mx-auto space-y-6">
-          {/* Patient Welcome & Quick Status Banner */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 p-5 sm:p-8 text-white shadow-xl">
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-300 border border-emerald-500/30">
-                  <HeartPulse className="h-3.5 w-3.5 text-emerald-400" />
-                  <span>Patient Medical Desk • Moradabad</span>
+        <main className="flex-1 w-full max-w-5xl mx-auto px-3 sm:px-6 py-4 sm:py-6 pb-20 md:pb-8 space-y-4 sm:space-y-5">
+          
+          {/* ========================================================================= */}
+          {/* 1. WHATSAPP STYLE HERO PATIENT APP BAR                                    */}
+          {/* ========================================================================= */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#008069] via-[#075e54] to-slate-900 p-5 sm:p-7 text-white shadow-lg">
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="flex items-center gap-3.5 sm:gap-4">
+                <Avatar className="h-14 w-14 sm:h-16 sm:w-16 border-2 border-white/60 shadow-md">
+                  <AvatarImage src={currentUser?.avatarUrl} />
+                  <AvatarFallback className="bg-white/20 text-white font-extrabold text-xl">
+                    {currentUser?.name?.slice(0, 2).toUpperCase() || "PT"}
+                  </AvatarFallback>
+                </Avatar>
+
+                <div>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-emerald-100 text-[11px] font-bold uppercase tracking-wider mb-1">
+                    <span className="h-2 w-2 rounded-full bg-[#25d366] animate-pulse" />
+                    <span>Patient Portal • Moradabad</span>
+                  </div>
+                  <h1 className="text-xl sm:text-2xl font-black text-white">
+                    {currentUser?.name || "Rahul Sharma"}
+                  </h1>
+                  <p className="text-xs text-white/80">
+                    {currentUser?.phone || "+91 94120 54321"} • Malviya Nagar
+                  </p>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-black text-white">
-                  Welcome back, {currentUser?.name || "Patient"}
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
-                  Your confidential Rehmat Health Care patient portal. Connect directly with Dr. Raees Akhtar for live video OPD, message confidentially, or review your prescriptions.
-                </p>
               </div>
 
-              {/* Health Wallet Card in Header */}
-              <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-4 sm:p-5 flex flex-col items-start sm:items-end gap-2.5 shrink-0">
-                <div className="flex items-center gap-2 text-xs text-emerald-300 font-semibold uppercase tracking-wider">
-                  <Wallet className="h-4 w-4" />
-                  <span>Health Wallet</span>
-                </div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-3xl sm:text-4xl font-black text-white">
+              {/* Health Wallet Pass Card */}
+              <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 p-4 flex items-center justify-between sm:justify-end gap-4 shrink-0">
+                <div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-200 font-bold uppercase tracking-wider">
+                    <Wallet className="h-3.5 w-3.5" />
+                    <span>Health Wallet</span>
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-black text-white mt-0.5">
                     {formatCurrency(cachedBalance)}
-                  </span>
-                  <span className="text-xs text-slate-300">INR</span>
+                  </div>
+                  <span className="text-[10px] text-emerald-200">~{Math.floor(cachedBalance / 15)} mins @ ₹15/min</span>
                 </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Button
-                    size="sm"
+
+                <div className="flex flex-col gap-1.5">
+                  <button
                     onClick={openRechargeModal}
-                    className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs rounded-xl h-8 px-3 gap-1 shadow-sm w-full sm:w-auto"
+                    className="bg-[#25d366] hover:bg-[#20ba59] active:scale-95 text-slate-950 font-black text-xs px-3.5 py-2 rounded-xl shadow-md flex items-center gap-1 transition-all cursor-pointer"
                   >
                     <Plus className="h-3.5 w-3.5" />
-                    <span>Top-up UPI</span>
-                  </Button>
-                  <Link href="/wallet" className="w-full sm:w-auto">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-white/20 text-white hover:bg-white/10 text-xs rounded-xl h-8 px-3 w-full sm:w-auto"
-                    >
-                      Ledger
-                    </Button>
+                    <span>Top-up</span>
+                  </button>
+                  <Link
+                    href="/patient/wallet"
+                    className="text-[11px] text-center text-white/90 hover:text-white underline font-semibold"
+                  >
+                    View Passbook
                   </Link>
                 </div>
               </div>
             </div>
 
-            {/* Ambient decoration */}
-            <div className="absolute -right-10 -bottom-10 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+            {/* Subtle background glow */}
+            <div className="absolute -right-8 -bottom-8 h-48 w-48 rounded-full bg-[#25d366]/15 blur-3xl pointer-events-none" />
           </div>
 
-          {/* Dr. Raees Akhtar Live OPD Status Card */}
-          <div className="rounded-2xl sm:rounded-3xl border border-emerald-200 bg-white p-5 sm:p-6 shadow-sm">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
+          {/* ========================================================================= */}
+          {/* 2. DR. RAEES AKHTAR LIVE CONSULTATION CARD (WHATSAPP DESIGN)              */}
+          {/* ========================================================================= */}
+          <div className="rounded-3xl bg-white border border-[#d1d7db] p-5 sm:p-6 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div className="flex items-start sm:items-center gap-4">
                 <div className="relative shrink-0">
-                  <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-extrabold text-xl shadow-md">
+                  <div className="h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-gradient-to-tr from-[#008069] to-[#075e54] flex items-center justify-center text-white font-extrabold text-2xl shadow-md border-2 border-white">
                     RA
                   </div>
                   <span
-                    className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 border-2 border-white ring-2 ring-emerald-100 animate-pulse"
-                    title="Dr. Raees Akhtar is Online"
+                    className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-[#25d366] border-2 border-white animate-pulse"
+                    title="Online for Video Consultation"
                   />
                 </div>
 
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-extrabold text-slate-900 text-base sm:text-lg">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h2 className="font-extrabold text-slate-900 text-lg sm:text-xl">
                       Dr. Raees Akhtar
-                    </h3>
-                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-800 uppercase">
+                    </h2>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#25d366]/15 text-[#008069] px-2.5 py-0.5 text-[11px] font-extrabold">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[#25d366]" />
                       Online Now
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-emerald-700">MBBS, MD (General Medicine)</p>
-                  <p className="text-[11px] text-slate-500 font-medium">
-                    Chief Medical Consultant • Near Mohan X-Ray, Malviya Nagar
+                  <p className="text-xs sm:text-sm font-bold text-[#008069]">
+                    MBBS, MD (General Medicine) • ₹15/min
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Chief Physician • Beside Mohan X-Ray, Malviya Nagar, Moradabad
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Link href="/teleconsult" className="flex-1 sm:flex-none">
-                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 px-5 rounded-xl shadow-md gap-2 text-xs sm:text-sm">
+              {/* WhatsApp Action Buttons */}
+              <div className="flex items-center gap-2.5 pt-1 sm:pt-0">
+                <Link href="/patient/teleconsult" className="flex-1 sm:flex-none">
+                  <button className="w-full bg-[#008069] hover:bg-[#00705b] active:scale-95 text-white font-extrabold h-11 px-5 rounded-2xl shadow-md flex items-center justify-center gap-2 text-xs sm:text-sm transition-all cursor-pointer">
                     <Video className="h-4 w-4" />
-                    <span>Start Video OPD (₹15/min)</span>
-                  </Button>
+                    <span>Start Video OPD</span>
+                  </button>
                 </Link>
 
                 <Link href="/chat">
-                  <Button
-                    variant="outline"
-                    className="border-slate-200 text-slate-700 hover:bg-slate-50 h-11 px-3.5 rounded-xl text-xs font-bold gap-1.5"
-                  >
-                    <MessageSquare className="h-4 w-4 text-slate-600" />
-                    <span className="hidden sm:inline">Chat</span>
-                  </Button>
+                  <button className="bg-[#f0f2f5] hover:bg-[#e9edef] active:scale-95 text-[#008069] border border-[#d1d7db] font-extrabold h-11 px-4 rounded-2xl text-xs sm:text-sm flex items-center gap-2 transition-all cursor-pointer">
+                    <MessageSquare className="h-4 w-4 text-[#008069]" />
+                    <span>WhatsApp Chat</span>
+                  </button>
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* Quick Action 4-Tile Grid */}
+          {/* ========================================================================= */}
+          {/* 3. LIVE QUEUE & CLINIC TOKEN WIDGET                                       */}
+          {/* ========================================================================= */}
+          <div className="rounded-3xl bg-white border border-[#d1d7db] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                <Ticket className="h-6 w-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-black text-sm text-slate-900">
+                    Token #RH-101
+                  </span>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    Waiting in Queue
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Est. Wait Time: ~4 mins • Cabin 1 (Dr. Raees Akhtar)
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Link href="/chat" className="w-full sm:w-auto">
+                <button className="w-full sm:w-auto text-xs font-bold text-[#008069] bg-[#008069]/10 hover:bg-[#008069]/20 px-3.5 py-2 rounded-xl transition-colors">
+                  Ask Receptionist
+                </button>
+              </Link>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* 4. QUICK ACTION 4-TILE APP GRID (WHATSAPP APP STYLE)                      */}
+          {/* ========================================================================= */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-            {/* 1. Live Tele-OPD */}
+            
+            {/* Tile 1: Live Video Tele-OPD */}
             <Link
-              href="/teleconsult"
-              className="group flex flex-col justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all"
+              href="/patient/teleconsult"
+              className="group p-4 sm:p-5 rounded-3xl bg-white border border-[#d1d7db] hover:border-[#008069] hover:shadow-md transition-all flex flex-col justify-between"
             >
-              <div className="h-10 w-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+              <div className="h-11 w-11 rounded-2xl bg-[#008069]/15 text-[#008069] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                 <Video className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="font-extrabold text-slate-900 text-sm group-hover:text-emerald-700 transition-colors">
+                <h3 className="font-extrabold text-slate-900 text-sm group-hover:text-[#008069] transition-colors">
                   Live Video OPD
-                </h4>
-                <p className="text-[11px] text-slate-500 mt-0.5">₹15/min per-minute billing</p>
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">Encrypted WebRTC consultation</p>
               </div>
-              <div className="mt-3 flex items-center text-xs font-bold text-emerald-700">
+              <div className="mt-3 flex items-center text-xs font-bold text-[#008069]">
                 <span>Connect</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            {/* 2. Confidential Chat */}
+            {/* Tile 2: WhatsApp Chat */}
             <Link
               href="/chat"
-              className="group flex flex-col justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all"
+              className="group p-4 sm:p-5 rounded-3xl bg-white border border-[#d1d7db] hover:border-[#008069] hover:shadow-md transition-all flex flex-col justify-between"
             >
-              <div className="h-10 w-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+              <div className="h-11 w-11 rounded-2xl bg-[#25d366]/20 text-[#008069] flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                 <MessageSquare className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="font-extrabold text-slate-900 text-sm group-hover:text-emerald-700 transition-colors">
-                  Medical Chat
-                </h4>
-                <p className="text-[11px] text-slate-500 mt-0.5">Encrypted doctor messaging</p>
+                <h3 className="font-extrabold text-slate-900 text-sm group-hover:text-[#008069] transition-colors">
+                  WhatsApp Chat
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">Direct doctor consultation</p>
               </div>
-              <div className="mt-3 flex items-center text-xs font-bold text-teal-700">
+              <div className="mt-3 flex items-center text-xs font-bold text-[#008069]">
                 <span>Open Chat</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            {/* 3. Health Wallet */}
+            {/* Tile 3: Health Wallet */}
             <Link
-              href="/wallet"
-              className="group flex flex-col justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all"
+              href="/patient/wallet"
+              className="group p-4 sm:p-5 rounded-3xl bg-white border border-[#d1d7db] hover:border-[#008069] hover:shadow-md transition-all flex flex-col justify-between"
             >
-              <div className="h-10 w-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+              <div className="h-11 w-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
                 <Wallet className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="font-extrabold text-slate-900 text-sm group-hover:text-emerald-700 transition-colors">
+                <h3 className="font-extrabold text-slate-900 text-sm group-hover:text-[#008069] transition-colors">
                   Health Wallet
-                </h4>
+                </h3>
                 <p className="text-[11px] text-slate-500 mt-0.5">Balance: {formatCurrency(cachedBalance)}</p>
               </div>
               <div className="mt-3 flex items-center text-xs font-bold text-amber-700">
-                <span>Passbook</span>
+                <span>View Ledger</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
 
-            {/* 4. Book Walk-in Visit */}
-            <button
-              type="button"
+            {/* Tile 4: Mohan X-Ray Diagnostics */}
+            <div
               onClick={() => setIsBookModalOpen(true)}
-              className="group flex flex-col justify-between p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/90 shadow-2xs hover:border-emerald-300 hover:shadow-md transition-all text-left"
+              className="group p-4 sm:p-5 rounded-3xl bg-white border border-[#d1d7db] hover:border-[#008069] hover:shadow-md transition-all flex flex-col justify-between cursor-pointer"
             >
-              <div className="h-10 w-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
-                <Calendar className="h-5 w-5" />
+              <div className="h-11 w-11 rounded-2xl bg-blue-100 text-blue-700 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform">
+                <Activity className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="font-extrabold text-slate-900 text-sm group-hover:text-emerald-700 transition-colors">
-                  In-Clinic OPD
-                </h4>
-                <p className="text-[11px] text-slate-500 mt-0.5">Beside Mohan X-Ray</p>
+                <h3 className="font-extrabold text-slate-900 text-sm group-hover:text-blue-700 transition-colors">
+                  Mohan X-Ray
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-0.5">Beside clinic • Fast reports</p>
               </div>
               <div className="mt-3 flex items-center text-xs font-bold text-blue-700">
-                <span>Book Slot</span>
+                <span>Book Test</span>
                 <ArrowRight className="h-3.5 w-3.5 ml-1 group-hover:translate-x-1 transition-transform" />
               </div>
-            </button>
-          </div>
-
-          {/* Digital Prescriptions & Diagnostics Desk */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Prescriptions card */}
-            <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-emerald-600" />
-                  <h3 className="font-extrabold text-slate-900 text-sm">Digital Prescriptions</h3>
-                </div>
-                <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                  Verified MCI/NMC
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                All prescription orders issued by Dr. Raees Akhtar during video OPD are archived here and sent instantly to your WhatsApp.
-              </p>
-              <div className="rounded-xl bg-slate-50 p-3 border border-slate-100 text-xs text-slate-600 space-y-1">
-                <div className="flex justify-between font-semibold text-slate-800">
-                  <span>Prescription #RA-2026-042</span>
-                  <span className="text-emerald-700">Active</span>
-                </div>
-                <p className="text-[11px] text-slate-500">Dr. Raees Akhtar • Tab Paracetamol 650mg TDS, Cough Syrup</p>
-              </div>
             </div>
 
-            {/* Diagnostic Synergy card */}
-            <div className="rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <div className="flex items-center gap-2">
-                  <Activity className="h-4 w-4 text-blue-600" />
-                  <h3 className="font-extrabold text-slate-900 text-sm">Mohan X-Ray Synergy</h3>
-                </div>
-                <span className="text-[10px] font-bold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">
-                  Beside Clinic
-                </span>
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed font-normal">
-                Direct referral coordination with Mohan X-Ray & Ultrasound Centre next door. Share X-ray films and lab reports directly with Dr. Raees Akhtar.
-              </p>
-              <div className="rounded-xl bg-blue-50/60 p-3 border border-blue-100 text-xs text-slate-700 space-y-1">
-                <div className="flex justify-between font-semibold text-slate-900">
-                  <span>Diagnostic Services Next Door:</span>
-                  <span className="text-blue-700 font-bold">Same Day</span>
-                </div>
-                <p className="text-[11px] text-slate-600">Digital X-Ray, 3D/4D Sonography, Fasting Blood Sugar, CBC Panel</p>
-              </div>
-            </div>
           </div>
+
         </main>
 
         <Footer />
-
         <AppointmentModal
           isOpen={isBookModalOpen}
           onClose={() => setIsBookModalOpen(false)}
-          initialDoctorName="Dr. Raees Akhtar"
         />
         <RechargeModal />
       </div>
