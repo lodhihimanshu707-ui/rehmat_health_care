@@ -16,14 +16,15 @@ export function useWebRTC(
   consultationId: string | null,
   isInitiator: boolean,
   callStatus: CallStatus,
-  participantLabel: string = "User"
+  participantLabel: string = "User",
+  isAudioOnly: boolean = false
 ) {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [isAudioMuted, setIsAudioMuted] = useState(false);
-  const [isVideoDisabled, setIsVideoDisabled] = useState(false);
+  const [isVideoDisabled, setIsVideoDisabled] = useState(isAudioOnly);
   const [isRemoteAudioMuted, setIsRemoteAudioMuted] = useState(false);
-  const [isRemoteVideoDisabled, setIsRemoteVideoDisabled] = useState(false);
+  const [isRemoteVideoDisabled, setIsRemoteVideoDisabled] = useState(isAudioOnly);
   const [connectionStatus, setConnectionStatus] = useState<string>("idle");
   const [hasMicrophonePermission, setHasMicrophonePermission] = useState<boolean>(true);
 
@@ -218,6 +219,28 @@ export function useWebRTC(
     return stream;
   }, [isInitiator, participantLabel]);
 
+  // Audio-only fallback stream (zero video tracks, no camera activation)
+  const createAudioOnlyFallbackStream = useCallback((): MediaStream => {
+    const stream = new MediaStream();
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        const audioCtx = new AudioContextClass();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        gain.gain.value = 0.0001;
+        osc.connect(gain);
+        const dst = gain.connect(audioCtx.createMediaStreamDestination());
+        osc.start();
+        const track = (dst as any).stream.getAudioTracks()[0];
+        if (track) stream.addTrack(track);
+      }
+    } catch (e) {
+      console.warn("AudioContext fallback error:", e);
+    }
+    return stream;
+  }, []);
+
   // 1. Acquire Local Camera & Microphone Media
   useEffect(() => {
     if (!consultationId || !isCallActive) {
@@ -229,60 +252,85 @@ export function useWebRTC(
     async function getMedia() {
       let stream: MediaStream | null = null;
 
-      // Step A: Attempt full video + high quality audio
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-              width: { ideal: 640 },
-              height: { ideal: 480 },
-              facingMode: "user",
-            },
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true,
-            },
-          });
-          console.log("✅ Successfully acquired hardware camera & microphone.");
-          setHasMicrophonePermission(true);
-        } else {
-          throw new Error("getUserMedia not supported in this browser context (likely insecure HTTP on mobile)");
-        }
-      } catch (err) {
-        console.warn("Full video+audio getUserMedia failed, attempting audio-only:", err);
-
-        // Step B: Attempt audio-only if camera is busy or restricted
-        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-          try {
-            const audioStream = await navigator.mediaDevices.getUserMedia({
+      if (isAudioOnly) {
+        // AUDIO-ONLY CONSULTATION: Completely avoid requesting camera hardware (camera LED stays off)
+        try {
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: false,
               audio: {
                 echoCancellation: true,
                 noiseSuppression: true,
                 autoGainControl: true,
               },
             });
-            console.log("✅ Successfully acquired hardware microphone (audio-only).");
+            console.log("✅ Successfully acquired hardware microphone for Voice Call (Camera LED is OFF).");
             setHasMicrophonePermission(true);
+          } else {
+            throw new Error("getUserMedia not supported in this browser context");
+          }
+        } catch (err) {
+          console.warn("Audio-only getUserMedia failed, creating silent audio stream fallback:", err);
+          setHasMicrophonePermission(false);
+          stream = createAudioOnlyFallbackStream();
+        }
+      } else {
+        // VIDEO CONSULTATION: Attempt full video + high quality audio
+        try {
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: {
+                width: { ideal: 640 },
+                height: { ideal: 480 },
+                facingMode: "user",
+              },
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              },
+            });
+            console.log("✅ Successfully acquired hardware camera & microphone.");
+            setHasMicrophonePermission(true);
+          } else {
+            throw new Error("getUserMedia not supported in this browser context (likely insecure HTTP on mobile)");
+          }
+        } catch (err) {
+          console.warn("Full video+audio getUserMedia failed, attempting audio-only fallback:", err);
 
-            const fallbackCanvas = createFallbackStream();
-            const realAudioTrack = audioStream.getAudioTracks()[0];
-            if (realAudioTrack) {
-              fallbackCanvas.getAudioTracks().forEach((t) => fallbackCanvas.removeTrack(t));
-              fallbackCanvas.addTrack(realAudioTrack);
+          // Step B: Attempt audio-only if camera is busy or restricted
+          if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            try {
+              const audioStream = await navigator.mediaDevices.getUserMedia({
+                video: false,
+                audio: {
+                  echoCancellation: true,
+                  noiseSuppression: true,
+                  autoGainControl: true,
+                },
+              });
+              console.log("✅ Successfully acquired hardware microphone (audio-only fallback).");
+              setHasMicrophonePermission(true);
+
+              const fallbackCanvas = createFallbackStream();
+              const realAudioTrack = audioStream.getAudioTracks()[0];
+              if (realAudioTrack) {
+                fallbackCanvas.getAudioTracks().forEach((t) => fallbackCanvas.removeTrack(t));
+                fallbackCanvas.addTrack(realAudioTrack);
+              }
+              stream = fallbackCanvas;
+            } catch (audioErr) {
+              console.warn("Audio-only getUserMedia also failed:", audioErr);
+              setHasMicrophonePermission(false);
             }
-            stream = fallbackCanvas;
-          } catch (audioErr) {
-            console.warn("Audio-only getUserMedia also failed:", audioErr);
+          } else {
             setHasMicrophonePermission(false);
           }
-        } else {
-          setHasMicrophonePermission(false);
-        }
 
-        // Step C: If both hardware accesses failed, use fallback simulation
-        if (!stream) {
-          stream = createFallbackStream();
+          // Step C: If both hardware accesses failed, use fallback simulation
+          if (!stream) {
+            stream = createFallbackStream();
+          }
         }
       }
 
@@ -315,7 +363,7 @@ export function useWebRTC(
         localStreamRef.current = null;
       }
     };
-  }, [consultationId, isCallActive, createFallbackStream]);
+  }, [consultationId, isCallActive, createFallbackStream, createAudioOnlyFallbackStream, isAudioOnly]);
 
   // 2. Shut down hardware camera & mic immediately when call ends or goes idle
   useEffect(() => {
@@ -324,15 +372,15 @@ export function useWebRTC(
     }
   }, [isCallActive, consultationId, stopMediaTracks]);
 
-  // 3. Attach localStream to local video element
+  // 3. Attach localStream to local video element (skip if audio-only)
   useEffect(() => {
-    if (localVideoRef.current && localStream) {
+    if (!isAudioOnly && localVideoRef.current && localStream) {
       if (localVideoRef.current.srcObject !== localStream) {
         localVideoRef.current.srcObject = localStream;
       }
       localVideoRef.current.play().catch(() => { });
     }
-  }, [localStream, isConnected]);
+  }, [localStream, isConnected, isAudioOnly]);
 
   // 4. Attach remoteStream to remote video and dedicated audio elements
   useEffect(() => {
@@ -575,6 +623,7 @@ export function useWebRTC(
   }, [localStream, consultationId, isVideoDisabled]);
 
   const toggleVideo = useCallback(() => {
+    if (isAudioOnly) return; // Video cannot be enabled in an audio-only VoIP call
     setIsVideoDisabled((prev) => {
       const nextDisabled = !prev;
       if (localStreamRef.current) {

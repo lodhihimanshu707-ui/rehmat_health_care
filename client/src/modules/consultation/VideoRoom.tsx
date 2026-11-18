@@ -54,7 +54,7 @@ export function VideoRoom() {
     toggleVideo,
     stopMediaTracks,
     hasMicrophonePermission,
-  } = useWebRTC(consultationId, isInitiator, callStatus, participantLabel);
+  } = useWebRTC(consultationId, isInitiator, callStatus, participantLabel, isAudioCall);
 
   useCallTimer(consultationId, ratePerMinute);
 

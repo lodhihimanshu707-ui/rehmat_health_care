@@ -10,13 +10,14 @@ import {
   DialogContent,
 } from "@/shared/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/shared/ui/avatar";
-import { PhoneOff, Video, Lock, Volume2, VolumeX, ShieldCheck } from "lucide-react";
+import { PhoneOff, Phone, Video, Lock, Volume2, VolumeX, ShieldCheck } from "lucide-react";
 
 export function IncomingCallModal() {
   const { callStatus, activeConsultation, setConnected, resetCall } = useCallStore();
   const [isMuted, setIsMuted] = useState(false);
 
   const isIncoming = callStatus === "incoming" && activeConsultation !== null;
+  const isAudioCall = activeConsultation?.callType === "audio";
   const isDoctorCaller = activeConsultation?.callerRole === "doctor";
   const callerName = isDoctorCaller
     ? activeConsultation?.doctorName || "Dr. Raees Akhtar"
@@ -99,7 +100,7 @@ export function IncomingCallModal() {
 
           <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#8696a0] uppercase tracking-wider">
             <Lock className="h-3 w-3 text-[#00a884]" />
-            <span>Tele-OPD Video Consultation</span>
+            <span>{isAudioCall ? "Tele-OPD Voice Call" : "Tele-OPD Video Call"}</span>
           </div>
 
           <h2 className="text-2xl font-black text-white tracking-tight pt-1">
@@ -107,7 +108,7 @@ export function IncomingCallModal() {
           </h2>
           <p className="text-xs text-[#00a884] font-medium flex items-center justify-center gap-1">
             <span className="h-2 w-2 rounded-full bg-[#00a884] animate-ping" />
-            <span>Incoming video consultation...</span>
+            <span>{isAudioCall ? "Incoming voice consultation..." : "Incoming video consultation..."}</span>
           </p>
         </div>
 
@@ -156,9 +157,11 @@ export function IncomingCallModal() {
               onClick={handleAccept}
               className="h-16 w-16 rounded-full bg-[#00a884] hover:bg-[#008f6f] active:scale-90 text-white flex items-center justify-center shadow-lg shadow-[#00a884]/30 transition-all animate-bounce cursor-pointer"
             >
-              <Video className="h-7 w-7" />
+              {isAudioCall ? <Phone className="h-7 w-7" /> : <Video className="h-7 w-7" />}
             </button>
-            <span className="text-[11px] font-bold text-[#00a884]">Accept Video</span>
+            <span className="text-[11px] font-bold text-[#00a884]">
+              {isAudioCall ? "Accept Call" : "Accept Video"}
+            </span>
           </div>
         </div>
 
