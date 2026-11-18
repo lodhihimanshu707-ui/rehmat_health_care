@@ -18,6 +18,8 @@ import {
   AlertCircle,
   ArrowRight,
   ShieldCheck,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
@@ -29,6 +31,7 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [role, setRole] = useState<"patient" | "doctor">("patient");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,12 +137,24 @@ export default function RegisterPage() {
                 <Lock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                 <Input
                   required
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="At least 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-9 text-xs h-10 rounded-xl"
+                  className="pl-9 pr-10 text-xs h-10 rounded-xl"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
             </div>
 
